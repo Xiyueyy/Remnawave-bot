@@ -25,13 +25,13 @@ from app.database.models import Tariff, User
 from app.localization.texts import get_texts
 from app.states import AdminStates
 from app.utils.decorators import admin_required, error_handler
+from app.utils.display_names import escape_display_name, localize_display_name
 from app.utils.formatting import format_period, format_price_kopeks, format_traffic
 
 
 logger = structlog.get_logger(__name__)
 
 ITEMS_PER_PAGE = 10
-MAX_TARIFF_PERIOD_DAYS = 3650
 
 
 def _parse_period_prices(text: str) -> dict[str, int]:
@@ -94,27 +94,6 @@ def _format_period_prices_for_edit(prices: dict[str, int]) -> str:
         parts.append(f'{period_str}:{prices[period_str]}')
 
     return ', '.join(parts)
-
-
-def _validate_period_prices(prices: dict[str, int]) -> str | None:
-    """Проверяет цены периодов перед сохранением."""
-    if not prices:
-        return '❌ 未识别到有效的周期价格。'
-
-    invalid_periods = sorted(
-        [int(period_str) for period_str in prices.keys() if int(period_str) > MAX_TARIFF_PERIOD_DAYS]
-    )
-    if invalid_periods:
-        periods_text = '、'.join(str(period) for period in invalid_periods)
-        return (
-            f'❌ 周期天数不能超过 {MAX_TARIFF_PERIOD_DAYS} 天。\n'
-            f'检测到异常天数：<code>{periods_text}</code>\n\n'
-            '请按“天数:价格”填写。\n'
-            '例如一年可填写：<code>360:999999</code>\n'
-            '前面是天数，后面才是价格（单位：分）。'
-        )
-
-    return None
 
 
 def get_tariffs_list_keyboard(
@@ -284,9 +263,9 @@ def _format_traffic_topup_packages(tariff: Tariff) -> str:
 
     packages = tariff.get_traffic_topup_packages() if hasattr(tariff, 'get_traffic_topup_packages') else {}
     if not packages:
-        return '⚠️ 已启用，但未配置套餐'
+        return '⚠️ 已启用，但未配置流量包'
 
-    lines = ['✅ 已启用']
+    lines = ['✅ 已配置流量包']
     for gb in sorted(packages.keys()):
         price = packages[gb]
         lines.append(f'  • {gb} GB: {format_price_kopeks(price)}')
@@ -309,7 +288,7 @@ def format_tariff_info(tariff: Tariff, language: str, subs_count: int = 0) -> st
     # Форматируем промогруппы
     promo_groups = tariff.allowed_promo_groups or []
     if promo_groups:
-        promo_display = ', '.join(pg.name for pg in promo_groups)
+        promo_display = '、'.join(escape_display_name(pg.name) for pg in promo_groups)
     else:
         promo_display = '全部用户可用'
 
@@ -937,11 +916,6 @@ async def process_tariff_prices(
         )
         return
 
-    validation_error = _validate_period_prices(prices)
-    if validation_error:
-        await message.answer(validation_error, parse_mode='HTML')
-        return
-
     data = await state.get_data()
     await state.update_data(tariff_prices=prices)
 
@@ -1369,11 +1343,6 @@ async def process_edit_tariff_prices(
         )
         return
 
-    validation_error = _validate_period_prices(prices)
-    if validation_error:
-        await message.answer(validation_error, parse_mode='HTML')
-        return
-
     tariff = await update_tariff(db, tariff, period_prices=prices)
     await state.clear()
 
@@ -1718,7 +1687,7 @@ async def start_edit_tariff_traffic_topup(
                 f'  • {gb} GB: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
             )
         else:
-            packages_display = '  未配置套餐'
+            packages_display = '  未配置流量包'
     else:
         status = '❌ 已禁用'
         packages_display = '  -'
@@ -1803,7 +1772,7 @@ async def toggle_tariff_traffic_topup(
                 f'  • {gb} GB: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
             )
         else:
-            packages_display = '  未配置套餐'
+            packages_display = '  未配置流量包'
     else:
         status = '❌ 已禁用'
         packages_display = '  -'
@@ -1882,7 +1851,7 @@ async def start_edit_traffic_topup_packages(
         packages_display = '  未设置'
 
     await callback.message.edit_text(
-        f'📦 <b>配置额外流量购买套餐</b>\n\n套餐：<b>{html.escape(tariff.name)}</b>\n\n<b>当前套餐：</b>\n{packages_display}\n\n请按以下格式输入套餐：\n<code>{current_packages}</code>\n\n格式：GB:价格（单位：分），可用逗号分隔。\n例如：<code>5:5000, 10:9000</code> = 5GB 为 50₽，10GB 为 90₽',
+        f'📦 <b>配置额外流量包</b>\n\n套餐：<b>{html.escape(tariff.name)}</b>\n\n<b>当前流量包：</b>\n{packages_display}\n\n请按以下格式输入流量包：\n<code>{current_packages}</code>\n\n格式：GB:价格（单位：分），可用逗号分隔。\n例如：<code>5:5000, 10:9000</code> = 5GB 为 50₽，10GB 为 90₽',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text=texts.CANCEL, callback_data=f'admin_tariff_edit_traffic_topup:{tariff_id}')]
@@ -1922,7 +1891,7 @@ async def process_edit_traffic_topup_packages(
 
     if not packages:
         await message.answer(
-            '无法识别套餐。\n\n格式：<code>GB:价格（单位：分）</code>\n示例：<code>5:5000, 10:9000, 20:15000</code>',
+            '无法识别流量包。\n\n格式：<code>GB:价格（单位：分）</code>\n示例：<code>5:5000, 10:9000, 20:15000</code>',
             parse_mode='HTML',
         )
         return
@@ -2040,7 +2009,7 @@ async def process_edit_max_topup_traffic(
             f'  • {gb} GB: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
         )
     else:
-        packages_display = '  未配置套餐'
+        packages_display = '  未配置流量包'
 
     max_limit_display = f'{new_limit} GB' if new_limit > 0 else '不限'
 
@@ -2221,7 +2190,7 @@ async def start_edit_tariff_squads(
 
     buttons.append(
         [
-            InlineKeyboardButton(text='🔄清除一切', callback_data=f'admin_tariff_clear_squads:{tariff_id}'),
+            InlineKeyboardButton(text='🔄 清空选择', callback_data=f'admin_tariff_clear_squads:{tariff_id}'),
             InlineKeyboardButton(text='✅ 选择全部', callback_data=f'admin_tariff_select_all_squads:{tariff_id}'),
         ]
     )
@@ -2282,7 +2251,7 @@ async def toggle_tariff_squad(
 
     buttons.append(
         [
-            InlineKeyboardButton(text='🔄清除一切', callback_data=f'admin_tariff_clear_squads:{tariff_id}'),
+            InlineKeyboardButton(text='🔄 清空选择', callback_data=f'admin_tariff_clear_squads:{tariff_id}'),
             InlineKeyboardButton(text='✅ 选择全部', callback_data=f'admin_tariff_select_all_squads:{tariff_id}'),
         ]
     )
@@ -2344,7 +2313,7 @@ async def clear_tariff_squads(
 
     buttons.append(
         [
-            InlineKeyboardButton(text='🔄清除一切', callback_data=f'admin_tariff_clear_squads:{tariff_id}'),
+            InlineKeyboardButton(text='🔄 清空选择', callback_data=f'admin_tariff_clear_squads:{tariff_id}'),
             InlineKeyboardButton(text='✅ 选择全部', callback_data=f'admin_tariff_select_all_squads:{tariff_id}'),
         ]
     )
@@ -2405,7 +2374,7 @@ async def select_all_tariff_squads(
 
     buttons.append(
         [
-            InlineKeyboardButton(text='🔄清除一切', callback_data=f'admin_tariff_clear_squads:{tariff_id}'),
+            InlineKeyboardButton(text='🔄 清空选择', callback_data=f'admin_tariff_clear_squads:{tariff_id}'),
             InlineKeyboardButton(text='✅ 选择全部', callback_data=f'admin_tariff_select_all_squads:{tariff_id}'),
         ]
     )
@@ -2452,7 +2421,7 @@ async def start_edit_tariff_promo_groups(
     promo_groups_data = await get_promo_groups_with_counts(db)
 
     if not promo_groups_data:
-        await callback.answer('没有促销组', show_alert=True)
+        await callback.answer('未找到促销组', show_alert=True)
         return
 
     current_groups = {pg.id for pg in (tariff.allowed_promo_groups or [])}
@@ -2464,7 +2433,7 @@ async def start_edit_tariff_promo_groups(
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text=f'{prefix} {promo_group.name}',
+                    text=f'{prefix} {localize_display_name(promo_group.name)}',
                     callback_data=f'admin_tariff_toggle_promo:{tariff_id}:{promo_group.id}',
                 )
             ]
@@ -2472,7 +2441,7 @@ async def start_edit_tariff_promo_groups(
 
     buttons.append(
         [
-            InlineKeyboardButton(text='🔄清除一切', callback_data=f'admin_tariff_clear_promo:{tariff_id}'),
+            InlineKeyboardButton(text='🔄 清空选择', callback_data=f'admin_tariff_clear_promo:{tariff_id}'),
         ]
     )
     buttons.append([InlineKeyboardButton(text=texts.BACK, callback_data=f'admin_tariff_view:{tariff_id}')])
@@ -2480,7 +2449,7 @@ async def start_edit_tariff_promo_groups(
     selected_count = len(current_groups)
 
     await callback.message.edit_text(
-        f'👥 <b>套餐“{html.escape(tariff.name)}”的促销组</b>\n\n已选择: {selected_count}\n\n如果未选择任何团体，则该套餐适用于所有人。\n选择适用此套餐的组：',
+        f'👥 <b>套餐“{html.escape(tariff.name)}”的促销组</b>\n\n已选择：{selected_count}\n\n如果未选择任何促销组，则该套餐适用于所有用户。\n请选择适用于此套餐的促销组：',
         reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),
         parse_mode='HTML',
     )
@@ -2530,7 +2499,7 @@ async def toggle_tariff_promo_group(
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text=f'{prefix} {promo_group.name}',
+                    text=f'{prefix} {localize_display_name(promo_group.name)}',
                     callback_data=f'admin_tariff_toggle_promo:{tariff_id}:{promo_group.id}',
                 )
             ]
@@ -2538,14 +2507,14 @@ async def toggle_tariff_promo_group(
 
     buttons.append(
         [
-            InlineKeyboardButton(text='🔄清除一切', callback_data=f'admin_tariff_clear_promo:{tariff_id}'),
+            InlineKeyboardButton(text='🔄 清空选择', callback_data=f'admin_tariff_clear_promo:{tariff_id}'),
         ]
     )
     buttons.append([InlineKeyboardButton(text=texts.BACK, callback_data=f'admin_tariff_view:{tariff_id}')])
 
     try:
         await callback.message.edit_text(
-            f'👥 <b>套餐“{html.escape(tariff.name)}”的促销组</b>\n\n已选择: {len(current_groups)}\n\n如果未选择任何团体，则该套餐适用于所有人。\n选择适用此套餐的组：',
+            f'👥 <b>套餐“{html.escape(tariff.name)}”的促销组</b>\n\n已选择：{len(current_groups)}\n\n如果未选择任何促销组，则该套餐适用于所有用户。\n请选择适用于此套餐的促销组：',
             reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),
             parse_mode='HTML',
         )
@@ -2573,7 +2542,7 @@ async def clear_tariff_promo_groups(
         return
 
     await set_tariff_promo_groups(db, tariff, [])
-    await callback.answer('所有促销组已被清除')
+    await callback.answer('已清空所有促销组选择')
 
     # Перерисовываем меню
     promo_groups_data = await get_promo_groups_with_counts(db)
@@ -2584,7 +2553,7 @@ async def clear_tariff_promo_groups(
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text=f'⬜ {promo_group.name}',
+                    text=f'⬜ {localize_display_name(promo_group.name)}',
                     callback_data=f'admin_tariff_toggle_promo:{tariff_id}:{promo_group.id}',
                 )
             ]
@@ -2592,14 +2561,14 @@ async def clear_tariff_promo_groups(
 
     buttons.append(
         [
-            InlineKeyboardButton(text='🔄清除一切', callback_data=f'admin_tariff_clear_promo:{tariff_id}'),
+            InlineKeyboardButton(text='🔄 清空选择', callback_data=f'admin_tariff_clear_promo:{tariff_id}'),
         ]
     )
     buttons.append([InlineKeyboardButton(text=texts.BACK, callback_data=f'admin_tariff_view:{tariff_id}')])
 
     try:
         await callback.message.edit_text(
-            f'👥 <b>套餐“{html.escape(tariff.name)}”的促销组</b>\n\n已选择: 0\n\n如果未选择任何团体，则该套餐适用于所有人。\n选择适用此套餐的组：',
+            f'👥 <b>套餐“{html.escape(tariff.name)}”的促销组</b>\n\n已选择：0\n\n如果未选择任何促销组，则该套餐适用于所有用户。\n请选择适用于此套餐的促销组：',
             reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),
             parse_mode='HTML',
         )
@@ -2624,9 +2593,12 @@ def get_traffic_reset_mode_keyboard(tariff_id: int, current_mode: str | None, la
     buttons = []
 
     # Кнопка "Глобальная настройка"
-    global_label = (
-        f'{"✅ " if current_mode is None else ""}🌐 全局设置 ({settings.DEFAULT_TRAFFIC_RESET_STRATEGY})'
+    default_mode_map = {mode_value: mode_label for mode_value, mode_label, _ in TRAFFIC_RESET_MODES}
+    default_mode_label = default_mode_map.get(
+        settings.DEFAULT_TRAFFIC_RESET_STRATEGY,
+        settings.DEFAULT_TRAFFIC_RESET_STRATEGY,
     )
+    global_label = f'{"✅ " if current_mode is None else ""}🌐 全局设置（{default_mode_label}）'
     buttons.append(
         [InlineKeyboardButton(text=global_label, callback_data=f'admin_tariff_set_reset_mode:{tariff_id}:GLOBAL')]
     )
