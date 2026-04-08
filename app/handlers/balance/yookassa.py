@@ -424,7 +424,7 @@ async def process_yookassa_sbp_payment_amount(
 
         # Подготавливаем текст сообщения
         message_text = (
-            f"🔗<b>通过QQQTERM74QQ</b>付款\n\n💰 金额：{settings.format_price(amount_kopeks)}\n🆔 ID 付款：{payment_result['yookassa_payment_id'][:8]}..."
+            f"🔗 <b>通过 YooKassa（SBP）付款</b>\n\n💰 金额：{settings.format_price(amount_kopeks)}\n🆔 付款 ID：{payment_result['yookassa_payment_id'][:8]}..."
         )
 
         # Добавляем инструкции в зависимости от доступных способов оплаты

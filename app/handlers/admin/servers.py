@@ -132,11 +132,11 @@ async def show_servers_list(callback: types.CallbackQuery, db_user: User, db: As
         text = '🌐 <b>服务器列表</b>\n\n❌ 未找到服务器。'
     else:
         text = '🌐 <b>服务器列表</b>'
-        text += f'📊 总计：{total_count} |页码：{page}/QQQPH2QQQ'
+        text += f'\n📊 总计：{total_count} | 页码：{page}/{total_pages}\n\n'
 
         for i, server in enumerate(servers, 1 + (page - 1) * 10):
             status_emoji = '✅' if server.is_available else '❌'
-            price_text = f'{int(server.price_rubles)} ₽' if server.price_kopeks > 0 else 'Бесплатно'
+            price_text = f'{int(server.price_rubles)} ₽' if server.price_kopeks > 0 else '免费'
 
             text += f'{i}. {status_emoji} {html.escape(server.display_name)}\n'
             text += f'💰价格：{price_text}'

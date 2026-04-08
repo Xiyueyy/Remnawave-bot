@@ -100,11 +100,11 @@ def validate_html_tags(text: str) -> tuple[bool, str]:
         if closing:
             # Это закрывающий тег
             if not stack:
-                return False, f'额外结束标签：</QQQPH0QQQ>'
+                return False, f'额外结束标签：</{tag}>'
 
             last_opening_tag = stack.pop()
             if last_opening_tag.lower() != tag_lower:
-                return False, f'</QQQPH0QQQ> 标记与开始标记 <{last_opening_tag}> 不匹配'
+                return False, f'</{tag}> 标记与开始标记 <{last_opening_tag}> 不匹配'
         else:
             # Это открывающий тег
             stack.append(tag)

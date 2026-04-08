@@ -98,21 +98,21 @@ async def show_subscriptions_list(callback: types.CallbackQuery, db_user: User, 
         text = '📱 <b>订阅列表</b>\n\n❌ 未找到订阅。'
     else:
         text = '📱 <b>订阅列表</b>'
-        text += f'📊 总计：{total_count} |页码：{page}/QQQPH2QQQ'
+        text += f'\n📊 总计：{total_count} | 页码：{page}/{total_pages}\n\n'
 
         for i, sub in enumerate(subscriptions, 1 + (page - 1) * 10):
             user_info = (
                 (f'ID{sub.user.telegram_id}' if sub.user.telegram_id else sub.user.email or f'#{sub.user.id}')
                 if sub.user
-                else 'Неизвестно'
+                else '未知'
             )
             sub_type = '🎁' if sub.is_trial else '💎'
-            status = '✅ Активна' if sub.is_active else '❌ Неактивна'
+            status = '✅ 活跃' if sub.is_active else '❌ 未激活'
 
             text += f'{i}. {sub_type} {user_info}\n'
-            text += f'{status} |之前：{format_datetime(sub.end_date)}'
+            text += f'{status} | 到期：{format_datetime(sub.end_date)}'
             if sub.device_limit > 0:
-                text += f'📱 设备：{sub.device_limit}'
+                text += f' | 📱 设备：{sub.device_limit}'
             text += '\n'
 
     keyboard = []

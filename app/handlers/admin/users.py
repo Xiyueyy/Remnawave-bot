@@ -249,7 +249,7 @@ async def _show_users_list_filtered(
         return
 
     # Формируем текст заголовка
-    text = f'{config.title}（页面{page}/QQQPH2QQQ）'
+    text = f'{config.title}（第 {page}/{users_data["total_pages"]} 页）'
     text += '点击用户进行管理：'
 
     # Формируем клавиатуру
@@ -323,7 +323,7 @@ async def show_users_list(
         await callback.answer()
         return
 
-    text = f'👥 <b>用户列表</b>（页面{page}/QQQPH1QQQ）'
+    text = f'👥 <b>用户列表</b>（第 {page}/{users_data["total_pages"]} 页）'
     text += '点击用户进行管理：'
 
     keyboard = []

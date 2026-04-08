@@ -153,7 +153,7 @@ async def process_cloudpayments_payment_amount(
 
     if not settings.is_cloudpayments_enabled():
         await message.answer(
-            texts.t('CLOUDPAYMENTS_NOT_AVAILABLE', 'QQQTERM57QQ暂时无法使用'),
+            texts.t('CLOUDPAYMENTS_NOT_AVAILABLE', 'CloudPayments 暂时无法使用'),
         )
         return
 
@@ -217,7 +217,7 @@ async def start_cloudpayments_payment(
 
     if not settings.is_cloudpayments_enabled():
         await callback.answer(
-            texts.t('CLOUDPAYMENTS_NOT_AVAILABLE', 'QQQTERM57QQ暂时无法使用'),
+            texts.t('CLOUDPAYMENTS_NOT_AVAILABLE', 'CloudPayments 暂时无法使用'),
             show_alert=True,
         )
         return

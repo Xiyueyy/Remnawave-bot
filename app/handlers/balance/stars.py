@@ -120,7 +120,7 @@ async def process_stars_payment_amount(message: types.Message, db_user: User, am
                 logger.warning('Не удалось удалить сообщение с запросом суммы Stars', delete_error=delete_error)
 
         invoice_message = await message.answer(
-            f'⭐ <b>通过QQQTERM70QQ</b>付款\n\n💰 金额：{texts.format_price(amount_kopeks)}\n⭐ 付款方式：{stars_amount}星星\n📊 价格：每颗星 {stars_rate}₽\n\n点击下方按钮进行支付：',
+            f'⭐ <b>通过 Telegram Stars 付款</b>\n\n💰 金额：{texts.format_price(amount_kopeks)}\n⭐ 付款方式：{stars_amount} 星星\n📊 价格：每颗星 {stars_rate} ₽\n\n点击下方按钮进行支付：',
             reply_markup=keyboard,
             parse_mode='HTML',
         )
