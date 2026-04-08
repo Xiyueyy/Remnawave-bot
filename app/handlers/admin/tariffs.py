@@ -31,6 +31,7 @@ from app.utils.formatting import format_period, format_price_kopeks, format_traf
 logger = structlog.get_logger(__name__)
 
 ITEMS_PER_PAGE = 10
+MAX_TARIFF_PERIOD_DAYS = 3650
 
 
 def _parse_period_prices(text: str) -> dict[str, int]:
@@ -72,7 +73,7 @@ def _parse_period_prices(text: str) -> dict[str, int]:
 def _format_period_prices_display(prices: dict[str, int]) -> str:
     """Форматирует цены периодов для отображения."""
     if not prices:
-        return '未指定'
+        return '未设置'
 
     lines = []
     for period_str in sorted(prices.keys(), key=int):
@@ -93,6 +94,27 @@ def _format_period_prices_for_edit(prices: dict[str, int]) -> str:
         parts.append(f'{period_str}:{prices[period_str]}')
 
     return ', '.join(parts)
+
+
+def _validate_period_prices(prices: dict[str, int]) -> str | None:
+    """Проверяет цены периодов перед сохранением."""
+    if not prices:
+        return '❌ 未识别到有效的周期价格。'
+
+    invalid_periods = sorted(
+        [int(period_str) for period_str in prices.keys() if int(period_str) > MAX_TARIFF_PERIOD_DAYS]
+    )
+    if invalid_periods:
+        periods_text = '、'.join(str(period) for period in invalid_periods)
+        return (
+            f'❌ 周期天数不能超过 {MAX_TARIFF_PERIOD_DAYS} 天。\n'
+            f'检测到异常天数：<code>{periods_text}</code>\n\n'
+            '请按“天数:价格”填写。\n'
+            '例如一年可填写：<code>360:999999</code>\n'
+            '前面是天数，后面才是价格（单位：分）。'
+        )
+
+    return None
 
 
 def get_tariffs_list_keyboard(
@@ -247,20 +269,24 @@ def _format_traffic_reset_mode(mode: str | None) -> str:
         'NO_RESET': '🚫 不重置',
     }
     if mode is None:
-        return f'🌐 全局设置 ({settings.DEFAULT_TRAFFIC_RESET_STRATEGY})'
+        default_mode_label = mode_labels.get(
+            settings.DEFAULT_TRAFFIC_RESET_STRATEGY,
+            settings.DEFAULT_TRAFFIC_RESET_STRATEGY,
+        )
+        return f'🌐 全局设置（{default_mode_label}）'
     return mode_labels.get(mode, f'⚠️ 未知模式 ({mode})')
 
 
 def _format_traffic_topup_packages(tariff: Tariff) -> str:
     """Форматирует пакеты докупки трафика для отображения."""
     if not getattr(tariff, 'traffic_topup_enabled', False):
-        return '❌ 残疾人'
+        return '❌ 未启用'
 
     packages = tariff.get_traffic_topup_packages() if hasattr(tariff, 'get_traffic_topup_packages') else {}
     if not packages:
-        return '✅ 已启用，但未配置包'
+        return '⚠️ 已启用，但未配置套餐'
 
-    lines = ['✅ 包含在内']
+    lines = ['✅ 已启用']
     for gb in sorted(packages.keys()):
         price = packages[gb]
         lines.append(f'  • {gb} GB: {format_price_kopeks(price)}')
@@ -853,7 +879,7 @@ async def select_tariff_type_periodic(
     traffic_display = format_traffic(data['tariff_traffic'])
 
     await callback.message.edit_text(
-        f"📦 <b>创建套餐</b>\n\n名称：<b>{html.escape(data['tariff_name'])}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{data['tariff_devices']}</b>\n级别：<b>{data['tariff_tier']}</b>\n类型：<b>📅 周期套餐</b>\n\n步骤 6/6：输入各周期价格\n\n格式：<code>天数:价格（单位：分）</code>\n可用英文逗号、中文逗号或换行分隔。\n\n示例：\n<code>30:9900, 90:24900, 180:44900, 360:79900</code>",
+        f"📦 <b>创建套餐</b>\n\n名称：<b>{html.escape(data['tariff_name'])}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{data['tariff_devices']}</b>\n级别：<b>{data['tariff_tier']}</b>\n类型：<b>📅 周期套餐</b>\n\n步骤 6/6：输入各周期价格\n\n格式：<code>天数:价格（单位：分）</code>\n可用英文逗号、中文逗号或换行分隔。\n注意：前面是天数，后面才是价格。\n\n示例：\n<code>30:9900, 90:24900, 180:44900, 360:79900</code>",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data='admin_tariffs')]]
         ),
@@ -909,6 +935,11 @@ async def process_tariff_prices(
             '无法识别价格。\n\n格式：<code>天数:价格（单位：分）</code>\n示例：<code>30:9900, 90:24900</code>',
             parse_mode='HTML',
         )
+        return
+
+    validation_error = _validate_period_prices(prices)
+    if validation_error:
+        await message.answer(validation_error, parse_mode='HTML')
         return
 
     data = await state.get_data()
@@ -1336,6 +1367,11 @@ async def process_edit_tariff_prices(
             '无法识别价格。\n格式：<code>天数:价格</code>\n示例：<code>30:9900, 90:24900</code>',
             parse_mode='HTML',
         )
+        return
+
+    validation_error = _validate_period_prices(prices)
+    if validation_error:
+        await message.answer(validation_error, parse_mode='HTML')
         return
 
     tariff = await update_tariff(db, tariff, period_prices=prices)
