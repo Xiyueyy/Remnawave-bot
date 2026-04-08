@@ -55,6 +55,8 @@ from app.services.trial_activation_service import (
 )
 from app.services.user_cart_service import user_cart_service
 from app.utils.decorators import error_handler
+from app.utils.display_names import escape_display_name
+from app.utils.formatting import format_period, format_price_kopeks, format_traffic
 
 
 logger = structlog.get_logger(__name__)
@@ -355,12 +357,12 @@ async def show_subscription_info(callback: types.CallbackQuery, db_user: User, d
 
                 # Формируем блок информации о тарифе
                 is_daily = getattr(tariff, 'is_daily', False)
-                tariff_type_str = '🔄 Суточный' if is_daily else '📅 Периодный'
+                tariff_type_str = '🔄 按天计费' if is_daily else '📅 周期套餐'
 
                 tariff_info_lines = [
-                    f'<b>📦 {html.escape(tariff.name)}</b>',
+                    f'<b>📦 {escape_display_name(tariff.name)}</b>',
                     f'类型：{tariff_type_str}',
-                    f'Трафик: {tariff.traffic_limit_gb} ГБ' if tariff.traffic_limit_gb > 0 else 'Трафик: ∞ Безлимит',
+                    f'流量：{format_traffic(tariff.traffic_limit_gb)}',
                     f'设备：{tariff.device_limit}',
                 ]
 
@@ -381,8 +383,7 @@ async def show_subscription_info(callback: types.CallbackQuery, db_user: User, d
                         )
                     else:
                         daily_kopeks = raw_daily_kopeks
-                    daily_price = daily_kopeks / 100
-                    tariff_info_lines.append(f'Цена: {daily_price:.2f} ₽/день')
+                    tariff_info_lines.append(f'价格：{format_price_kopeks(daily_kopeks)}/天')
 
                     # Прогресс-бар до следующего списания
                     last_charge = getattr(subscription, 'last_daily_charge_at', None)
@@ -390,7 +391,7 @@ async def show_subscription_info(callback: types.CallbackQuery, db_user: User, d
 
                     if is_paused:
                         tariff_info_lines.append('')
-                        tariff_info_lines.append('⏸️ <b>Подписка приостановлена</b>')
+                        tariff_info_lines.append('⏸️ <b>订阅已暂停</b>')
                         # Показываем оставшееся время даже при паузе
                         if last_charge:
                             next_charge = last_charge + timedelta(hours=24)
@@ -399,8 +400,8 @@ async def show_subscription_info(callback: types.CallbackQuery, db_user: User, d
                                 time_until = next_charge - now
                                 hours_left = time_until.seconds // 3600
                                 minutes_left = (time_until.seconds % 3600) // 60
-                                tariff_info_lines.append(f'⏳ Осталось: {hours_left}ч {minutes_left}мин')
-                                tariff_info_lines.append('💤 Списание приостановлено')
+                                tariff_info_lines.append(f'⏳ 剩余：{hours_left}小时 {minutes_left}分钟')
+                                tariff_info_lines.append('💤 扣费已暂停')
                     elif last_charge:
                         next_charge = last_charge + timedelta(hours=24)
                         now = datetime.now(UTC)
@@ -422,11 +423,11 @@ async def show_subscription_info(callback: types.CallbackQuery, db_user: User, d
                             progress_bar = '▓' * filled + '░' * empty
 
                             tariff_info_lines.append('')
-                            tariff_info_lines.append(f'⏳ До списания: {hours_left}ч {minutes_left}мин')
+                            tariff_info_lines.append(f'⏳ 距离下次扣费：{hours_left}小时 {minutes_left}分钟')
                             tariff_info_lines.append(f'[{progress_bar}] {percent:.0f}%')
                     else:
                         tariff_info_lines.append('')
-                        tariff_info_lines.append('⏳ Первое списание скоро')
+                        tariff_info_lines.append('⏳ 即将首次扣费')
 
                 tariff_info_block = '\n<blockquote expandable>' + '\n'.join(tariff_info_lines) + '</blockquote>'
 
@@ -450,7 +451,7 @@ async def show_subscription_info(callback: types.CallbackQuery, db_user: User, d
 
     if not show_devices:
         message_template = message_template.replace(
-            '\n📱 Устройства: {devices_used} / {device_limit}',
+            '\n📱设备：{devices_used}/{device_limit}',
             '',
         )
 
@@ -839,7 +840,7 @@ async def activate_trial(callback: types.CallbackQuery, db_user: User, db: Async
             except Exception as e:
                 logger.error('Ошибка получения триального тарифа для платного триала', error=e)
 
-        traffic_label = 'Безлимит' if paid_trial_traffic == 0 else f'{paid_trial_traffic} ГБ'
+        traffic_label = format_traffic(paid_trial_traffic)
 
         message_lines = [
             texts.t('PAID_TRIAL_HEADER', '⚡ <b>试用订阅</b>'),
@@ -1244,7 +1245,9 @@ async def activate_trial(callback: types.CallbackQuery, db_user: User, db: Async
                 parse_mode='HTML',
             )
         else:
-            trial_success_text = f"{texts.TRIAL_ACTIVATED}\n\n⚠️ Ссылка генерируется, попробуйте перейти в раздел 'Моя подписка' через несколько секунд."
+            trial_success_text = (
+                f"{texts.TRIAL_ACTIVATED}\n\n⚠️ 链接正在生成中，请稍后前往“我的订阅”页面查看。"
+            )
             trial_success_text += payment_note
             await callback.message.edit_text(
                 trial_success_text,
@@ -1548,10 +1551,10 @@ async def return_to_saved_cart(callback: types.CallbackQuery, state: FSMContext,
         traffic_value = prepared_cart_data.get('traffic_gb')
         if traffic_value is None:
             traffic_value = settings.get_fixed_traffic_limit()
-        traffic_display = 'Безлимитный' if traffic_value == 0 else f'{traffic_value} ГБ'
+        traffic_display = format_traffic(traffic_value)
     else:
         traffic_value = prepared_cart_data.get('traffic_gb', 0) or 0
-        traffic_display = 'Безлимитный' if traffic_value == 0 else f'{traffic_value} ГБ'
+        traffic_display = format_traffic(traffic_value)
 
     summary_lines = [
         '🛒 翻新购物车',
@@ -1564,7 +1567,7 @@ async def return_to_saved_cart(callback: types.CallbackQuery, state: FSMContext,
     if settings.is_devices_selection_enabled():
         devices_value = prepared_cart_data.get('devices')
         if devices_value is not None:
-            summary_lines.append(f'📱 Устройства: {devices_value}')
+            summary_lines.append(f'📱 设备：{devices_value}')
 
     summary_lines.extend(
         [
@@ -1766,22 +1769,22 @@ async def handle_extend_subscription(
     )
 
     renewal_lines = [
-        '⏰ Продление подписки',
+        '⏰ 续订订阅',
         '',
-        f'Осталось дней: {subscription.days_left}',
+        f'剩余天数：{subscription.days_left}',
         '',
-        '<b>Ваша текущая конфигурация:</b>',
-        f'🌍 Серверов: {len(subscription.connected_squads or [])}',
-        f'📊 Трафик: {texts.format_traffic(subscription.traffic_limit_gb)}',
+        '<b>您当前的配置：</b>',
+        f'🌍 服务器：{len(subscription.connected_squads or [])}',
+        f'📊 流量：{format_traffic(subscription.traffic_limit_gb)}',
     ]
 
     if settings.is_devices_selection_enabled():
-        renewal_lines.append(f'📱 Устройств: {subscription.device_limit}')
+        renewal_lines.append(f'📱 设备：{subscription.device_limit}')
 
     renewal_lines.extend(
         [
             '',
-            '<b>Выберите период продления:</b>',
+            '<b>请选择续订周期：</b>',
             prices_text.rstrip(),
             '',
         ]
@@ -2906,7 +2909,7 @@ async def handle_subscription_settings(callback: types.CallbackQuery, db_user: U
 
     if not show_devices:
         settings_template = settings_template.replace(
-            '\n📱 Устройства: {devices_used} / {devices_limit}',
+            '\n📱设备：{devices_used}/{devices_limit}',
             '',
         )
 
@@ -3398,7 +3401,9 @@ async def handle_trial_pay_with_balance(callback: types.CallbackQuery, db_user: 
                 parse_mode='HTML',
             )
         else:
-            trial_success_text = f"{texts.TRIAL_ACTIVATED}\n\n⚠️ Ссылка генерируется, попробуйте перейти в раздел 'Моя подписка' через несколько секунд."
+            trial_success_text = (
+                f"{texts.TRIAL_ACTIVATED}\n\n⚠️ 链接正在生成中，请稍后前往“我的订阅”页面查看。"
+            )
             trial_success_text += payment_note
 
             await callback.message.edit_text(
@@ -3639,7 +3644,7 @@ async def handle_trial_payment_method(callback: types.CallbackQuery, db_user: Us
             await callback.answer('❌ 无法准备订单。请稍后重试。', show_alert=True)
             return
 
-        traffic_label = 'Безлимит' if trial_traffic == 0 else f'{trial_traffic} ГБ'
+        traffic_label = format_traffic(trial_traffic)
 
         if payment_method == 'stars':
             # Оплата через Telegram Stars
@@ -4263,30 +4268,28 @@ async def handle_simple_subscription_purchase(
         price_breakdown_4=price_breakdown.get('servers_price', 0),
         price_breakdown_5=price_breakdown.get('total_discount', 0),
     )
-    traffic_text = (
-        'Безлимит' if subscription_params['traffic_limit_gb'] == 0 else f'{subscription_params["traffic_limit_gb"]} ГБ'
-    )
+    traffic_text = format_traffic(subscription_params['traffic_limit_gb'])
 
     if user_balance_kopeks >= price_kopeks:
         # Если баланс достаточный, предлагаем оплатить с баланса
         simple_lines = [
-            '⚡ <b>Простая покупка подписки</b>',
+            '⚡ <b>快捷购买订阅</b>',
             '',
-            f'📅 Период: {subscription_params["period_days"]} дней',
+            f'📅 周期：{format_period(subscription_params["period_days"])}',
         ]
 
         if settings.is_devices_selection_enabled():
-            simple_lines.append(f'📱 Устройства: {subscription_params["device_limit"]}')
+            simple_lines.append(f'📱 设备：{subscription_params["device_limit"]}')
 
         simple_lines.extend(
             [
-                f'📊 Трафик: {traffic_text}',
-                f'🌍 Сервер: {"Любой доступный" if not subscription_params["squad_uuid"] else "Выбранный"}',
+                f'📊 流量：{traffic_text}',
+                f'🌍 服务器：{"任意可用" if not subscription_params["squad_uuid"] else "已选择"}',
                 '',
-                f'💰 Стоимость: {settings.format_price(price_kopeks)}',
-                f'💳 Ваш баланс: {settings.format_price(user_balance_kopeks)}',
+                f'💰 价格：{settings.format_price(price_kopeks)}',
+                f'💳 您的余额：{settings.format_price(user_balance_kopeks)}',
                 '',
-                'Вы можете оплатить подписку с баланса или выбрать другой способ оплаты.',
+                '您可以使用余额支付订阅，也可以选择其他支付方式。',
             ]
         )
 
@@ -4310,23 +4313,23 @@ async def handle_simple_subscription_purchase(
     else:
         # Если баланс недостаточный, предлагаем внешние способы оплаты
         simple_lines = [
-            '⚡ <b>Простая покупка подписки</b>',
+            '⚡ <b>快捷购买订阅</b>',
             '',
-            f'📅 Период: {subscription_params["period_days"]} дней',
+            f'📅 周期：{format_period(subscription_params["period_days"])}',
         ]
 
         if settings.is_devices_selection_enabled():
-            simple_lines.append(f'📱 Устройства: {subscription_params["device_limit"]}')
+            simple_lines.append(f'📱 设备：{subscription_params["device_limit"]}')
 
         simple_lines.extend(
             [
-                f'📊 Трафик: {traffic_text}',
-                f'🌍 Сервер: {"Любой доступный" if not subscription_params["squad_uuid"] else "Выбранный"}',
+                f'📊 流量：{traffic_text}',
+                f'🌍 服务器：{"任意可用" if not subscription_params["squad_uuid"] else "已选择"}',
                 '',
-                f'💰 Стоимость: {settings.format_price(price_kopeks)}',
-                f'💳 Ваш баланс: {settings.format_price(user_balance_kopeks)}',
+                f'💰 价格：{settings.format_price(price_kopeks)}',
+                f'💳 您的余额：{settings.format_price(user_balance_kopeks)}',
                 '',
-                'Выберите способ оплаты:',
+                '请选择支付方式：',
             ]
         )
 
