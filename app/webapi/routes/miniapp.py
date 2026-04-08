@@ -49,8 +49,8 @@ from app.database.models import (
     PaymentMethod,
     PromoGroup,
     PromoOfferTemplate,
-    订阅,
-    订阅TemporaryAccess,
+    Subscription,
+    SubscriptionTemporaryAccess,
     Transaction,
     TransactionType,
     User,
@@ -73,15 +73,15 @@ from app.services.subscription_purchase_service import (
     purchase_service,
 )
 from app.services.subscription_renewal_service import (
-    订阅RenewalChargeError,
-    订阅RenewalService,
+    SubscriptionRenewalChargeError,
+    SubscriptionRenewalService,
     build_payment_descriptor,
     calculate_missing_amount,
     decode_payment_payload,
     encode_payment_payload,
     with_admin_notification_service,
 )
-from app.services.subscription_service import 订阅Service
+from app.services.subscription_service import SubscriptionService
 from app.services.trial_activation_service import (
     TrialPaymentChargeFailed,
     TrialPaymentInsufficientFunds,
@@ -90,7 +90,7 @@ from app.services.trial_activation_service import (
     revert_trial_activation,
     rollback_trial_subscription_activation,
 )
-from app.services.tribute_service import 致敬支付Service
+from app.services.tribute_service import TributeService
 from app.utils.currency_converter import currency_converter
 from app.utils.pricing_utils import (
     apply_percentage_discount,
@@ -115,7 +115,7 @@ from ..schemas.miniapp import (
     MiniAppAutoPromoGroupLevel,
     MiniAppConnectedServer,
     MiniAppCurrentTariff,
-    MiniAppDaily订阅ToggleRequest,
+    MiniAppDailySubscriptionToggleRequest,
     MiniAppDevice,
     MiniAppDeviceRemovalRequest,
     MiniAppDeviceRemovalResponse,
@@ -149,40 +149,40 @@ from ..schemas.miniapp import (
     MiniAppReferralStats,
     MiniAppReferralTerms,
     MiniAppRichTextDocument,
-    MiniApp订阅Autopay,
-    MiniApp订阅AutopayRequest,
-    MiniApp订阅AutopayResponse,
-    MiniApp订阅BillingContext,
-    MiniApp订阅CurrentSettings,
-    MiniApp订阅DeviceOption,
-    MiniApp订阅DevicesSettings,
-    MiniApp订阅DevicesUpdateRequest,
-    MiniApp订阅PurchaseOptionsRequest,
-    MiniApp订阅PurchaseOptionsResponse,
-    MiniApp订阅PurchasePreviewRequest,
-    MiniApp订阅PurchasePreviewResponse,
-    MiniApp订阅PurchaseRequest,
-    MiniApp订阅PurchaseResponse,
-    MiniApp订阅RenewalOptionsRequest,
-    MiniApp订阅RenewalOptionsResponse,
-    MiniApp订阅RenewalPeriod,
-    MiniApp订阅RenewalRequest,
-    MiniApp订阅RenewalResponse,
-    MiniApp订阅Request,
-    MiniApp订阅Response,
-    MiniApp订阅ServerOption,
-    MiniApp订阅ServersSettings,
-    MiniApp订阅ServersUpdateRequest,
-    MiniApp订阅Settings,
-    MiniApp订阅SettingsRequest,
-    MiniApp订阅SettingsResponse,
-    MiniApp订阅TrafficOption,
-    MiniApp订阅TrafficSettings,
-    MiniApp订阅TrafficUpdateRequest,
-    MiniApp订阅TrialRequest,
-    MiniApp订阅TrialResponse,
-    MiniApp订阅UpdateResponse,
-    MiniApp订阅User,
+    MiniAppSubscriptionAutopay,
+    MiniAppSubscriptionAutopayRequest,
+    MiniAppSubscriptionAutopayResponse,
+    MiniAppSubscriptionBillingContext,
+    MiniAppSubscriptionCurrentSettings,
+    MiniAppSubscriptionDeviceOption,
+    MiniAppSubscriptionDevicesSettings,
+    MiniAppSubscriptionDevicesUpdateRequest,
+    MiniAppSubscriptionPurchaseOptionsRequest,
+    MiniAppSubscriptionPurchaseOptionsResponse,
+    MiniAppSubscriptionPurchasePreviewRequest,
+    MiniAppSubscriptionPurchasePreviewResponse,
+    MiniAppSubscriptionPurchaseRequest,
+    MiniAppSubscriptionPurchaseResponse,
+    MiniAppSubscriptionRenewalOptionsRequest,
+    MiniAppSubscriptionRenewalOptionsResponse,
+    MiniAppSubscriptionRenewalPeriod,
+    MiniAppSubscriptionRenewalRequest,
+    MiniAppSubscriptionRenewalResponse,
+    MiniAppSubscriptionRequest,
+    MiniAppSubscriptionResponse,
+    MiniAppSubscriptionServerOption,
+    MiniAppSubscriptionServersSettings,
+    MiniAppSubscriptionServersUpdateRequest,
+    MiniAppSubscriptionSettings,
+    MiniAppSubscriptionSettingsRequest,
+    MiniAppSubscriptionSettingsResponse,
+    MiniAppSubscriptionTrafficOption,
+    MiniAppSubscriptionTrafficSettings,
+    MiniAppSubscriptionTrafficUpdateRequest,
+    MiniAppSubscriptionTrialRequest,
+    MiniAppSubscriptionTrialResponse,
+    MiniAppSubscriptionUpdateResponse,
+    MiniAppSubscriptionUser,
     MiniAppTariff,
     MiniAppTariffPeriod,
     MiniAppTariffPurchaseRequest,
@@ -202,7 +202,7 @@ logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 promo_code_service = PromoCodeService()
-renewal_service = 订阅RenewalService()
+renewal_service = SubscriptionRenewalService()
 
 
 _CRYPTOBOT_MIN_USD = 1.0
@@ -268,7 +268,7 @@ def _normalize_autopay_days(value: Any | None) -> int | None:
     return numeric if numeric >= 0 else None
 
 
-def _get_autopay_day_options(subscription: 订阅 | None) -> list[int]:
+def _get_autopay_day_options(subscription: Subscription | None) -> list[int]:
     options: set[int] = set()
     for candidate in _AUTOPAY_DEFAULT_DAY_OPTIONS:
         normalized = _normalize_autopay_days(candidate)
@@ -288,8 +288,8 @@ def _get_autopay_day_options(subscription: 订阅 | None) -> list[int]:
 
 
 def _build_autopay_payload(
-    subscription: 订阅 | None,
-) -> MiniApp订阅Autopay | None:
+    subscription: Subscription | None,
+) -> MiniAppSubscriptionAutopay | None:
     if subscription is None:
         return None
 
@@ -322,14 +322,14 @@ def _build_autopay_payload(
         'defaultDaysBefore': default_days,
     }
 
-    return MiniApp订阅Autopay(**autopay_kwargs)
+    return MiniAppSubscriptionAutopay(**autopay_kwargs)
 
 
 def _autopay_response_extras(
     enabled: bool,
     days_before: int | None,
     options: list[int],
-    autopay_payload: MiniApp订阅Autopay | None,
+    autopay_payload: MiniAppSubscriptionAutopay | None,
 ) -> dict[str, Any]:
     extras: dict[str, Any] = {
         'autopayEnabled': enabled,
@@ -407,7 +407,7 @@ def _build_balance_invoice_payload(user_id: int, amount_kopeks: int) -> str:
 
 
 def _merge_purchase_selection_from_request(
-    payload: MiniApp订阅PurchasePreviewRequest | MiniApp订阅PurchaseRequest,
+    payload: MiniAppSubscriptionPurchasePreviewRequest | MiniAppSubscriptionPurchaseRequest,
 ) -> dict[str, Any]:
     base: dict[str, Any] = {}
     if payload.selection:
@@ -654,7 +654,7 @@ def _build_mulenpay_iframe_config() -> MiniAppPaymentIframeConfig | None:
     response_model=MiniAppMaintenanceStatusResponse,
 )
 async def get_maintenance_status(
-    payload: MiniApp订阅Request,
+    payload: MiniAppSubscriptionRequest,
     db: AsyncSession = Depends(get_db_session),
 ) -> MiniAppMaintenanceStatusResponse:
     _, _ = await _resolve_user_from_init_data(db, payload.init_data)
@@ -1437,7 +1437,7 @@ async def create_payment_link(
 
         bot = create_bot()
         try:
-            tribute_service = 致敬支付Service(bot)
+            tribute_service = TributeService(bot)
             payment_url = await tribute_service.create_payment_link(
                 user_id=user.telegram_id,
                 amount_kopeks=amount_kopeks or 0,
@@ -2459,21 +2459,21 @@ def _format_bonus_label(amount_kopeks: int) -> str | None:
 
 async def _find_active_test_access_offers(
     db: AsyncSession,
-    subscription: 订阅 | None,
+    subscription: Subscription | None,
 ) -> list[ActiveOfferContext]:
     if not subscription or not getattr(subscription, 'id', None):
         return []
 
     now = datetime.now(UTC)
     result = await db.execute(
-        select(订阅TemporaryAccess)
-        .options(selectinload(订阅TemporaryAccess.offer))
+        select(SubscriptionTemporaryAccess)
+        .options(selectinload(SubscriptionTemporaryAccess.offer))
         .where(
-            订阅TemporaryAccess.subscription_id == subscription.id,
-            订阅TemporaryAccess.is_active == True,
-            订阅TemporaryAccess.expires_at > now,
+            SubscriptionTemporaryAccess.subscription_id == subscription.id,
+            SubscriptionTemporaryAccess.is_active == True,
+            SubscriptionTemporaryAccess.expires_at > now,
         )
-        .order_by(订阅TemporaryAccess.expires_at.desc())
+        .order_by(SubscriptionTemporaryAccess.expires_at.desc())
     )
 
     entries = list(result.scalars().all())
@@ -2872,13 +2872,13 @@ def _serialize_transaction(transaction: Transaction) -> MiniAppTransaction:
 
 
 async def _load_subscription_links(
-    subscription: 订阅,
+    subscription: Subscription,
 ) -> dict[str, Any]:
     if not subscription.remnawave_short_uuid or not _is_remnawave_configured():
         return {}
 
     try:
-        service = 订阅Service()
+        service = SubscriptionService()
         info = await service.get_subscription_info(subscription.remnawave_short_uuid)
     except Exception as error:  # pragma: no cover - defensive logging
         logger.warning('Failed to load subscription info from RemnaWave', error=error)
@@ -3032,11 +3032,11 @@ def _is_trial_available_for_user(user: User) -> bool:
     return True
 
 
-@router.post('/subscription', response_model=MiniApp订阅Response)
+@router.post('/subscription', response_model=MiniAppSubscriptionResponse)
 async def get_subscription_details(
-    payload: MiniApp订阅Request,
+    payload: MiniAppSubscriptionRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅Response:
+) -> MiniAppSubscriptionResponse:
     # Check maintenance mode first
     if maintenance_service.is_maintenance_active():
         status_info = maintenance_service.get_status_info()
@@ -3120,7 +3120,7 @@ async def get_subscription_details(
     usage_synced = False
 
     if subscription and _is_remnawave_configured():
-        service = 订阅Service()
+        service = SubscriptionService()
         try:
             usage_synced = await service.sync_subscription_usage(db, subscription)
         except Exception as error:  # pragma: no cover - defensive logging
@@ -3407,7 +3407,7 @@ async def get_subscription_details(
             if subscription.end_date:
                 daily_next_charge_at = subscription.end_date
 
-    response_user = MiniApp订阅User(
+    response_user = MiniAppSubscriptionUser(
         telegram_id=user.telegram_id,
         username=user.username,
         first_name=user.first_name,
@@ -3496,7 +3496,7 @@ async def get_subscription_details(
                 }
             )
 
-    return MiniApp订阅Response(
+    return MiniAppSubscriptionResponse(
         traffic_purchases=traffic_purchases_data,
         subscription_id=getattr(subscription, 'id', None),
         remnawave_short_uuid=remnawave_short_uuid,
@@ -3656,17 +3656,17 @@ async def _get_current_tariff_model(db: AsyncSession, subscription, user=None) -
 
 @router.post(
     '/subscription/autopay',
-    response_model=MiniApp订阅AutopayResponse,
+    response_model=MiniAppSubscriptionAutopayResponse,
 )
 async def update_subscription_autopay_endpoint(
-    payload: MiniApp订阅AutopayRequest,
+    payload: MiniAppSubscriptionAutopayRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅AutopayResponse:
+) -> MiniAppSubscriptionAutopayResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(user, subscription_id=payload.subscription_id)
     _validate_subscription_id(payload.subscription_id, subscription)
 
-    # Суточные подписки имеют свой механизм продления (Daily订阅Service),
+    # Суточные подписки имеют свой механизм продления (DailySubscriptionService),
     # глобальный autopay для них запрещён
     target_enabled = bool(payload.enabled) if payload.enabled is not None else bool(subscription.autopay_enabled)
     if target_enabled:
@@ -3720,7 +3720,7 @@ async def update_subscription_autopay_endpoint(
             autopay_days_options,
             autopay_payload,
         )
-        return MiniApp订阅AutopayResponse(
+        return MiniAppSubscriptionAutopayResponse(
             subscription_id=subscription.id,
             autopay_enabled=target_enabled,
             autopay_days_before=autopay_days_before,
@@ -3751,7 +3751,7 @@ async def update_subscription_autopay_endpoint(
         autopay_payload,
     )
 
-    return MiniApp订阅AutopayResponse(
+    return MiniAppSubscriptionAutopayResponse(
         subscription_id=updated_subscription.id,
         autopay_enabled=bool(updated_subscription.autopay_enabled),
         autopay_days_before=autopay_days_before,
@@ -3764,12 +3764,12 @@ async def update_subscription_autopay_endpoint(
 
 @router.post(
     '/subscription/trial',
-    response_model=MiniApp订阅TrialResponse,
+    response_model=MiniAppSubscriptionTrialResponse,
 )
 async def activate_subscription_trial_endpoint(
-    payload: MiniApp订阅TrialRequest,
+    payload: MiniAppSubscriptionTrialRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅TrialResponse:
+) -> MiniAppSubscriptionTrialResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
 
     existing_subscription = getattr(user, 'subscription', None)
@@ -3919,7 +3919,7 @@ async def activate_subscription_trial_endpoint(
     await db.refresh(user)
     await db.refresh(subscription)
 
-    subscription_service = 订阅Service()
+    subscription_service = SubscriptionService()
     try:
         await subscription_service.create_remnawave_user(db, subscription)
     except RemnaWaveConfigurationError as error:  # pragma: no cover - configuration issues
@@ -4033,7 +4033,7 @@ async def activate_subscription_trial_endpoint(
         )
     )
 
-    return MiniApp订阅TrialResponse(
+    return MiniAppSubscriptionTrialResponse(
         message=message,
         subscription_id=getattr(subscription, 'id', None),
         trial_status='activated',
@@ -4476,7 +4476,7 @@ def _format_payment_method_title(method: str) -> str:
 
 def _build_renewal_success_message(
     user: User,
-    subscription: 订阅,
+    subscription: Subscription,
     charged_amount: int,
     promo_discount_value: int = 0,
 ) -> str:
@@ -4563,11 +4563,11 @@ def _parse_period_identifier(identifier: str | None) -> int | None:
 async def _prepare_subscription_renewal_options(
     db: AsyncSession,
     user: User,
-    subscription: 订阅,
-) -> tuple[list[MiniApp订阅RenewalPeriod], dict[str | int, dict[str, Any]], str | None]:
+    subscription: Subscription,
+) -> tuple[list[MiniAppSubscriptionRenewalPeriod], dict[str | int, dict[str, Any]], str | None]:
     from app.services.pricing_engine import pricing_engine
 
-    option_payloads: list[tuple[MiniApp订阅RenewalPeriod, dict[str, Any]]] = []
+    option_payloads: list[tuple[MiniAppSubscriptionRenewalPeriod, dict[str, Any]]] = []
 
     # Определяем доступные периоды: из тарифа или из настроек
     tariff_id = getattr(subscription, 'tariff_id', None)
@@ -4620,7 +4620,7 @@ async def _prepare_subscription_renewal_options(
             f'tariff_{tariff.id}_{period_days}' if pricing_result.is_tariff_mode and tariff else f'days:{period_days}'
         )
 
-        option_model = MiniApp订阅RenewalPeriod(
+        option_model = MiniAppSubscriptionRenewalPeriod(
             id=period_id,
             days=period_days,
             months=months,
@@ -4676,7 +4676,7 @@ async def _prepare_subscription_renewal_options(
 
 
 def _get_period_hint_from_subscription(
-    subscription: 订阅 | None,
+    subscription: Subscription | None,
 ) -> int | None:
     if not subscription or not subscription.end_date:
         return None
@@ -4691,7 +4691,7 @@ def _get_period_hint_from_subscription(
 
 def _validate_subscription_id(
     requested_id: int | None,
-    subscription: 订阅,
+    subscription: Subscription,
 ) -> None:
     if requested_id is None:
         return
@@ -4773,7 +4773,7 @@ def _ensure_paid_subscription(
     *,
     allowed_statuses: Collection[str] | None = None,
     subscription_id: int | None = None,
-) -> 订阅:
+) -> Subscription:
     subs = getattr(user, 'subscriptions', None) or []
     if subscription_id:
         subscription = next((s for s in subs if s.id == subscription_id), None)
@@ -4837,11 +4837,11 @@ def _ensure_paid_subscription(
 async def _prepare_server_catalog(
     db: AsyncSession,
     user: User,
-    subscription: 订阅,
+    subscription: Subscription,
     discount_percent: int,
 ) -> tuple[
     list[MiniAppConnectedServer],
-    list[MiniApp订阅ServerOption],
+    list[MiniAppSubscriptionServerOption],
     dict[str, dict[str, Any]],
 ]:
     available_servers = await get_available_server_squads(
@@ -4934,7 +4934,7 @@ async def _prepare_server_catalog(
         for uuid in current_squads
     ]
 
-    server_options: list[MiniApp订阅ServerOption] = []
+    server_options: list[MiniAppSubscriptionServerOption] = []
     discount_value = discount_percent if discount_percent > 0 else None
 
     for uuid in ordered_uuids:
@@ -4943,7 +4943,7 @@ async def _prepare_server_catalog(
         is_connected = bool(entry.get('is_connected', False))
         option_available = available_for_new or is_connected
         server_options.append(
-            MiniApp订阅ServerOption(
+            MiniAppSubscriptionServerOption(
                 uuid=uuid,
                 name=entry.get('name', uuid),
                 price_kopeks=int(entry.get('discounted_per_month', 0)),
@@ -4961,8 +4961,8 @@ async def _prepare_server_catalog(
 async def _build_subscription_settings(
     db: AsyncSession,
     user: User,
-    subscription: 订阅,
-) -> MiniApp订阅Settings:
+    subscription: Subscription,
+) -> MiniAppSubscriptionSettings:
     period_hint_days = _get_period_hint_from_subscription(subscription)
     months_remaining = max(1, math.ceil((period_hint_days or 0) / 30))
     servers_discount = PricingEngine.get_addon_discount_percent(user, 'servers', period_hint_days)
@@ -4976,7 +4976,7 @@ async def _build_subscription_settings(
         servers_discount,
     )
 
-    traffic_options: list[MiniApp订阅TrafficOption] = []
+    traffic_options: list[MiniAppSubscriptionTrafficOption] = []
     # В режиме fixed_with_topup показываем опции трафика (для докупки)
     if not settings.is_traffic_topup_blocked():
         for package in settings.get_traffic_packages():
@@ -4993,7 +4993,7 @@ async def _build_subscription_settings(
             price = int(package.get('price') or 0)
             discounted_price, _ = apply_percentage_discount(price, traffic_discount)
             traffic_options.append(
-                MiniApp订阅TrafficOption(
+                MiniAppSubscriptionTrafficOption(
                     value=gb_value,
                     label=None,
                     price_kopeks=discounted_price,
@@ -5033,7 +5033,7 @@ async def _build_subscription_settings(
         devices_discount,
     )
 
-    devices_options: list[MiniApp订阅DeviceOption] = []
+    devices_options: list[MiniAppSubscriptionDeviceOption] = []
     for value in range(1, max_devices + 1):
         chargeable = max(0, value - default_device_limit)
         discounted_per_month, _ = apply_percentage_discount(
@@ -5041,7 +5041,7 @@ async def _build_subscription_settings(
             devices_discount,
         )
         devices_options.append(
-            MiniApp订阅DeviceOption(
+            MiniAppSubscriptionDeviceOption(
                 value=value,
                 label=None,
                 price_kopeks=discounted_per_month,
@@ -5049,28 +5049,28 @@ async def _build_subscription_settings(
             )
         )
 
-    settings_payload = MiniApp订阅Settings(
+    settings_payload = MiniAppSubscriptionSettings(
         subscription_id=subscription.id,
         currency=(getattr(user, 'balance_currency', None) or 'RUB').upper(),
-        current=MiniApp订阅CurrentSettings(
+        current=MiniAppSubscriptionCurrentSettings(
             servers=current_servers,
             traffic_limit_gb=subscription.traffic_limit_gb,
             traffic_limit_label=None,
             device_limit=current_device_limit,
         ),
-        servers=MiniApp订阅ServersSettings(
+        servers=MiniAppSubscriptionServersSettings(
             available=server_options,
             min=1 if server_options else 0,
             max=len(server_options) if server_options else 0,
             can_update=True,
             hint=None,
         ),
-        traffic=MiniApp订阅TrafficSettings(
+        traffic=MiniAppSubscriptionTrafficSettings(
             options=traffic_options,
             can_update=not settings.is_traffic_topup_blocked(),
             current_value=subscription.traffic_limit_gb,
         ),
-        devices=MiniApp订阅DevicesSettings(
+        devices=MiniAppSubscriptionDevicesSettings(
             options=devices_options,
             can_update=devices_can_update,
             min=1,
@@ -5080,7 +5080,7 @@ async def _build_subscription_settings(
             price_kopeks=discounted_single_device,
             price_label=None,
         ),
-        billing=MiniApp订阅BillingContext(
+        billing=MiniAppSubscriptionBillingContext(
             months_remaining=max(1, months_remaining),
             period_hint_days=period_hint_days,
             renews_at=subscription.end_date,
@@ -5092,12 +5092,12 @@ async def _build_subscription_settings(
 
 @router.post(
     '/subscription/renewal/options',
-    response_model=MiniApp订阅RenewalOptionsResponse,
+    response_model=MiniAppSubscriptionRenewalOptionsResponse,
 )
 async def get_subscription_renewal_options_endpoint(
-    payload: MiniApp订阅RenewalOptionsRequest,
+    payload: MiniAppSubscriptionRenewalOptionsRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅RenewalOptionsResponse:
+) -> MiniAppSubscriptionRenewalOptionsResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -5108,7 +5108,7 @@ async def get_subscription_renewal_options_endpoint(
 
     # Block classic subscription renewal when tariff mode is active
     if settings.is_tariffs_mode() and not subscription.tariff_id:
-        return MiniApp订阅RenewalOptionsResponse(
+        return MiniAppSubscriptionRenewalOptionsResponse(
             periods=[],
             currency=(getattr(user, 'balance_currency', None) or 'RUB').upper(),
             balance_kopeks=getattr(user, 'balance_kopeks', 0),
@@ -5160,7 +5160,7 @@ async def get_subscription_renewal_options_endpoint(
         renewal_autopay_payload,
     )
 
-    return MiniApp订阅RenewalOptionsResponse(
+    return MiniAppSubscriptionRenewalOptionsResponse(
         subscription_id=subscription.id,
         currency=currency,
         balance_kopeks=balance_kopeks,
@@ -5184,12 +5184,12 @@ async def get_subscription_renewal_options_endpoint(
 
 @router.post(
     '/subscription/renewal',
-    response_model=MiniApp订阅RenewalResponse,
+    response_model=MiniAppSubscriptionRenewalResponse,
 )
 async def submit_subscription_renewal_endpoint(
-    payload: MiniApp订阅RenewalRequest,
+    payload: MiniAppSubscriptionRenewalRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅RenewalResponse:
+) -> MiniAppSubscriptionRenewalResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
 
     if getattr(user, 'restriction_subscription', False):
@@ -5304,7 +5304,7 @@ async def submit_subscription_renewal_endpoint(
                 description=description,
                 payment_method=PaymentMethod.BALANCE,
             )
-        except 订阅RenewalChargeError as error:
+        except SubscriptionRenewalChargeError as error:
             logger.error(
                 '扣除余额失败 for subscription renewal', subscription_id=subscription.id, error=error
             )
@@ -5321,7 +5321,7 @@ async def submit_subscription_renewal_endpoint(
             promo_offer_discount_value,
         )
 
-        return MiniApp订阅RenewalResponse(
+        return MiniAppSubscriptionRenewalResponse(
             message=message,
             balance_kopeks=user.balance_kopeks,
             balance_label=settings.format_price(user.balance_kopeks),
@@ -5434,7 +5434,7 @@ async def submit_subscription_renewal_endpoint(
 
         message = _build_renewal_pending_message(user, missing_amount, method)
 
-        return MiniApp订阅RenewalResponse(
+        return MiniAppSubscriptionRenewalResponse(
             success=False,
             message=message,
             balance_kopeks=user.balance_kopeks,
@@ -5458,12 +5458,12 @@ async def submit_subscription_renewal_endpoint(
 
 @router.post(
     '/subscription/purchase/options',
-    response_model=MiniApp订阅PurchaseOptionsResponse,
+    response_model=MiniAppSubscriptionPurchaseOptionsResponse,
 )
 async def get_subscription_purchase_options_endpoint(
-    payload: MiniApp订阅PurchaseOptionsRequest,
+    payload: MiniAppSubscriptionPurchaseOptionsRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅PurchaseOptionsResponse:
+) -> MiniAppSubscriptionPurchaseOptionsResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     context = await purchase_service.build_options(db, user)
 
@@ -5474,7 +5474,7 @@ async def get_subscription_purchase_options_endpoint(
     data_payload.setdefault('balance_label', settings.format_price(context.balance_kopeks))
     data_payload.setdefault('balanceLabel', settings.format_price(context.balance_kopeks))
 
-    return MiniApp订阅PurchaseOptionsResponse(
+    return MiniAppSubscriptionPurchaseOptionsResponse(
         currency=context.currency,
         balance_kopeks=context.balance_kopeks,
         balance_label=settings.format_price(context.balance_kopeks),
@@ -5485,12 +5485,12 @@ async def get_subscription_purchase_options_endpoint(
 
 @router.post(
     '/subscription/purchase/preview',
-    response_model=MiniApp订阅PurchasePreviewResponse,
+    response_model=MiniAppSubscriptionPurchasePreviewResponse,
 )
 async def subscription_purchase_preview_endpoint(
-    payload: MiniApp订阅PurchasePreviewRequest,
+    payload: MiniAppSubscriptionPurchasePreviewRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅PurchasePreviewResponse:
+) -> MiniAppSubscriptionPurchasePreviewResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     context = await purchase_service.build_options(db, user)
 
@@ -5508,7 +5508,7 @@ async def subscription_purchase_preview_endpoint(
 
     balance_label = settings.format_price(getattr(user, 'balance_kopeks', 0))
 
-    return MiniApp订阅PurchasePreviewResponse(
+    return MiniAppSubscriptionPurchasePreviewResponse(
         preview=preview_payload,
         balance_kopeks=user.balance_kopeks,
         balance_label=balance_label,
@@ -5517,12 +5517,12 @@ async def subscription_purchase_preview_endpoint(
 
 @router.post(
     '/subscription/purchase',
-    response_model=MiniApp订阅PurchaseResponse,
+    response_model=MiniAppSubscriptionPurchaseResponse,
 )
 async def subscription_purchase_endpoint(
-    payload: MiniApp订阅PurchaseRequest,
+    payload: MiniAppSubscriptionPurchaseRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅PurchaseResponse:
+) -> MiniAppSubscriptionPurchaseResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
 
     if getattr(user, 'restriction_subscription', False):
@@ -5593,7 +5593,7 @@ async def subscription_purchase_endpoint(
 
     balance_label = settings.format_price(getattr(user, 'balance_kopeks', 0))
 
-    return MiniApp订阅PurchaseResponse(
+    return MiniAppSubscriptionPurchaseResponse(
         message=result.get('message'),
         balance_kopeks=user.balance_kopeks,
         balance_label=balance_label,
@@ -5603,12 +5603,12 @@ async def subscription_purchase_endpoint(
 
 @router.post(
     '/subscription/settings',
-    response_model=MiniApp订阅SettingsResponse,
+    response_model=MiniAppSubscriptionSettingsResponse,
 )
 async def get_subscription_settings_endpoint(
-    payload: MiniApp订阅SettingsRequest,
+    payload: MiniAppSubscriptionSettingsRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅SettingsResponse:
+) -> MiniAppSubscriptionSettingsResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -5619,17 +5619,17 @@ async def get_subscription_settings_endpoint(
 
     settings_payload = await _build_subscription_settings(db, user, subscription)
 
-    return MiniApp订阅SettingsResponse(settings=settings_payload)
+    return MiniAppSubscriptionSettingsResponse(settings=settings_payload)
 
 
 @router.post(
     '/subscription/servers',
-    response_model=MiniApp订阅UpdateResponse,
+    response_model=MiniAppSubscriptionUpdateResponse,
 )
 async def update_subscription_servers_endpoint(
-    payload: MiniApp订阅ServersUpdateRequest,
+    payload: MiniAppSubscriptionServersUpdateRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅UpdateResponse:
+) -> MiniAppSubscriptionUpdateResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -5677,7 +5677,7 @@ async def update_subscription_servers_endpoint(
     removed = [uuid for uuid in current_squads if uuid not in selected_set]
 
     if not added and not removed:
-        return MiniApp订阅UpdateResponse(
+        return MiniAppSubscriptionUpdateResponse(
             success=True,
             message='没有变更',
         )
@@ -5716,7 +5716,7 @@ async def update_subscription_servers_endpoint(
     removed = [uuid for uuid in current_squads if uuid not in selected_set]
 
     if not added and not removed:
-        return MiniApp订阅UpdateResponse(
+        return MiniAppSubscriptionUpdateResponse(
             success=True,
             message='没有变更',
         )
@@ -5838,7 +5838,7 @@ async def update_subscription_servers_endpoint(
     except Exception:  # pragma: no cover - defensive refresh safeguard
         pass
 
-    service = 订阅Service()
+    service = SubscriptionService()
     await service.update_remnawave_user(db, subscription, sync_squads=True)
 
     await with_admin_notification_service(
@@ -5853,17 +5853,17 @@ async def update_subscription_servers_endpoint(
         )
     )
 
-    return MiniApp订阅UpdateResponse(success=True)
+    return MiniAppSubscriptionUpdateResponse(success=True)
 
 
 @router.post(
     '/subscription/traffic',
-    response_model=MiniApp订阅UpdateResponse,
+    response_model=MiniAppSubscriptionUpdateResponse,
 )
 async def update_subscription_traffic_endpoint(
-    payload: MiniApp订阅TrafficUpdateRequest,
+    payload: MiniAppSubscriptionTrafficUpdateRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅UpdateResponse:
+) -> MiniAppSubscriptionUpdateResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -5895,7 +5895,7 @@ async def update_subscription_traffic_endpoint(
         )
 
     if new_traffic == subscription.traffic_limit_gb:
-        return MiniApp订阅UpdateResponse(success=True, message='没有变更')
+        return MiniAppSubscriptionUpdateResponse(success=True, message='没有变更')
 
     # В режиме fixed полностью блокируем изменение трафика
     # В режиме fixed_with_topup разрешаем докупку (is_traffic_topup_blocked = False)
@@ -5993,7 +5993,7 @@ async def update_subscription_traffic_endpoint(
     except Exception:  # pragma: no cover - defensive refresh safeguard
         pass
 
-    service = 订阅Service()
+    service = SubscriptionService()
     await service.update_remnawave_user(db, subscription)
 
     await with_admin_notification_service(
@@ -6008,17 +6008,17 @@ async def update_subscription_traffic_endpoint(
         )
     )
 
-    return MiniApp订阅UpdateResponse(success=True)
+    return MiniAppSubscriptionUpdateResponse(success=True)
 
 
 @router.post(
     '/subscription/devices',
-    response_model=MiniApp订阅UpdateResponse,
+    response_model=MiniAppSubscriptionUpdateResponse,
 )
 async def update_subscription_devices_endpoint(
-    payload: MiniApp订阅DevicesUpdateRequest,
+    payload: MiniAppSubscriptionDevicesUpdateRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniApp订阅UpdateResponse:
+) -> MiniAppSubscriptionUpdateResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -6079,8 +6079,8 @@ async def update_subscription_devices_endpoint(
 
     # Re-read subscription under row lock to prevent concurrent device purchases exceeding limit
     locked_result = await db.execute(
-        select(订阅)
-        .where(订阅.id == subscription.id)
+        select(Subscription)
+        .where(Subscription.id == subscription.id)
         .with_for_update()
         .execution_options(populate_existing=True)
     )
@@ -6095,7 +6095,7 @@ async def update_subscription_devices_endpoint(
     old_devices = current_devices
 
     if new_devices == current_devices:
-        return MiniApp订阅UpdateResponse(success=True, message='没有变更')
+        return MiniAppSubscriptionUpdateResponse(success=True, message='没有变更')
 
     devices_difference = new_devices - current_devices
     price_to_charge = 0
@@ -6162,8 +6162,8 @@ async def update_subscription_devices_endpoint(
         # Re-lock subscription after subtract_user_balance committed (which released all locks).
         # Re-validate to prevent concurrent device purchases from exceeding the limit or double-charging.
         relock_result = await db.execute(
-            select(订阅)
-            .where(订阅.id == subscription.id)
+            select(Subscription)
+            .where(Subscription.id == subscription.id)
             .with_for_update()
             .execution_options(populate_existing=True)
         )
@@ -6205,7 +6205,7 @@ async def update_subscription_devices_endpoint(
     except Exception:  # pragma: no cover - defensive refresh safeguard
         pass
 
-    service = 订阅Service()
+    service = SubscriptionService()
     await service.update_remnawave_user(db, subscription)
 
     await with_admin_notification_service(
@@ -6220,7 +6220,7 @@ async def update_subscription_devices_endpoint(
         )
     )
 
-    return MiniApp订阅UpdateResponse(success=True)
+    return MiniAppSubscriptionUpdateResponse(success=True)
 
 
 # =============================================================================
@@ -6660,7 +6660,7 @@ async def purchase_tariff_endpoint(
 
     # Синхронизируем с RemnaWave
     # При покупке тарифа ВСЕГДА сбрасываем трафик в панели
-    service = 订阅Service()
+    service = SubscriptionService()
     await service.update_remnawave_user(
         db,
         subscription,
@@ -6848,8 +6848,8 @@ async def switch_tariff_endpoint(
 
     # Lock subscription row to prevent concurrent switch race condition
     locked_result = await db.execute(
-        select(订阅)
-        .where(订阅.id == subscription.id)
+        select(Subscription)
+        .where(Subscription.id == subscription.id)
         .with_for_update()
         .execution_options(populate_existing=True)
     )
@@ -7043,7 +7043,7 @@ async def switch_tariff_endpoint(
     # Синхронизируем с RemnaWave (опционально сбрасываем трафик по настройке)
     should_reset_traffic = settings.RESET_TRAFFIC_ON_TARIFF_SWITCH
     try:
-        service = 订阅Service()
+        service = SubscriptionService()
         await service.update_remnawave_user(
             db,
             subscription,
@@ -7231,7 +7231,7 @@ async def purchase_traffic_topup_endpoint(
 
     # Синхронизируем с RemnaWave
     try:
-        service = 订阅Service()
+        service = SubscriptionService()
         await service.update_remnawave_user(db, subscription)
         # Явно включаем пользователя на панели (PATCH может не снять LIMITED-статус)
         _en_uuid = (
@@ -7267,12 +7267,12 @@ async def purchase_traffic_topup_endpoint(
 
 @router.post('/subscription/daily/toggle-pause')
 async def toggle_daily_subscription_pause_endpoint(
-    payload: MiniAppDaily订阅ToggleRequest,
+    payload: MiniAppDailySubscriptionToggleRequest,
     db: AsyncSession = Depends(get_db_session),
 ):
     """Переключает паузу/активацию суточной подписки."""
-    from app.services.subscription_service import 订阅Service
-    from app.webapi.schemas.miniapp import MiniAppDaily订阅ToggleResponse
+    from app.services.subscription_service import SubscriptionService
+    from app.webapi.schemas.miniapp import MiniAppDailySubscriptionToggleResponse
 
     user = await _authorize_miniapp_user(payload.init_data, db)
     subs = getattr(user, 'subscriptions', None) or []
@@ -7319,13 +7319,13 @@ async def toggle_daily_subscription_pause_endpoint(
         )
 
     # Определяем состояние из LOCKED экземпляра
-    from app.database.models import 订阅Status
+    from app.database.models import SubscriptionStatus
 
     is_currently_paused = getattr(subscription, 'is_daily_paused', False)
     was_disabled = subscription.status in (
-        订阅Status.DISABLED.value,
-        订阅Status.EXPIRED.value,
-        订阅Status.LIMITED.value,
+        SubscriptionStatus.DISABLED.value,
+        SubscriptionStatus.EXPIRED.value,
+        SubscriptionStatus.LIMITED.value,
     )
 
     # System-DISABLED subs (is_daily_paused=False) должны идти по пути resume
@@ -7335,7 +7335,7 @@ async def toggle_daily_subscription_pause_endpoint(
         new_paused_state = not is_currently_paused
     subscription.is_daily_paused = new_paused_state
 
-    # Apply group discount to daily price (consistent with Daily订阅Service and resume-after-topup)
+    # Apply group discount to daily price (consistent with DailySubscriptionService and resume-after-topup)
     from app.services.pricing_engine import PricingEngine
 
     promo_group = PricingEngine.resolve_promo_group(user)
@@ -7397,7 +7397,7 @@ async def toggle_daily_subscription_pause_endpoint(
 
             # Баланс списан — теперь активируем
             now = datetime.now(UTC)
-            subscription.status = 订阅Status.ACTIVE.value
+            subscription.status = SubscriptionStatus.ACTIVE.value
             subscription.last_daily_charge_at = now
             subscription.end_date = now + timedelta(days=1)
 
@@ -7451,7 +7451,7 @@ async def toggle_daily_subscription_pause_endpoint(
 
         # Sync with RemnaWave
         try:
-            service = 订阅Service()
+            service = SubscriptionService()
             if getattr(user, 'remnawave_uuid', None):
                 await service.update_remnawave_user(
                     db,
@@ -7514,7 +7514,7 @@ async def toggle_daily_subscription_pause_endpoint(
     else:
         message = '按日订阅已恢复' if lang == 'ru' else '按日订阅已恢复'
 
-    return MiniAppDaily订阅ToggleResponse(
+    return MiniAppDailySubscriptionToggleResponse(
         success=True,
         message=message,
         is_paused=new_paused_state,
