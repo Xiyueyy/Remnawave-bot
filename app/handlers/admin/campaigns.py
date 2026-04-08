@@ -43,32 +43,32 @@ _CAMPAIGNS_PAGE_SIZE = 5
 
 
 def _format_campaign_summary(campaign, texts) -> str:
-    status = '🟢 Активна' if campaign.is_active else '⚪️ Выключена'
+    status = '🟢 已启用' if campaign.is_active else '⚪️ 已禁用'
 
     if campaign.is_balance_bonus:
         bonus_text = texts.format_price(campaign.balance_bonus_kopeks)
-        bonus_info = f'💰 Бонус на баланс: <b>{bonus_text}</b>'
+        bonus_info = f'💰 余额奖励：<b>{bonus_text}</b>'
     elif campaign.is_subscription_bonus:
         traffic_text = texts.format_traffic(campaign.subscription_traffic_gb or 0)
         device_limit = campaign.subscription_device_limit
         if device_limit is None:
             device_limit = settings.DEFAULT_DEVICE_LIMIT
         bonus_info = (
-            f'📱 Пробная подписка: <b>{campaign.subscription_duration_days or 0} д.</b>\n'
+            f'📱 试用订阅：<b>{campaign.subscription_duration_days or 0} 天</b>\n'
             f'🌐 流量： <b>{traffic_text}</b>\n'
-            f'📱 设备: <b>{device_limit}</b>'
+            f'📱 设备：<b>{device_limit}</b>'
         )
     elif campaign.is_tariff_bonus:
-        tariff_name = 'Не выбран'
+        tariff_name = '未选择'
         if hasattr(campaign, 'tariff') and campaign.tariff:
             tariff_name = escape_display_name(campaign.tariff.name)
         else:
             tariff_name = html.escape(tariff_name)
         bonus_info = f'🎁 套餐：<b>{tariff_name}</b>\n📅 时长：<b>{campaign.tariff_duration_days or 0} 天</b>'
     elif campaign.is_none_bonus:
-        bonus_info = '🔗 Только ссылка (без награды)'
+        bonus_info = '🔗 仅链接（无奖励）'
     else:
-        bonus_info = '❓ Неизвестный тип бонуса'
+        bonus_info = '❓ 未知奖励类型'
 
     return (
         f'<b>{html.escape(campaign.name)}</b>\n启动参数：<code>{html.escape(campaign.start_parameter)}</code>\n状态：{status}\n{bonus_info}'
@@ -231,7 +231,7 @@ async def show_campaigns_list(
         await callback.answer()
         return
 
-    text_lines = ['📋 <b>Список кампаний</b>\n']
+    text_lines = ['📋 <b>活动列表</b>\n']
 
     for campaign in campaigns:
         # Access from instance dict to avoid MissingGreenlet on lazy load
@@ -241,12 +241,12 @@ async def show_campaigns_list(
         status = '🟢' if campaign.is_active else '⚪'
         line = (
             f'{status} <b>{html.escape(campaign.name)}</b> — <code>{html.escape(campaign.start_parameter)}</code>\n'
-            f'   Регистраций: {registrations}, баланс: {texts.format_price(total_balance)}'
+            f'   注册数：{registrations}，余额奖励：{texts.format_price(total_balance)}'
         )
         if campaign.is_subscription_bonus:
-            line += f', подписка: {campaign.subscription_duration_days or 0} д.'
+            line += f'，订阅：{campaign.subscription_duration_days or 0} 天'
         else:
-            line += ', бонус: баланс'
+            line += '，奖励：余额'
         text_lines.append(line)
 
     keyboard_rows = [
@@ -764,7 +764,7 @@ async def start_edit_campaign_subscription_traffic(
     )
 
     current_traffic = campaign.subscription_traffic_gb or 0
-    traffic_text = 'безлимит' if current_traffic == 0 else f'{current_traffic} GB'
+    traffic_text = '不限' if current_traffic == 0 else f'{current_traffic} GB'
 
     await callback.message.edit_text(
         (
@@ -1102,7 +1102,7 @@ async def toggle_campaign_status(
 
     new_status = not campaign.is_active
     await update_campaign(db, campaign, is_active=new_status)
-    status_text = '已启用' if new_status else 'выключена'
+    status_text = '已启用' if new_status else '已禁用'
     logger.info('🔄 活动已切换', campaign_id=campaign_id, status_text=status_text)
 
     await show_campaign_detail(callback, db_user, db)
@@ -1667,7 +1667,7 @@ async def start_edit_campaign_tariff(
         )
     keyboard.append([types.InlineKeyboardButton(text='⬅️ 返回', callback_data=f'admin_campaign_edit_{campaign_id}')])
 
-    current_tariff_name = 'Не выбран'
+    current_tariff_name = '未选择'
     if campaign.tariff:
         current_tariff_name = campaign.tariff.name
 

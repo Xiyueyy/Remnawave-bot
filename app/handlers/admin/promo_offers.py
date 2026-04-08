@@ -112,30 +112,30 @@ OFFER_TYPE_CONFIG = {
     'test_access': {
         'icon': '🧪',
         'label_key': 'ADMIN_PROMO_OFFER_TEST_ACCESS',
-        'default_label': 'Тестовые сервера',
+        'default_label': '测试服务器',
         'allowed_segments': [
-            ('paid_active', '🟢 Активные платные'),
-            ('trial_active', '🎁 Активные триалы'),
+            ('paid_active', '🟢 已激活付费用户'),
+            ('trial_active', '🎁 已激活试用用户'),
         ],
         'effect_type': 'test_access',
     },
     'extend_discount': {
         'icon': '💎',
         'label_key': 'ADMIN_PROMO_OFFER_EXTEND',
-        'default_label': 'Скидка на продление',
+        'default_label': '续订折扣',
         'allowed_segments': [
-            ('paid_active', '🟢 Активные платные'),
+            ('paid_active', '🟢 已激活付费用户'),
         ],
         'effect_type': 'percent_discount',
     },
     'purchase_discount': {
         'icon': '🎯',
         'label_key': 'ADMIN_PROMO_OFFER_PURCHASE',
-        'default_label': 'Скидка на покупку',
+        'default_label': '购买折扣',
         'allowed_segments': [
-            ('paid_expired', '🔴 Истёкшие платные'),
-            ('trial_expired', '🥶 Истёкшие триалы'),
-            ('trial_active', '🎁 Активные триалы'),
+            ('paid_expired', '🔴 已过期付费用户'),
+            ('trial_expired', '🥶 已过期试用用户'),
+            ('trial_active', '🎁 已激活试用用户'),
         ],
         'effect_type': 'percent_discount',
     },
@@ -353,7 +353,7 @@ def _format_promo_offer_log_entry(
         if not reason_label:
             reason_label = texts.get(
                 'ADMIN_PROMO_OFFER_LOGS_REASON_GENERIC',
-                'ℹ️ Действие: {reason}',
+                'ℹ️ 操作：{reason}',
             ).format(reason=html.escape(str(reason_key)))
         lines.append(reason_label)
 
@@ -818,7 +818,7 @@ async def show_promo_offer_logs(callback: CallbackQuery, db_user: User, db: Asyn
             header,
             texts.get(
                 'ADMIN_PROMO_OFFER_LOGS_PAGINATION',
-                'Страница {page}/{total}',
+                '第 {page}/{total} 页',
             ).format(page=page, total=total_pages),
             '',
         ]
@@ -833,7 +833,7 @@ async def show_promo_offer_logs(callback: CallbackQuery, db_user: User, db: Asyn
                 '',
                 texts.get(
                     'ADMIN_PROMO_OFFER_LOGS_EMPTY_BODY',
-                    'Записей пока нет.',
+                    '暂时没有记录。',
                 ),
             ]
         )

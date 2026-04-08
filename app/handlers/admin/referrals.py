@@ -108,10 +108,10 @@ async def show_referral_statistics(callback: types.CallbackQuery, db_user: User,
 
 def _get_top_keyboard(period: str, sort_by: str) -> types.InlineKeyboardMarkup:
     """Создаёт клавиатуру для выбора периода и сортировки."""
-    period_week = '✅ Неделя' if period == 'week' else 'Неделя'
-    period_month = '✅ Месяц' if period == 'month' else 'Месяц'
-    sort_earnings = '✅ По заработку' if sort_by == 'earnings' else 'По заработку'
-    sort_invited = '✅ По приглашённым' if sort_by == 'invited' else 'По приглашённым'
+    period_week = '✅ 近 7 天' if period == 'week' else '近 7 天'
+    period_month = '✅ 近 30 天' if period == 'month' else '近 30 天'
+    sort_earnings = '✅ 按收益' if sort_by == 'earnings' else '按收益'
+    sort_invited = '✅ 按邀请数' if sort_by == 'invited' else '按邀请数'
 
     return types.InlineKeyboardMarkup(
         inline_keyboard=[
@@ -162,11 +162,11 @@ async def _show_top_referrers_filtered(callback: types.CallbackQuery, db: AsyncS
     try:
         top_referrers = await get_top_referrers_by_period(db, period=period, sort_by=sort_by)
 
-        period_text = 'за неделю' if period == 'week' else 'за месяц'
-        sort_text = 'по заработку' if sort_by == 'earnings' else 'по приглашённым'
+        period_text = '近 7 天' if period == 'week' else '近 30 天'
+        sort_text = '按收益' if sort_by == 'earnings' else '按邀请数'
 
         text = f'🏆 <b>顶级推荐人 {period_text}</b>'
-        text += f'<i>排序: {sort_text}</i>'
+        text += f'\n<i>排序：{sort_text}</i>\n\n'
 
         if top_referrers:
             for i, referrer in enumerate(top_referrers[:20], 1):
@@ -311,11 +311,11 @@ async def view_withdrawal_request(callback: types.CallbackQuery, db_user: User, 
     analysis = json.loads(request.risk_analysis) if request.risk_analysis else {}
 
     status_text = {
-        WithdrawalRequestStatus.PENDING.value: '⏳ Ожидает',
-        WithdrawalRequestStatus.APPROVED.value: '✅ Одобрена',
-        WithdrawalRequestStatus.REJECTED.value: '❌ Отклонена',
-        WithdrawalRequestStatus.COMPLETED.value: '✅ Выполнена',
-        WithdrawalRequestStatus.CANCELLED.value: '🚫 Отменена',
+        WithdrawalRequestStatus.PENDING.value: '⏳ 待处理',
+        WithdrawalRequestStatus.APPROVED.value: '✅ 已批准',
+        WithdrawalRequestStatus.REJECTED.value: '❌ 已拒绝',
+        WithdrawalRequestStatus.COMPLETED.value: '✅ 已完成',
+        WithdrawalRequestStatus.CANCELLED.value: '🚫 已取消',
     }.get(request.status, request.status)
 
     text = f"📋 <b>应用#{request.id}</b>\n\n👤 用户：{user_name}\n🆔 ID：<code>{user_tg_id}</code>\n💰 金额：<b>{request.amount_kopeks / 100:.0f}₽</b>\n📊状态：{status_text}\n\n💳 <b> 详细信息：</b>\n<code>{html.escape(request.payment_details or '')}</code>\n\n📅 创建者：{request.created_at.strftime('%d.%m.%Y %H:%M')}\n\n{referral_withdrawal_service.format_analysis_for_admin(analysis)}"
@@ -552,7 +552,7 @@ async def process_test_referral_earning(message: types.Message, db_user: User, d
     await state.clear()
 
     await message.answer(
-        f"✅ <b> 测试累积已创建！</b>\n\n👤 用户：{(html.escape(target_user.full_name) if target_user.full_name else 'Без имени')}\n🆔 ID：<code>{target_telegram_id}</code>\n💰 金额：<b>{amount_rubles:.0f}₽</b>\n💳新余额：<b>{target_user.balance_kopeks / 100:.0f}₽</b>\n\n应计收入将作为推荐收入添加。",
+        f"✅ <b>测试入账已创建！</b>\n\n👤 用户：{(html.escape(target_user.full_name) if target_user.full_name else '未命名')}\n🆔 ID：<code>{target_telegram_id}</code>\n💰 金额：<b>{amount_rubles:.0f}₽</b>\n💳 新余额：<b>{target_user.balance_kopeks / 100:.0f}₽</b>\n\n该金额将作为推荐收益记入。",
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [types.InlineKeyboardButton(text='📋申请', callback_data='admin_withdrawal_requests')],
@@ -596,8 +596,8 @@ def _get_period_dates(period: str) -> tuple[datetime, datetime]:
 
 def _get_period_display_name(period: str) -> str:
     """Возвращает человекочитаемое название периода."""
-    names = {'today': 'сегодня', 'yesterday': 'вчера', 'week': '7 天', 'month': '30 天'}
-    return names.get(period, 'сегодня')
+    names = {'today': '今天', 'yesterday': '昨天', 'week': '近 7 天', 'month': '近 30 天'}
+    return names.get(period, '今天')
 
 
 async def _show_diagnostics_for_period(callback: types.CallbackQuery, db: AsyncSession, state: FSMContext, period: str):
@@ -631,11 +631,11 @@ async def _show_diagnostics_for_period(callback: types.CallbackQuery, db: AsyncS
             for i, lost in enumerate(report.lost_referrals[:15], 1):
                 # Статус пользователя
                 if not lost.registered:
-                    status = '⚠️ Не в БД'
+                    status = '⚠️ 不在数据库中'
                 elif not lost.has_referrer:
-                    status = '❌ Без реферера'
+                    status = '❌ 无推荐人'
                 else:
-                    status = f'⚡ Другой реферер (ID{lost.current_referrer_id})'
+                    status = f'⚡ 其他推荐人（ID{lost.current_referrer_id}）'
 
                 # Имя или ID
                 if lost.username:
@@ -746,7 +746,7 @@ async def preview_referral_fixes(callback: types.CallbackQuery, db_user: User, d
                 await callback.answer('未找到上传的文件报告', show_alert=True)
                 return
             report = DiagnosticReport.from_dict(report_data)
-            period_display = 'загруженный файл'
+            period_display = '已上传文件'
         else:
             # Получаем даты периода
             start_date, end_date = _get_period_dates(period)
@@ -796,7 +796,7 @@ async def preview_referral_fixes(callback: types.CallbackQuery, db_user: User, d
         text += '⚠️ <b>注意！</b> 这只是预览。单击“应用”进行更正。'
 
         # Кнопка назад зависит 起 источника
-        back_button_text = '⬅️ К диагностике'
+        back_button_text = '⬅️ 返回诊断'
         back_button_callback = f'admin_ref_diag:{period}' if period != 'uploaded_file' else 'admin_referral_diagnostics'
 
         keyboard = types.InlineKeyboardMarkup(
@@ -834,7 +834,7 @@ async def apply_referral_fixes(callback: types.CallbackQuery, db_user: User, db:
                 await callback.answer('未找到上传的文件报告', show_alert=True)
                 return
             report = DiagnosticReport.from_dict(report_data)
-            period_display = 'загруженный файл'
+            period_display = '已上传文件'
         else:
             # Получаем даты периода
             start_date, end_date = _get_period_dates(period)
@@ -1195,11 +1195,11 @@ async def receive_log_file(message: types.Message, db_user: User, db: AsyncSessi
             for i, lost in enumerate(report.lost_referrals[:15], 1):
                 # Статус пользователя
                 if not lost.registered:
-                    status = '⚠️ Не в БД'
+                    status = '⚠️ 不在数据库中'
                 elif not lost.has_referrer:
-                    status = '❌ Без реферера'
+                    status = '❌ 无推荐人'
                 else:
-                    status = f'⚡ Другой реферер (ID{lost.current_referrer_id})'
+                    status = f'⚡ 其他推荐人（ID{lost.current_referrer_id}）'
 
                 # Имя или ID
                 if lost.username:

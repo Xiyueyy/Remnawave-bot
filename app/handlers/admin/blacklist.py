@@ -30,8 +30,8 @@ async def show_blacklist_settings(callback: types.CallbackQuery, db_user: User, 
     github_url = blacklist_service.get_blacklist_github_url()
     blacklist_count = len(await blacklist_service.get_all_blacklisted_users())
 
-    status_text = '✅ Включена' if is_enabled else '❌ Отключена'
-    url_text = github_url or 'Не задан'
+    status_text = '✅ 已启用' if is_enabled else '❌ 已禁用'
+    url_text = github_url or '未设置'
 
     text = f'🔐 <b>黑名单设置</b>\n\n状态：{status_text}\n黑名单网址：<code>{url_text}</code>\n条目数：{blacklist_count}\n\n行动：'
 
@@ -162,7 +162,7 @@ async def start_set_blacklist_url(callback: types.CallbackQuery, db_user: User, 
     """
     Начинает процесс установки URL к черному списку
     """
-    current_url = blacklist_service.get_blacklist_github_url() or 'не задан'
+    current_url = blacklist_service.get_blacklist_github_url() or '未设置'
 
     await callback.message.edit_text(
         f'在GitHub上输入黑名单文件的新URL\n\n当前网址：{current_url}\n\n示例：https://raw.githubusercontent.com/username/repository/main/blacklist.txt\n\n要取消，请使用命令 /cancel',

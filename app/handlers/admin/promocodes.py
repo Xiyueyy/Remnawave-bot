@@ -175,7 +175,7 @@ async def show_promocode_management(callback: types.CallbackQuery, db_user: User
 
     text += f'📅 <b>创建者：</b> {format_datetime(promo.created_at)}'
 
-    first_purchase_btn_text = '🆕 Первая покупка: ✅' if first_purchase_only else '🆕 Первая покупка: ❌'
+    first_purchase_btn_text = '🆕 首次购买：✅' if first_purchase_only else '🆕 首次购买：❌'
 
     keyboard = [
         [
@@ -349,11 +349,11 @@ async def select_promocode_type(callback: types.CallbackQuery, db_user: User, st
     promo_type = callback.data.split('_')[-1]
 
     type_names = {
-        'balance': '💰 Пополнение баланса',
-        'days': '📅 Дни подписки',
-        'trial': '🎁 Тестовая подписка',
-        'group': '🏷️ Промогруппа',
-        'discount': '💸 Одноразовая скидка',
+        'balance': '💰 余额充值',
+        'days': '📅 订阅天数',
+        'trial': '🎁 试用订阅',
+        'group': '🏷️ 促销组',
+        'discount': '💸 单次折扣',
     }
 
     await state.update_data(promocode_type=promo_type)
@@ -609,7 +609,7 @@ async def handle_edit_uses(message: types.Message, db_user: User, state: FSMCont
 
         await update_promocode(db, promo, max_uses=max_uses)
 
-        uses_text = 'безлимитное' if max_uses == 999999 else str(max_uses)
+        uses_text = '不限' if max_uses == 999999 else str(max_uses)
         await message.answer(
             f'✅ 最大使用次数改为{uses_text}',
             reply_markup=types.InlineKeyboardMarkup(
@@ -687,27 +687,27 @@ async def process_promocode_expiry(message: types.Message, db_user: User, state:
         )
 
         type_names = {
-            'balance': 'Пополнение баланса',
-            'days': 'Дни подписки',
-            'trial': 'Тестовая подписка',
-            'group': 'Промогруппа',
+            'balance': '余额充值',
+            'days': '订阅天数',
+            'trial': '试用订阅',
+            'group': '促销组',
         }
 
         summary_text = f"""
-✅ <b>Промокод создан!</b>
+✅ <b>促销代码已创建！</b>
 
-🎫 <b>Код:</b> <code>{promocode.code}</code>
+🎫 <b>代码：</b> <code>{promocode.code}</code>
 📝 <b>类型：</b> {type_names.get(promo_type)}
 """
 
         if promo_type == 'balance':
-            summary_text += f'💰 <b>Сумма:</b> {settings.format_price(promocode.balance_bonus_kopeks)}\n'
+            summary_text += f'💰 <b>金额：</b> {settings.format_price(promocode.balance_bonus_kopeks)}\n'
         elif promo_type in ['days', 'trial']:
-            summary_text += f'📅 <b>Дней:</b> {promocode.subscription_days}\n'
+            summary_text += f'📅 <b>天数：</b> {promocode.subscription_days}\n'
         elif promo_type == 'group' and promo_group_name:
-            summary_text += f'🏷️ <b>Промогруппа:</b> {promo_group_name}\n'
+            summary_text += f'🏷️ <b>促销组：</b> {promo_group_name}\n'
 
-        summary_text += f'📊 <b>Использований:</b> {promocode.max_uses}\n'
+        summary_text += f'📊 <b>使用次数：</b> {promocode.max_uses}\n'
 
         if promocode.valid_until:
             summary_text += f'⏰ <b>有效期至：</b> {format_datetime(promocode.valid_until)}\n'
@@ -764,22 +764,22 @@ async def process_discount_hours(message: types.Message, db_user: User, state: F
         )
 
         summary_text = f"""
-✅ <b>Промокод создан!</b>
+✅ <b>促销代码已创建！</b>
 
-🎫 <b>Код:</b> <code>{promocode.code}</code>
-📝 <b>类型：</b> Одноразовая скидка
+🎫 <b>代码：</b> <code>{promocode.code}</code>
+📝 <b>类型：</b> 单次折扣
 💸 <b>折扣：</b> {promocode.balance_bonus_kopeks}%
 """
 
         if discount_hours > 0:
-            summary_text += f'⏰ <b>Срок скидки:</b> {discount_hours} ч.\n'
+            summary_text += f'⏰ <b>折扣时长：</b> {discount_hours} 小时\n'
         else:
-            summary_text += '⏰ <b>Срок скидки:</b> 到 первой покупки\n'
+            summary_text += '⏰ <b>折扣时长：</b> 到首次购买前有效\n'
 
-        summary_text += f'📊 <b>Использований:</b> {promocode.max_uses}\n'
+        summary_text += f'📊 <b>使用次数：</b> {promocode.max_uses}\n'
 
         if promocode.valid_until:
-            summary_text += f'⏳ <b>Промокод действует до:</b> {format_datetime(promocode.valid_until)}\n'
+            summary_text += f'⏳ <b>促销代码有效期至：</b> {format_datetime(promocode.valid_until)}\n'
 
         await message.answer(
             summary_text,
@@ -825,9 +825,9 @@ async def handle_edit_expiry(message: types.Message, db_user: User, state: FSMCo
         await update_promocode(db, promo, valid_until=valid_until)
 
         if valid_until:
-            expiry_text = f'до {format_datetime(valid_until)}'
+            expiry_text = f'至 {format_datetime(valid_until)}'
         else:
-            expiry_text = 'бессрочно'
+            expiry_text = '长期有效'
 
         await message.answer(
             f'✅ 促销代码的有效期已更改：{expiry_text}',
@@ -863,7 +863,7 @@ async def toggle_promocode_status(callback: types.CallbackQuery, db_user: User, 
     new_status = not promo.is_active
     await update_promocode(db, promo, is_active=new_status)
 
-    status_text = 'активирован' if new_status else 'деактивирован'
+    status_text = '已启用' if new_status else '已停用'
     await callback.answer(f'✅ 促销代码 {status_text}', show_alert=True)
 
     await show_promocode_management(callback, db_user, db)
@@ -883,7 +883,7 @@ async def toggle_promocode_first_purchase(callback: types.CallbackQuery, db_user
     new_status = not getattr(promo, 'first_purchase_only', False)
     await update_promocode(db, promo, first_purchase_only=new_status)
 
-    status_text = 'включён' if new_status else 'выключен'
+    status_text = '已启用' if new_status else '已禁用'
     await callback.answer(f'✅ “首次购买”模式 {status_text}', show_alert=True)
 
     await show_promocode_management(callback, db_user, db)

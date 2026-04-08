@@ -188,7 +188,7 @@ for _group_key, _title, _category_keys in CATEGORY_GROUP_DEFINITIONS:
         CATEGORY_TO_GROUP[_category_key] = _group_key
 
 CATEGORY_FALLBACK_KEY = 'other'
-CATEGORY_FALLBACK_TITLE = '📦 Прочие настройки'
+CATEGORY_FALLBACK_TITLE = '📦 其他设置'
 
 PRESET_CONFIGS: dict[str, dict[str, object]] = {
     'recommended': {
@@ -284,7 +284,7 @@ def _get_group_status(group_key: str) -> tuple[str, str]:
             settings.REMNAWAVE_API_URL
             and (settings.REMNAWAVE_API_KEY or (settings.REMNAWAVE_USERNAME and settings.REMNAWAVE_PASSWORD))
         )
-        return ('🟢', 'API подключено') if api_ready else ('🟡', 'Нужно указать URL и ключи')
+        return ('🟢', 'API 已连接') if api_ready else ('🟡', '需要填写 URL 和密钥')
 
     if key == 'server':
         mode = (settings.SERVER_STATUS_MODE or '').lower()
@@ -320,7 +320,7 @@ def _get_group_status(group_key: str) -> tuple[str, str]:
             or settings.REFERRAL_FIRST_TOPUP_BONUS_KOPEKS
             or settings.REFERRAL_INVITER_BONUS_KOPEKS
         )
-        return ('🟢', 'Программа активна') if active else ('⚪', 'Бонусы не заданы')
+        return ('🟢', '推荐计划已启用') if active else ('⚪', '尚未设置奖励')
 
     if key == 'core':
         token_ok = bool(getattr(settings, 'BOT_TOKEN', ''))
@@ -332,7 +332,7 @@ def _get_group_status(group_key: str) -> tuple[str, str]:
 
     if key == 'subscriptions':
         price_ready = settings.PRICE_30_DAYS > 0 and settings.AVAILABLE_SUBSCRIPTION_PERIODS
-        return ('🟢', 'Тарифы настроены') if price_ready else ('⚪', 'Нужно задать цены')
+        return ('🟢', '套餐已配置') if price_ready else ('⚪', '需要设置价格')
 
     if key == 'database':
         mode = (settings.DATABASE_MODE or 'auto').lower()
@@ -344,7 +344,7 @@ def _get_group_status(group_key: str) -> tuple[str, str]:
 
     if key == 'interface':
         branding = bool(settings.ENABLE_LOGO_MODE or settings.MINIAPP_CUSTOM_URL)
-        return ('🟢', 'Брендинг настроен') if branding else ('⚪', 'Настройки по умолчанию')
+        return ('🟢', '品牌设置已完成') if branding else ('⚪', '使用默认设置')
 
     return '🟢', '准备出发'
 
@@ -863,7 +863,7 @@ async def handle_import_message(
         summary_lines.append('\n'.join(f'• <code>{key}</code>' for key in applied))
 
     if skipped:
-        summary_lines.append('\nПропущено (неизвестные ключи):')
+        summary_lines.append('\n已跳过（未知键）：')
         summary_lines.append('\n'.join(f'• <code>{key}</code>' for key in skipped))
 
     if errors:
@@ -1426,7 +1426,7 @@ def _render_setting_text(key: str) -> str:
     if original_value not in {None, ''}:
         lines.append(f'📦 默认：{original_value}')
 
-    lines.append(f"✳️覆盖：{('Да' if summary['has_override'] else 'Нет')}")
+    lines.append(f"✳️ 覆盖：{('是' if summary['has_override'] else '否')}")
 
     if summary.get('is_read_only'):
         lines.append('🔒模式：只读（自动管理）')
@@ -1435,7 +1435,7 @@ def _render_setting_text(key: str) -> str:
     if description:
         lines.append(f'📘 描述：{description}')
     if format_hint:
-        lines.append(f'📐 Формат: {format_hint}')
+        lines.append(f'📐 格式：{format_hint}')
     if example:
         lines.append(f'💡 示例：{example}')
     if warning:
@@ -1818,9 +1818,9 @@ async def test_remnawave_connection(
     if status == 'connected':
         message = '✅ 连接成功'
     elif status == 'not_configured':
-        message = f'⚠️ {result.get("message", "RemnaWave API не настроен")}'
+        message = f'⚠️ {result.get("message", "RemnaWave API 未配置")}'
     else:
-        base_message = result.get('message', 'Ошибка подключения')
+        base_message = result.get('message', '连接失败')
         status_code = result.get('status_code')
         if status_code:
             message = f'❌ {base_message} (HTTP {status_code})'
@@ -2419,12 +2419,12 @@ async def start_edit_setting(
     texts = get_texts(db_user.language)
 
     instructions = [
-        '✏️ <b>Редактирование настройки</b>',
-        f'Название: {summary["name"]}',
-        f'Ключ: <code>{summary["key"]}</code>',
+        '✏️ <b>编辑设置</b>',
+        f'名称：{summary["name"]}',
+        f'键名：<code>{summary["key"]}</code>',
         f'类型： {summary["type"]}',
-        f'Текущее значение: {summary["current"]}',
-        '\nОтправьте новое значение сообщением.',
+        f'当前值：{summary["current"]}',
+        '\n请直接发送新的值。',
     ]
 
     if definition.is_optional:

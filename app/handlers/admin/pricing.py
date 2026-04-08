@@ -79,49 +79,49 @@ TRIAL_ENTRIES: tuple[SettingEntry, ...] = (
         key='TRIAL_DURATION_DAYS',
         section='trial',
         label_ru='⏳ 持续时间（天）',
-        label_en='⏳ Duration (days)',
+        label_en='⏳ 持续时间（天）',
         action='input',
     ),
     SettingEntry(
         key='TRIAL_TRAFFIC_LIMIT_GB',
         section='trial',
         label_ru='📦 流量限制（GB）',
-        label_en='📦 Traffic limit (GB)',
+        label_en='📦 流量限制（GB）',
         action='input',
     ),
     SettingEntry(
         key='TRIAL_DEVICE_LIMIT',
         section='trial',
         label_ru='📱设备限制',
-        label_en='📱 Device limit',
+        label_en='📱 设备限制',
         action='input',
     ),
     SettingEntry(
         key='TRIAL_PAYMENT_ENABLED',
         section='trial',
         label_ru='💳 付费激活',
-        label_en='💳 Paid activation',
+        label_en='💳 付费激活',
         action='toggle',
         description_ru='如果启用，将收取指定金额的试用激活费用。',
-        description_en='When enabled, the configured amount is charged during trial activation.',
+        description_en='如果启用，将收取指定金额的试用激活费用。',
     ),
     SettingEntry(
         key='TRIAL_ACTIVATION_PRICE',
         section='trial',
         label_ru='💰 激活费用',
-        label_en='💰 Activation price',
+        label_en='💰 激活费用',
         action='price',
         description_ru='以戈比表示。 0 — 免费激活。',
-        description_en='Amount in kopeks. 0 — free activation.',
+        description_en='以戈比表示。0 表示免费激活。',
     ),
     SettingEntry(
         key='TRIAL_ADD_REMAINING_DAYS_TO_PAID',
         section='trial',
         label_ru='➕ 将剩余天数添加到付费订阅中',
-        label_en='➕ Add remaining trial days to paid plan',
+        label_en='➕ 将剩余天数添加到付费订阅中',
         action='toggle',
         description_ru='如果启用，则在购买付费订阅时，剩余的试用天数将添加到期限中。',
-        description_en='When enabled, remaining trial days are added to paid subscription duration.',
+        description_en='如果启用，则在购买付费订阅时，剩余的试用天数将添加到期限中。',
     ),
 )
 
@@ -131,93 +131,93 @@ CORE_PRICING_ENTRIES: tuple[SettingEntry, ...] = (
         key='BASE_SUBSCRIPTION_PRICE',
         section='core',
         label_ru='💳 基本订阅价格',
-        label_en='💳 Base subscription price',
+        label_en='💳 基本订阅价格',
         action='price',
     ),
     SettingEntry(
         key='BASE_PROMO_GROUP_PERIOD_DISCOUNTS_ENABLED',
         section='core',
         label_ru='🎟️团体基本折扣',
-        label_en='🎟️ Base group discounts',
+        label_en='🎟️ 团体基本折扣',
         action='toggle',
         description_ru='包括团体促销期间的基本折扣的应用。',
-        description_en='Enables base discounts for promo group periods.',
+        description_en='包括团体促销期间的基本折扣应用。',
     ),
     SettingEntry(
         key='BASE_PROMO_GROUP_PERIOD_DISCOUNTS',
         section='core',
         label_ru='🔖 按时段折扣',
-        label_en='🔖 Period discounts',
+        label_en='🔖 按时段折扣',
         action='input',
         description_ru='格式：以逗号分隔的日期和折扣对列表（例如 30:10,60:20）。',
-        description_en='Format: comma-separated day/discount pairs (e.g. 30:10,60:20).',
+        description_en='格式：以逗号分隔的天数和折扣对，例如 30:10,60:20。',
     ),
     SettingEntry(
         key='DEFAULT_DEVICE_LIMIT',
         section='core',
         label_ru='📱 默认设备',
-        label_en='📱 Default device limit',
+        label_en='📱 默认设备数',
         action='input',
     ),
     SettingEntry(
         key='DEFAULT_TRAFFIC_LIMIT_GB',
         section='core',
         label_ru='📦 默认流量（GB）',
-        label_en='📦 Default traffic (GB)',
+        label_en='📦 默认流量（GB）',
         action='input',
     ),
     SettingEntry(
         key='MAX_DEVICES_LIMIT',
         section='core',
         label_ru='📈 最大设备数',
-        label_en='📈 Maximum devices',
+        label_en='📈 最大设备数',
         action='input',
     ),
     SettingEntry(
         key='RESET_TRAFFIC_ON_PAYMENT',
         section='core',
         label_ru='🔄 支付时重置流量',
-        label_en='🔄 Reset traffic on payment',
+        label_en='🔄 支付时重置流量',
         action='toggle',
     ),
     SettingEntry(
         key='RESET_TRAFFIC_ON_TARIFF_SWITCH',
         section='core',
         label_ru='🔄 更改套餐时重置流量',
-        label_en='🔄 Reset traffic on tariff switch',
+        label_en='🔄 更改套餐时重置流量',
         action='toggle',
     ),
     SettingEntry(
         key='DEFAULT_TRAFFIC_RESET_STRATEGY',
         section='core',
         label_ru='🗓 流量倾销策略',
-        label_en='🗓 Traffic reset strategy',
+        label_en='🗓 流量重置策略',
         action='input',
         description_ru='可用值：日、周、月、从不。',
-        description_en='Available values: DAY, WEEK, MONTH, NEVER.',
+        description_en='可用值：DAY、WEEK、MONTH、NEVER。',
     ),
     SettingEntry(
         key='TRAFFIC_SELECTION_MODE',
         section='core',
         label_ru='⚙️流量选择模式',
-        label_en='⚙️ Traffic selection mode',
+        label_en='⚙️ 流量选择模式',
         action='choice',
         choices=(
-            ChoiceOption('selectable', '套餐选择', 'Selectable'),
-            ChoiceOption('fixed', '固定限额', 'Fixed limit'),
-            ChoiceOption('fixed_with_topup', '使固定。限量+追加购买', 'Fixed + topup'),
+            ChoiceOption('selectable', '套餐选择', '套餐选择'),
+            ChoiceOption('fixed', '固定限额', '固定限额'),
+            ChoiceOption('fixed_with_topup', '固定限额 + 加购', '固定限额 + 加购'),
         ),
         description_ru='确定用户是选择套餐还是接收固定限制。',
-        description_en='Defines whether users pick packages or use a fixed limit.',
+        description_en='确定用户是自主选择套餐，还是统一使用固定限制。',
     ),
     SettingEntry(
         key='FIXED_TRAFFIC_LIMIT_GB',
         section='core',
         label_ru='📏 固定流量限制（GB）',
-        label_en='📏 Fixed traffic limit (GB)',
+        label_en='📏 固定流量限制（GB）',
         action='input',
         description_ru='仅用于固定流量模式。 0 = 无限制。',
-        description_en='Used only in fixed traffic mode. 0 = unlimited.',
+        description_en='仅用于固定流量模式。0 表示不限量。',
     ),
 )
 
@@ -314,26 +314,22 @@ async def _save_traffic_packages(
 
 
 def _language_code(language: str | None) -> str:
-    return (language or 'ru').split('-')[0].lower()
+    return (language or 'zh').split('-')[0].lower()
 
 
 def _format_period_label(days: int, lang_code: str, short: bool = False) -> str:
     if short:
-        suffix = 'д' if lang_code == 'ru' else 'd'
+        suffix = '天'
         return f'{days}{suffix}'
-    if lang_code == 'ru':
-        return f'{days}天'
-    if days == 1:
-        return '1 day'
-    return f'{days}-day plan'
+    return f'{days} 天'
 
 
 def _format_traffic_label(gb: int, lang_code: str, short: bool = False) -> str:
     if gb == 0:
-        return '∞' if short else ('不限' if lang_code == 'ru' else 'Unlimited')
-    unit = 'ГБ' if lang_code == 'ru' else 'GB'
+        return '∞' if short else '不限'
+    unit = 'GB'
     if short:
-        return f'{gb}{unit}' if lang_code == 'ru' else f'{gb}{unit}'
+        return f'{gb}{unit}'
     return f'{gb} {unit}'
 
 
@@ -346,8 +342,8 @@ def _format_trial_summary(lang_code: str) -> str:
         price_note = f', 💳 {settings.format_price(settings.get_trial_activation_price())}'
 
     traffic_label = _format_traffic_label(traffic, lang_code, short=True)
-    devices_label = f'{devices}📱' if lang_code == 'ru' else f'{devices}📱'
-    days_suffix = 'д' if lang_code == 'ru' else 'd'
+    devices_label = f'{devices}📱'
+    days_suffix = '天'
     return f'{duration}{days_suffix}, {traffic_label}, {devices_label}{price_note}'
 
 
@@ -357,11 +353,11 @@ def _format_core_summary(lang_code: str) -> str:
     traffic_limit = settings.DEFAULT_TRAFFIC_LIMIT_GB
     mode = settings.TRAFFIC_SELECTION_MODE.lower()
     if mode == 'fixed':
-        traffic_mode = '⚙️ fixed'
+        traffic_mode = '⚙️ 固定'
     elif mode == 'fixed_with_topup':
-        traffic_mode = '⚙️ fixed+topup'
+        traffic_mode = '⚙️ 固定+加购'
     else:
-        traffic_mode = '⚙️ selectable'
+        traffic_mode = '⚙️ 可选'
     traffic_label = _format_traffic_label(traffic_limit, lang_code, short=True)
     return f'{base_price}, {device_limit} 📱, {traffic_label}, {traffic_mode}'
 
@@ -396,7 +392,7 @@ def _get_extra_items(lang_code: str) -> list[PriceItem]:
     items: list[PriceItem] = []
 
     if hasattr(settings, 'PRICE_PER_DEVICE'):
-        label = 'Дополнительное устройство' if lang_code == 'ru' else 'Extra device'
+        label = '额外设备'
         items.append(('PRICE_PER_DEVICE', label, settings.PRICE_PER_DEVICE))
 
     return items
@@ -411,7 +407,7 @@ def _build_period_summary(items: Iterable[PriceItem], lang_code: str, fallback: 
             days = None
 
         if days is not None:
-            suffix = 'д' if lang_code == 'ru' else 'd'
+            suffix = '天'
             short_label = f'{days}{suffix}'
         else:
             short_label = label
@@ -437,12 +433,10 @@ def _build_traffic_summary(lang_code: str, fallback: str) -> str:
 
 
 def _build_period_options_summary(lang_code: str) -> str:
-    suffix = 'д' if lang_code == 'ru' else 'd'
+    suffix = '天'
     available = ', '.join(f'{days}{suffix}' for days in settings.get_available_subscription_periods())
     renewal = ', '.join(f'{days}{suffix}' for days in settings.get_available_renewal_periods())
-    if lang_code == 'ru':
-        return f'订阅：{available or "-"} | 续费：{renewal or "-"}'
-    return f'Subscriptions: {available or "-"} | Renewals: {renewal or "-"}'
+    return f'订阅：{available or "-"} | 续费：{renewal or "-"}'
 
 
 def _build_extra_summary(items: Iterable[PriceItem], fallback: str) -> str:
@@ -606,7 +600,7 @@ def _build_traffic_options_section(language: str) -> tuple[str, types.InlineKeyb
 def _build_period_options_section(language: str) -> tuple[str, types.InlineKeyboardMarkup]:
     texts = get_texts(language)
     lang_code = _language_code(language)
-    suffix = 'д' if lang_code == 'ru' else 'd'
+    suffix = '天'
 
     # Используем методы без фильтрации по ценам для админки
     available_subscription = set(settings.get_configured_subscription_periods())
@@ -901,7 +895,7 @@ def _resolve_label(section: str, key: str, language: str) -> str:
             return _format_traffic_label(gb, lang_code)
 
     if key == 'PRICE_PER_DEVICE':
-        return 'Дополнительное устройство' if lang_code == 'ru' else 'Extra device'
+        return '额外设备'
 
     return key
 

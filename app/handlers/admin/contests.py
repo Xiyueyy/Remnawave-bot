@@ -520,7 +520,7 @@ async def process_title(message: types.Message, state: FSMContext, db_user, db: 
 @error_handler
 async def process_description(message: types.Message, state: FSMContext, db_user, db: AsyncSession):
     description = message.text.strip()
-    if description in {'-', 'skip', 'пропустить'}:
+    if description in {'-', 'skip', '跳过'}:
         description = None
 
     await state.update_data(description=description)
@@ -535,7 +535,7 @@ async def process_description(message: types.Message, state: FSMContext, db_user
 @error_handler
 async def process_prize(message: types.Message, state: FSMContext, db_user, db: AsyncSession):
     prize = message.text.strip()
-    if prize in {'-', 'skip', 'пропустить'}:
+    if prize in {'-', 'skip', '跳过'}:
         prize = None
 
     await state.update_data(prize=prize)
@@ -690,18 +690,18 @@ async def show_detailed_stats(
 
     # Общее сообщение с основной статистикой
     general_lines = [
-        '📈 <b>Статистика конкурса</b>',
+        '📈 <b>活动统计</b>',
         f'🏆 {html.escape(contest.title)}',
         '',
-        f'👥 Участников (рефереров): <b>{stats["total_participants"]}</b>',
-        f'📨 Приглашено рефералов: <b>{stats["total_invited"]}</b>',
+        f'👥 参与者（推荐人）：<b>{stats["total_participants"]}</b>',
+        f'📨 邀请的推荐用户：<b>{stats["total_invited"]}</b>',
         '',
-        f'💳 Рефералов оплатили: <b>{stats.get("paid_count", 0)}</b>',
-        f'❌ Рефералов не оплатили: <b>{stats.get("unpaid_count", 0)}</b>',
+        f'💳 已付费推荐用户：<b>{stats.get("paid_count", 0)}</b>',
+        f'❌ 未付费推荐用户：<b>{stats.get("unpaid_count", 0)}</b>',
         '',
-        '<b>💰 СУММЫ:</b>',
-        f'   🛒 Покупки подписок: <b>{stats.get("subscription_total", 0) // 100} руб.</b>',
-        f'   📥 Пополнения баланса: <b>{stats.get("deposit_total", 0) // 100} руб.</b>',
+        '<b>💰 金额：</b>',
+        f'   🛒 订阅购买：<b>{stats.get("subscription_total", 0) // 100} ₽</b>',
+        f'   📥 余额充值：<b>{stats.get("deposit_total", 0) // 100} ₽</b>',
     ]
 
     if virtual_count > 0:
@@ -874,12 +874,12 @@ async def sync_contest(
         f'🏆 <b>{html.escape(contest.title)}</b>',
         f'📅 周期： {contest.start_at.strftime("%d.%m.%Y")} - {contest.end_at.strftime("%d.%m.%Y")}',
         '',
-        f'👥 Участников (рефереров): <b>{detailed_stats["total_participants"]}</b>',
-        f'📨 Приглашено рефералов: <b>{detailed_stats["total_invited"]}</b>',
+        f'👥 参与者（推荐人）：<b>{detailed_stats["total_participants"]}</b>',
+        f'📨 邀请的推荐用户：<b>{detailed_stats["total_invited"]}</b>',
         '',
-        f'💳 Рефералов оплатили: <b>{detailed_stats.get("paid_count", 0)}</b>',
-        f'❌ Рефералов не оплатили: <b>{detailed_stats.get("unpaid_count", 0)}</b>',
-        f'🛒 Покупки подписок: <b>{detailed_stats["total_paid_amount"] // 100} руб.</b>',
+        f'💳 已付费推荐用户：<b>{detailed_stats.get("paid_count", 0)}</b>',
+        f'❌ 未付费推荐用户：<b>{detailed_stats.get("unpaid_count", 0)}</b>',
+        f'🛒 订阅购买：<b>{detailed_stats["total_paid_amount"] // 100} ₽</b>',
     ]
 
     await callback.message.edit_text(

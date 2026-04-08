@@ -131,11 +131,11 @@ async def process_maintenance_reason(message: types.Message, db_user: User, db: 
     success = await maintenance_service.enable_maintenance(reason=reason, auto=False)
 
     if success:
-        response_text = 'Режим техраб起 已启用'
+        response_text = '维护模式已启用'
         if reason:
-            response_text += f'\nПричина: {html.escape(reason)}'
+            response_text += f'\n原因：{html.escape(reason)}'
     else:
-        response_text = 'Ошибка 已启用ия режима техработ'
+        response_text = '启用维护模式失败'
 
     await message.answer(response_text)
     await state.clear()
@@ -156,10 +156,10 @@ async def toggle_monitoring(callback: types.CallbackQuery, db_user: User, db: As
 
     if status_info['monitoring_active']:
         success = await maintenance_service.stop_monitoring()
-        message = 'Мониторинг остановлен' if success else 'Ошибка остановки мониторинга'
+        message = '监控已停止' if success else '停止监控失败'
     else:
         success = await maintenance_service.start_monitoring()
-        message = 'Мониторинг запущен' if success else 'Ошибка запуска мониторинга'
+        message = '监控已启动' if success else '启动监控失败'
 
     await callback.answer(message, show_alert=True)
 
@@ -174,10 +174,10 @@ async def force_api_check(callback: types.CallbackQuery, db_user: User, db: Asyn
     check_result = await maintenance_service.force_api_check()
 
     if check_result['success']:
-        status_text = 'доступно' if check_result['api_available'] else 'недоступно'
+        status_text = '可用' if check_result['api_available'] else '不可用'
         message = f"API {status_text}\n响应时间：{check_result['response_time']}s"
     else:
-        message = f"验证错误：{check_result.get('error', 'Неизвестная ошибка')}"
+        message = f"检查错误：{check_result.get('error', '未知错误')}"
 
     await callback.message.answer(message)
 
@@ -197,17 +197,17 @@ async def check_panel_status(callback: types.CallbackQuery, db_user: User, db: A
         status_data = await rw_service.check_panel_health()
 
         status_text = {
-            'online': '🟢 Панель работает нормально',
-            'offline': '🔴 Панель недоступна',
-            'degraded': '🟡 Панель работает со сбоями',
-        }.get(status_data['status'], '❓ Статус неизвестен')
+            'online': '🟢 面板运行正常',
+            'offline': '🔴 面板不可用',
+            'degraded': '🟡 面板运行异常',
+        }.get(status_data['status'], '❓ 状态未知')
 
         message_parts = [
-            '🌐 <b>Статус панели Remnawave</b>\n',
+            '🌐 <b>Remnawave 面板状态</b>\n',
             f'{status_text}',
-            f'⚡ Время отклика: {status_data.get("response_time", 0)}с',
-            f'👥 Пользователей онлайн: {status_data.get("users_online", 0)}',
-            f'🖥️ Нод онлайн: {status_data.get("nodes_online", 0)}/{status_data.get("total_nodes", 0)}',
+            f'⚡ 响应时间：{status_data.get("response_time", 0)}s',
+            f'👥 在线用户：{status_data.get("users_online", 0)}',
+            f'🖥️ 在线节点：{status_data.get("nodes_online", 0)}/{status_data.get("total_nodes", 0)}',
         ]
 
         attempts_used = status_data.get('attempts_used')
@@ -267,10 +267,10 @@ async def handle_manual_notification(callback: types.CallbackQuery, db_user: Use
     await state.update_data(notification_status=status)
 
     status_names = {
-        'online': '🟢 Онлайн',
-        'offline': '🔴 Офлайн',
-        'degraded': '🟡 Проблемы',
-        'maintenance': '🔧 Обслуживание',
+        'online': '🟢 在线',
+        'offline': '🔴 离线',
+        'degraded': '🟡 异常',
+        'maintenance': '🔧 维护中',
     }
 
     await callback.message.edit_text(

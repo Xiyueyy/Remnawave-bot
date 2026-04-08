@@ -201,9 +201,9 @@ async def manage_backup_file(callback: types.CallbackQuery, db_user: User, db: A
         else:
             date_str = '未知'
     except:
-        date_str = 'Ошибка формата даты'
+        date_str = '日期格式错误'
 
-    text = f"📦 <b>备份信息</b>\n\n📄 <b>文件：</b> <code>{filename}</code>\n📅 <b>创建者：</b> {date_str}\n💾 <b>尺寸：</b> {backup_info.get('file_size_mb', 0):.2f} MB\n📊 <b>表：</b> {backup_info.get('tables_count', '?')}\n📈 <b>记录：</b> {backup_info.get('total_records', '?'):,}\n🗜️ <b> 压缩：</b> {('Да' if backup_info.get('compressed') else 'Нет')}\n🗄️<b>DB：</b> {backup_info.get('database_type', 'unknown')}"
+    text = f"📦 <b>备份信息</b>\n\n📄 <b>文件：</b> <code>{filename}</code>\n📅 <b>创建时间：</b> {date_str}\n💾 <b>大小：</b> {backup_info.get('file_size_mb', 0):.2f} MB\n📊 <b>数据表：</b> {backup_info.get('tables_count', '?')}\n📈 <b>记录数：</b> {backup_info.get('total_records', '?'):,}\n🗜️ <b>压缩：</b> {('是' if backup_info.get('compressed') else '否')}\n🗄️ <b>数据库：</b> {backup_info.get('database_type', 'unknown')}"
 
     if backup_info.get('error'):
         text += f"⚠️ <b>错误：</b> {backup_info['error']}"
@@ -320,7 +320,7 @@ async def restore_backup_execute(callback: types.CallbackQuery, db_user: User, d
     await callback.answer('🔄恢复已开始...')
 
     # Показываем прогресс
-    action_text = 'очисткой и восстановлением' if clear_existing else 'восстановлением'
+    action_text = '清空并恢复' if clear_existing else '恢复'
     progress_msg = await callback.message.edit_text(
         f'📥 <b> 正在从备份恢复...</b>\n\n⏳ 我们使用 {action_text} 数据...\n📄 文件：<code>{filename}</code>\n\n这可能需要几分钟。',
         parse_mode='HTML',
@@ -418,7 +418,7 @@ async def handle_backup_file_upload(message: types.Message, db_user: User, db: A
 async def show_backup_settings(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
     settings_obj = await backup_service.get_backup_settings()
 
-    text = f"⚙️ <b>备份系统设置</b>\n\n🔄 <b>自动备份：</b>\n• 状态：{('✅ 已启用' if settings_obj.auto_backup_enabled else '❌ 已禁用')}\n• 间隔：{settings_obj.backup_interval_hours} 小时\n• 开始时间：{settings_obj.backup_time}\n\n📦 <b>存储：</b>\n• 最大文件数：{settings_obj.max_backups_keep}\n• 压缩：{('✅ 已启用' if settings_obj.compression_enabled else '❌ 已禁用')}\n• 包含日志：{('✅ 是' if settings_obj.include_logs else '❌ Нет')}\n\n📁 <b>位置：</b> <code>{settings_obj.backup_location}</code>"
+    text = f"⚙️ <b>备份系统设置</b>\n\n🔄 <b>自动备份：</b>\n• 状态：{('✅ 已启用' if settings_obj.auto_backup_enabled else '❌ 已禁用')}\n• 间隔：{settings_obj.backup_interval_hours} 小时\n• 开始时间：{settings_obj.backup_time}\n\n📦 <b>存储：</b>\n• 最大文件数：{settings_obj.max_backups_keep}\n• 压缩：{('✅ 已启用' if settings_obj.compression_enabled else '❌ 已禁用')}\n• 包含日志：{('✅ 是' if settings_obj.include_logs else '❌ 否')}\n\n📁 <b>位置：</b> <code>{settings_obj.backup_location}</code>"
 
     await callback.message.edit_text(text, parse_mode='HTML', reply_markup=get_backup_settings_keyboard(settings_obj))
     await callback.answer()
@@ -432,19 +432,19 @@ async def toggle_backup_setting(callback: types.CallbackQuery, db_user: User, db
     if callback.data == 'backup_toggle_auto':
         new_value = not settings_obj.auto_backup_enabled
         await backup_service.update_backup_settings(auto_backup_enabled=new_value)
-        status = '已启用ы' if new_value else '已禁用ы'
+        status = '已启用' if new_value else '已禁用'
         await callback.answer(f'自动备份 {status}')
 
     elif callback.data == 'backup_toggle_compression':
         new_value = not settings_obj.compression_enabled
         await backup_service.update_backup_settings(compression_enabled=new_value)
-        status = '已启用о' if new_value else '已禁用о'
+        status = '已启用' if new_value else '已禁用'
         await callback.answer(f'压缩 {status}')
 
     elif callback.data == 'backup_toggle_logs':
         new_value = not settings_obj.include_logs
         await backup_service.update_backup_settings(include_logs=new_value)
-        status = '已启用ы' if new_value else '已禁用ы'
+        status = '已启用' if new_value else '已禁用'
         await callback.answer(f'登录备份{status}')
 
     await show_backup_settings(callback, db_user, db)

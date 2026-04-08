@@ -38,65 +38,65 @@ logger = structlog.get_logger(__name__)
 class BlockedUsersText(Enum):
     """Тексты для сообщений модуля заблокированных пользователей."""
 
-    MENU_TITLE = '🔒 <b>Проверка заблокированных пользователей</b>'
+    MENU_TITLE = '🔒 <b>检查已拉黑机器人的用户</b>'
     MENU_DESCRIPTION = (
-        '\n\nЗдесь вы можете проверить, какие пользователи заблокировали бота, '
-        'и очистить их из базы данных и панели Remnawave.\n\n'
-        '<b>Как это работает:</b>\n'
-        '1. Сканирование отправляет тестовый запрос каждому пользователю\n'
-        '2. Если пользователь заблокировал бота - получаем ошибку\n'
-        '3. Можно удалить таких пользователей из БД и/или Remnawave'
+        '\n\n你可以在这里检查哪些用户拉黑了机器人，'
+        '并将他们从数据库和 Remnawave 面板中清理掉。\n\n'
+        '<b>工作方式：</b>\n'
+        '1. 扫描会向每位用户发送一次测试请求\n'
+        '2. 如果用户拉黑了机器人，就会收到错误\n'
+        '3. 你可以将这些用户从数据库和/或 Remnawave 中删除'
     )
 
-    SCAN_STARTED = '🔄 <b>Сканирование запущено...</b>\n\nЭто может занять несколько минут.'
-    SCAN_PROGRESS = '🔄 <b>Сканирование:</b> {checked}/{total} ({percent}%)'
+    SCAN_STARTED = '🔄 <b>扫描已开始...</b>\n\n这可能需要几分钟。'
+    SCAN_PROGRESS = '🔄 <b>扫描进度：</b> {checked}/{total} ({percent}%)'
     SCAN_COMPLETE = (
-        '✅ <b>Сканирование завершено</b>\n\n'
-        '📊 <b>Результаты:</b>\n'
-        '• Проверено: {total_checked}\n'
-        '• Заблокировали бота: {blocked_count}\n'
-        '• Активных: {active_users}\n'
-        '• Ошибок: {errors}\n'
-        '• Без Telegram ID: {skipped}\n\n'
-        '⏱ Время сканирования: {duration:.1f}с'
+        '✅ <b>扫描完成</b>\n\n'
+        '📊 <b>结果：</b>\n'
+        '• 已检查：{total_checked}\n'
+        '• 已拉黑机器人：{blocked_count}\n'
+        '• 正常用户：{active_users}\n'
+        '• 错误：{errors}\n'
+        '• 无 Telegram ID：{skipped}\n\n'
+        '⏱ 扫描耗时：{duration:.1f}秒'
     )
-    SCAN_NO_BLOCKED = '✅ <b>Отлично!</b>\n\nНе найдено пользователей, заблокировавших бота.'
+    SCAN_NO_BLOCKED = '✅ <b>很好！</b>\n\n未发现拉黑机器人的用户。'
 
-    BLOCKED_LIST_TITLE = '🔒 <b>Заблокированные пользователи</b> ({count})\n\n'
+    BLOCKED_LIST_TITLE = '🔒 <b>已拉黑用户</b> ({count})\n\n'
     BLOCKED_USER_ROW = '• {name} (ID: <code>{telegram_id}</code>)\n'
 
-    CLEANUP_CONFIRM_TITLE = '⚠️ <b>Подтверждение действия</b>\n\n'
+    CLEANUP_CONFIRM_TITLE = '⚠️ <b>确认操作</b>\n\n'
     CLEANUP_CONFIRM_DELETE_DB = (
-        'Вы собираетесь <b>удалить из БД</b> {count} пользователей.\n'
-        'Это действие необратимо!\n\n'
-        'Будут удалены:\n'
-        '• Профили пользователей\n'
-        '• Подписки\n'
-        '• Транзакции\n'
-        '• Реферальные данные'
+        '你将要从 <b>数据库中删除</b> {count} 个用户。\n'
+        '此操作无法撤销！\n\n'
+        '将删除以下内容：\n'
+        '• 用户资料\n'
+        '• 订阅\n'
+        '• 交易记录\n'
+        '• 推荐数据'
     )
     CLEANUP_CONFIRM_DELETE_REMNAWAVE = (
-        'Вы собираетесь <b>удалить из Remnawave</b> {count} пользователей.\nИх VPN доступ будет полностью 已禁用.'
+        '你将要从 <b>Remnawave 中删除</b> {count} 个用户。\n他们的 VPN 访问将被完全禁用。'
     )
     CLEANUP_CONFIRM_DELETE_BOTH = (
-        'Вы собираетесь <b>полностью удалить</b> {count} пользователей:\n'
-        '• Из базы данных бота\n'
-        '• Из панели Remnawave\n\n'
-        'Это действие необратимо!'
+        '你将要 <b>彻底删除</b> {count} 个用户：\n'
+        '• 从机器人数据库\n'
+        '• 从 Remnawave 面板\n\n'
+        '此操作无法撤销！'
     )
     CLEANUP_CONFIRM_MARK = (
-        'Вы собираетесь <b>пометить как заблокированных</b> {count} пользователей.\n'
-        'Они останутся в БД, но будут помечены статусом "blocked".'
+        '你将要把 {count} 个用户 <b>标记为已拉黑</b>。\n'
+        '他们会保留在数据库中，但状态会被标记为 “blocked”。'
     )
 
-    CLEANUP_PROGRESS = '🗑 <b>Очистка:</b> {processed}/{total}'
+    CLEANUP_PROGRESS = '🗑 <b>清理中：</b> {processed}/{total}'
     CLEANUP_COMPLETE = (
-        '✅ <b>Очистка завершена</b>\n\n'
-        '📊 <b>Результаты:</b>\n'
-        '• 已删除о из БД: {deleted_db}\n'
-        '• 已删除о из Remnawave: {deleted_remnawave}\n'
-        '• Помечено как заблокированные: {marked}\n'
-        '• Ошибок: {errors}'
+        '✅ <b>清理完成</b>\n\n'
+        '📊 <b>结果：</b>\n'
+        '• 已从数据库删除：{deleted_db}\n'
+        '• 已从 Remnawave 删除：{deleted_remnawave}\n'
+        '• 已标记为拉黑：{marked}\n'
+        '• 错误：{errors}'
     )
 
     BUTTON_START_SCAN = '🔍 开始扫描'
@@ -433,7 +433,7 @@ async def show_blocked_list(
     text = BlockedUsersText.BLOCKED_LIST_TITLE.value.format(count=len(blocked_list))
 
     for user_data in page_users:
-        name = user_data.get('full_name') or user_data.get('username') or 'Без имени'
+        name = user_data.get('full_name') or user_data.get('username') or '未命名'
         telegram_id = user_data.get('telegram_id', '?')
         text += BlockedUsersText.BLOCKED_USER_ROW.value.format(
             name=html.escape(name),

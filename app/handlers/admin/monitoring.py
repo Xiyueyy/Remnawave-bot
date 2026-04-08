@@ -29,7 +29,7 @@ router = Router()
 
 
 def _format_toggle(enabled: bool) -> str:
-    return '🟢 Вкл' if enabled else '🔴 Выкл'
+    return '🟢 开启' if enabled else '🔴 关闭'
 
 
 def _build_notification_settings_view(language: str):
@@ -48,11 +48,11 @@ def _build_notification_settings_view(language: str):
     third_wave_status = _format_toggle(config['expired_third_wave'].get('enabled', True))
 
     summary_text = (
-        '🔔 <b>Уведомления пользователям</b>\n\n'
-        f'• Отписка 起 канала: {trial_channel_status}\n'
-        f'• 1 день после истечения: {expired_1d_status}\n'
-        f'• 2-3 дня (скидка {second_percent}% / {second_hours} ч): {second_wave_status}\n'
-        f'• {third_days} 天 (скидка {third_percent}% / {third_hours} ч): {third_wave_status}'
+        '🔔 <b>用户通知</b>\n\n'
+        f'• 取消频道订阅：{trial_channel_status}\n'
+        f'• 到期后 1 天：{expired_1d_status}\n'
+        f'• 到期后 2-3 天（折扣 {second_percent}% / {second_hours} 小时）：{second_wave_status}\n'
+        f'• 到期后 {third_days} 天（折扣 {third_percent}% / {third_hours} 小时）：{third_wave_status}'
     )
 
     from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
@@ -148,15 +148,15 @@ async def _build_notification_preview_message(language: str, notification_type: 
     from app.keyboards.inline import get_channel_sub_keyboard
     from app.services.channel_subscription_service import channel_subscription_service
 
-    header = '🧪 <b>Тестовое уведомление мониторинга</b>\n\n'
+    header = '🧪 <b>监控通知测试</b>\n\n'
 
     if notification_type == 'trial_channel_unsubscribed':
         template = texts.get(
             'TRIAL_CHANNEL_UNSUBSCRIBED',
             (
-                '🚫 <b>Доступ приостановлен</b>\n\n'
-                'Мы не нашли вашу подписку на наш канал, поэтому тестовая подписка 已禁用.\n\n'
-                'Подпишитесь на канал и нажмите «{check_button}», чтобы вернуть доступ.'
+                '🚫 <b>访问已暂停</b>\n\n'
+                '我们没有检测到你已订阅我们的频道，因此试用订阅已被禁用。\n\n'
+                '请先订阅频道，然后点击“{check_button}”恢复访问。'
             ),
         )
         check_button = texts.t('CHANNEL_CHECK_BUTTON', '✅我已订阅')
@@ -168,8 +168,8 @@ async def _build_notification_preview_message(language: str, notification_type: 
         template = texts.get(
             'SUBSCRIPTION_EXPIRED_1D',
             (
-                '⛔ <b>Подписка закончилась</b>\n\n'
-                'Доступ был отключён {end_date}. Продлите подписку, чтобы вернуться в сервис.'
+                '⛔ <b>订阅已到期</b>\n\n'
+                '访问权限已于 {end_date} 关闭。请续订以重新使用服务。'
             ),
         )
         message = template.format(
@@ -204,9 +204,9 @@ async def _build_notification_preview_message(language: str, notification_type: 
         template = texts.get(
             'SUBSCRIPTION_EXPIRED_SECOND_WAVE',
             (
-                '🔥 <b>Скидка {percent}% на продление</b>\n\n'
-                'Активируйте предложение, чтобы получить дополнительную скидку. '
-                'Она суммируется с вашей промогруппой и действует 到 {expires_at}.'
+                '🔥 <b>续订折扣 {percent}%</b>\n\n'
+                '激活此优惠即可获得额外折扣。'
+                '该折扣可与促销组优惠叠加，并有效至 {expires_at}。'
             ),
         )
         message = template.format(
@@ -249,9 +249,9 @@ async def _build_notification_preview_message(language: str, notification_type: 
         template = texts.get(
             'SUBSCRIPTION_EXPIRED_THIRD_WAVE',
             (
-                '🎁 <b>Индивидуальная скидка {percent}%</b>\n\n'
-                'Прошло {trigger_days} 天 без подписки — возвращайтесь и активируйте дополнительную скидку. '
-                'Она суммируется с промогруппой и действует 到 {expires_at}.'
+                '🎁 <b>专属折扣 {percent}%</b>\n\n'
+                '你已 {trigger_days} 天没有订阅，欢迎回来激活额外折扣。'
+                '该折扣可与促销组优惠叠加，并有效至 {expires_at}。'
             ),
         )
         message = template.format(
@@ -290,7 +290,7 @@ async def _build_notification_preview_message(language: str, notification_type: 
     else:
         raise ValueError(f'Unsupported notification type: {notification_type}')
 
-    footer = '\n\n<i>Сообщение отправлено только вам для проверки оформления.</i>'
+    footer = '\n\n<i>此消息仅发送给你，用于检查显示效果。</i>'
     return header + message + footer, keyboard
 
 
@@ -357,7 +357,7 @@ async def admin_monitoring_menu(callback: CallbackQuery):
         async with AsyncSessionLocal() as db:
             status = await monitoring_service.get_monitoring_status(db)
 
-            running_status = '🟢 Работает' if status['is_running'] else '🔴 Остановлен'
+            running_status = '🟢 运行中' if status['is_running'] else '🔴 已停止'
             last_update = status['last_update'].strftime('%H:%M:%S') if status['last_update'] else '从不'
 
             text = f"🔍<b>监控系统</b>\n\n📊 <b>状态：</b> {running_status}\n🕐 <b>最后更新：</b> {last_update}\n⚙️ <b> 检查间隔：</b> {settings.MONITORING_INTERVAL} 分钟\n\n📈 <b> 24小时统计：</b>\n• 事件总数：{status['stats_24h']['total_events']}\n• 成功：{status['stats_24h']['successful']}\n• 错误：{status['stats_24h']['failed']}\n• 成功率：{status['stats_24h']['success_rate']}%\n\n🔧 选择一个操作："
@@ -805,16 +805,16 @@ async def clear_logs_callback(callback: CallbackQuery):
 async def test_notifications_callback(callback: CallbackQuery):
     try:
         test_message = f"""
-🧪 <b>Тестовое уведомление системы мониторинга</b>
+🧪 <b>监控系统测试通知</b>
 
-Это тестовое сообщение для проверки работы системы уведомлений.
+这是用于检查通知系统是否正常工作的测试消息。
 
-📊 <b>Статус системы:</b>
-• Мониторинг: {'🟢 Работает' if monitoring_service.is_running else '🔴 Остановлен'}
-• Уведомления: {'🟢 已启用' if settings.ENABLE_NOTIFICATIONS else '🔴 已禁用'}
-• Время теста: {datetime.now(UTC).strftime('%H:%M:%S %d.%m.%Y')}
+📊 <b>系统状态：</b>
+• 监控：{'🟢 运行中' if monitoring_service.is_running else '🔴 已停止'}
+• 通知：{'🟢 已启用' if settings.ENABLE_NOTIFICATIONS else '🔴 已禁用'}
+• 测试时间：{datetime.now(UTC).strftime('%H:%M:%S %d.%m.%Y')}
 
-✅ Если вы получили это сообщение, система уведомлений работает корректно!
+✅ 如果你收到了这条消息，说明通知系统工作正常！
 """
 
         await callback.bot.send_message(callback.from_user.id, test_message, parse_mode='HTML')
@@ -844,7 +844,7 @@ async def monitoring_statistics_callback(callback: CallbackQuery):
             week_success = sum(1 for log in week_logs if log['is_success'])
             week_errors = len(week_logs) - week_success
 
-            text = f"📊 <b>监控统计</b>\n\n📱 <b>订阅：</b>\n• 总计：{sub_stats['total_subscriptions']}\n• 主动：{sub_stats['active_subscriptions']}\n• 测试：{sub_stats['trial_subscriptions']}\n• 付费：{sub_stats['paid_subscriptions']}\n\n📈 <b> 今天：</b>\n• 成功操作：{mon_status['stats_24h']['successful']}\n• 错误：{mon_status['stats_24h']['failed']}\n• 成功率：{mon_status['stats_24h']['success_rate']}%\n\n📊 <b> 本周：</b>\n• 事件总数：{len(week_logs)}\n• 成功：{week_success}\n• 错误：{week_errors}\n• 成功率：{(round(week_success / len(week_logs) * 100, 1) if week_logs else 0)}%\n\n🔧 <b>系统：</b>\n• 间隔：{settings.MONITORING_INTERVAL} 分钟\n• 通知：{('🟢 Вкл' if getattr(settings, 'ENABLE_NOTIFICATIONS', True) else '🔴 Выкл')}\n• 自动付款：{', '.join(map(str, settings.get_autopay_warning_days()))} 天"
+            text = f"📊 <b>监控统计</b>\n\n📱 <b>订阅：</b>\n• 总计：{sub_stats['total_subscriptions']}\n• 有效：{sub_stats['active_subscriptions']}\n• 试用：{sub_stats['trial_subscriptions']}\n• 付费：{sub_stats['paid_subscriptions']}\n\n📈 <b>今天：</b>\n• 成功操作：{mon_status['stats_24h']['successful']}\n• 错误：{mon_status['stats_24h']['failed']}\n• 成功率：{mon_status['stats_24h']['success_rate']}%\n\n📊 <b>本周：</b>\n• 事件总数：{len(week_logs)}\n• 成功：{week_success}\n• 错误：{week_errors}\n• 成功率：{(round(week_success / len(week_logs) * 100, 1) if week_logs else 0)}%\n\n🔧 <b>系统：</b>\n• 间隔：{settings.MONITORING_INTERVAL} 分钟\n• 通知：{('🟢 开启' if getattr(settings, 'ENABLE_NOTIFICATIONS', True) else '🔴 关闭')}\n• 自动付款：{', '.join(map(str, settings.get_autopay_warning_days()))} 天"
 
             # Добавляем информацию о чеках NaloGO
             if settings.is_nalogo_enabled():
@@ -856,13 +856,13 @@ async def monitoring_statistics_callback(callback: CallbackQuery):
                 pending_amount = nalogo_status.get('pending_verification_amount', 0)
 
                 nalogo_section = f"""
-🧾 <b>Чеки NaloGO:</b>
-• Сервис: {'🟢 Работает' if running else '🔴 Остановлен'}
-• В очереди: {queue_len} чек(ов)"""
+🧾 <b>NaloGO 小票：</b>
+• 服务：{'🟢 运行中' if running else '🔴 已停止'}
+• 队列中：{queue_len} 张"""
                 if queue_len > 0:
-                    nalogo_section += f'\n• На сумму: {total_amount:,.2f} ₽'
+                    nalogo_section += f'\n• 总金额：{total_amount:,.2f} ₽'
                 if pending_count > 0:
-                    nalogo_section += f'\n⚠️ <b>Требуют проверки: {pending_count} ({pending_amount:,.2f} ₽)</b>'
+                    nalogo_section += f'\n⚠️ <b>待核验：{pending_count}（{pending_amount:,.2f} ₽）</b>'
                 text += nalogo_section
 
             from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
@@ -914,7 +914,7 @@ async def nalogo_force_process_callback(callback: CallbackQuery):
             await callback.answer(f'❌ {result["error"]}', show_alert=True)
             return
 
-        result.get('message', 'Готово')
+        result.get('message', '完成')
         processed = result.get('processed', 0)
         remaining = result.get('remaining', 0)
 
@@ -946,29 +946,29 @@ async def nalogo_force_process_callback(callback: CallbackQuery):
             week_errors = len(week_logs) - week_success
 
             stats_text = f"""
-📊 <b>Статистика мониторинга</b>
+📊 <b>监控统计</b>
 
-📱 <b>Подписки:</b>
-• Всего: {sub_stats['total_subscriptions']}
-• Активных: {sub_stats['active_subscriptions']}
-• Тестовых: {sub_stats['trial_subscriptions']}
-• Платных: {sub_stats['paid_subscriptions']}
+📱 <b>订阅：</b>
+• 总计：{sub_stats['total_subscriptions']}
+• 有效：{sub_stats['active_subscriptions']}
+• 试用：{sub_stats['trial_subscriptions']}
+• 付费：{sub_stats['paid_subscriptions']}
 
-📈 <b>За сегодня:</b>
-• Успешных операций: {mon_status['stats_24h']['successful']}
-• Ошибок: {mon_status['stats_24h']['failed']}
-• Успешность: {mon_status['stats_24h']['success_rate']}%
+📈 <b>今天：</b>
+• 成功操作：{mon_status['stats_24h']['successful']}
+• 错误：{mon_status['stats_24h']['failed']}
+• 成功率：{mon_status['stats_24h']['success_rate']}%
 
-📊 <b>За неделю:</b>
-• Всего событий: {len(week_logs)}
-• Успешных: {week_success}
-• Ошибок: {week_errors}
-• Успешность: {round(week_success / len(week_logs) * 100, 1) if week_logs else 0}%
+📊 <b>本周：</b>
+• 事件总数：{len(week_logs)}
+• 成功：{week_success}
+• 错误：{week_errors}
+• 成功率：{round(week_success / len(week_logs) * 100, 1) if week_logs else 0}%
 
-🔧 <b>Система:</b>
-• Интервал: {settings.MONITORING_INTERVAL} мин
-• Уведомления: {'🟢 Вкл' if getattr(settings, 'ENABLE_NOTIFICATIONS', True) else '🔴 Выкл'}
-• Автооплата: {', '.join(map(str, settings.get_autopay_warning_days()))} 天
+🔧 <b>系统：</b>
+• 间隔：{settings.MONITORING_INTERVAL} 分钟
+• 通知：{'🟢 开启' if getattr(settings, 'ENABLE_NOTIFICATIONS', True) else '🔴 关闭'}
+• 自动付款：{', '.join(map(str, settings.get_autopay_warning_days()))} 天
 """
 
             if settings.is_nalogo_enabled():
@@ -978,11 +978,11 @@ async def nalogo_force_process_callback(callback: CallbackQuery):
                 running = nalogo_status.get('running', False)
 
                 nalogo_section = f"""
-🧾 <b>Чеки NaloGO:</b>
-• Сервис: {'🟢 Работает' if running else '🔴 Остановлен'}
-• В очереди: {queue_len} чек(ов)"""
+🧾 <b>NaloGO 小票：</b>
+• 服务：{'🟢 运行中' if running else '🔴 已停止'}
+• 队列中：{queue_len} 张"""
                 if queue_len > 0:
-                    nalogo_section += f'\n• На сумму: {total_amount:,.2f} ₽'
+                    nalogo_section += f'\n• 总金额：{total_amount:,.2f} ₽'
                 stats_text += nalogo_section
 
             buttons = []
@@ -1557,7 +1557,7 @@ async def monitoring_command(message: Message):
         async with AsyncSessionLocal() as db:
             status = await monitoring_service.get_monitoring_status(db)
 
-            running_status = '🟢 Работает' if status['is_running'] else '🔴 Остановлен'
+            running_status = '🟢 运行中' if status['is_running'] else '🔴 已停止'
 
             text = f"🔍 <b>快速监控状态</b>\n\n📊 <b>状态：</b> {running_status}\n📈 <b> 24小时内活动：</b> {status['stats_24h']['total_events']}\n✅ <b> 成功：</b> {status['stats_24h']['success_rate']}%\n\n如需详细控制，请使用管理面板。"
 
@@ -1655,7 +1655,7 @@ async def process_notification_value_input(message: Message, state: FSMContext):
 
 
 def _format_traffic_toggle(enabled: bool) -> str:
-    return '🟢 Вкл' if enabled else '🔴 Выкл'
+    return '🟢 开启' if enabled else '🔴 关闭'
 
 
 def _build_traffic_settings_keyboard() -> InlineKeyboardMarkup:

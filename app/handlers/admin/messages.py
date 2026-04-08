@@ -45,6 +45,7 @@ from app.services.pinned_message_service import (
 )
 from app.states import AdminStates
 from app.utils.decorators import admin_required, error_handler
+from app.utils.display_names import escape_display_name
 from app.utils.miniapp_buttons import BUTTON_KEY_TO_CABINET_PATH, build_miniapp_or_callback_button
 
 
@@ -252,25 +253,25 @@ async def show_pinned_message_menu(
         timestamp_text = last_updated.strftime('%d.%m.%Y %H:%M') if last_updated else '—'
         media_line = ''
         if pinned_message.media_type:
-            media_label = 'Фото' if pinned_message.media_type == 'photo' else 'Видео'
-            media_line = f'📎 Медиа: {media_label}\n'
-        position_line = '⬆️ Отправлять перед меню' if pinned_message.send_before_menu else '⬇️ Отправлять после меню'
+            media_label = '图片' if pinned_message.media_type == 'photo' else '视频'
+            media_line = f'📎 媒体：{media_label}\n'
+        position_line = '⬆️ 在菜单前发送' if pinned_message.send_before_menu else '⬇️ 在菜单后发送'
         start_mode_line = (
-            '🔁 При каждом /start' if pinned_message.send_on_every_start else '🚫 Только один раз и при обновлении'
+            '🔁 每次 /start 都发送' if pinned_message.send_on_every_start else '🚫 仅首次和更新时发送'
         )
         body = (
-            '📌 <b>Закрепленное сообщение</b>\n\n'
-            '📝 Текущий текст:\n'
+            '📌 <b>置顶消息</b>\n\n'
+            '📝 当前文本：\n'
             f'<code>{content_preview}</code>\n\n'
             f'{media_line}'
             f'{position_line}\n'
             f'{start_mode_line}\n'
-            f'🕒 Обновлено: {timestamp_text}'
+            f'🕒 更新时间：{timestamp_text}'
         )
     else:
         body = (
-            '📌 <b>Закрепленное сообщение</b>\n\n'
-            'Сообщение не задано. Отправьте новый текст, чтобы разослать и закрепить его у пользователей.'
+            '📌 <b>置顶消息</b>\n\n'
+            '尚未设置消息。发送新文本后即可群发并置顶给用户。'
         )
 
     await callback.message.edit_text(
@@ -639,14 +640,14 @@ async def select_custom_criteria(callback: types.CallbackQuery, db_user: User, s
     criteria = callback.data.replace('criteria_', '')
 
     criteria_names = {
-        'today': 'Зарегистрированные сегодня',
-        'week': 'Зарегистрированные за неделю',
-        'month': 'Зарегистрированные за месяц',
-        'active_today': 'Активные сегодня',
-        'inactive_week': 'Неактивные 7+ 天',
-        'inactive_month': 'Неактивные 30+ 天',
-        'referrals': 'Пришедшие через рефералов',
-        'direct': 'Прямая регистрация',
+        'today': '今日注册',
+        'week': '近 7 天注册',
+        'month': '近 30 天注册',
+        'active_today': '今日活跃',
+        'inactive_week': '7+ 天未活跃',
+        'inactive_month': '30+ 天未活跃',
+        'referrals': '通过推荐注册',
+        'direct': '直接注册',
     }
 
     user_count = await get_custom_users_count(db, criteria)
@@ -675,14 +676,14 @@ async def select_broadcast_target(callback: types.CallbackQuery, db_user: User, 
     target = target_aliases.get(raw_target, raw_target)
 
     target_names = {
-        'all': 'Всем пользователям',
-        'active': 'С активной подпиской',
-        'trial': 'С триальной подпиской',
-        'no': 'Без подписки',
-        'expiring': 'С истекающей подпиской',
-        'expired': 'С истекшей подпиской',
-        'active_zero': 'Активная подписка, трафик 0 GB',
-        'trial_zero': 'Триальная подписка, трафик 0 GB',
+        'all': '全部用户',
+        'active': '有有效订阅的用户',
+        'trial': '有试用订阅的用户',
+        'no': '无订阅用户',
+        'expiring': '即将到期的订阅用户',
+        'expired': '已过期订阅用户',
+        'active_zero': '有效订阅且流量为 0 GB',
+        'trial_zero': '试用订阅且流量为 0 GB',
     }
 
     # Обработка фильтра по тарифу
@@ -693,9 +694,9 @@ async def select_broadcast_target(callback: types.CallbackQuery, db_user: User, 
 
         tariff = await get_tariff_by_id(db, tariff_id)
         if tariff:
-            target_name = f'套餐“{tariff.name}»'
+            target_name = f'套餐「{escape_display_name(tariff.name)}」'
         else:
-            target_name = f'Тариф #{tariff_id}'
+            target_name = f'套餐 #{tariff_id}'
 
     user_count = await get_target_users_count(db, target)
 
@@ -742,15 +743,15 @@ async def handle_media_selection(callback: types.CallbackQuery, db_user: User, s
     media_type = callback.data.replace('add_media_', '')
 
     media_instructions = {
-        'photo': '📷 Отправьте фотографию для рассылки:',
-        'video': '🎥 Отправьте видео для рассылки:',
-        'document': '📄 Отправьте документ для рассылки:',
+        'photo': '📷 请发送要群发的图片：',
+        'video': '🎥 请发送要群发的视频：',
+        'document': '📄 请发送要群发的文件：',
     }
 
     await state.update_data(media_type=media_type, waiting_for_media=True)
 
     instruction_text = (
-        f'{media_instructions.get(media_type, "Отправьте медиафайл:")}\n\n<i>Размер файла не должен превышать 50 МБ</i>'
+        f'{media_instructions.get(media_type, "请发送媒体文件：")}\n\n<i>文件大小不能超过 50 MB</i>'
     )
     instruction_keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[[types.InlineKeyboardButton(text='❌ 取消', callback_data='admin_messages')]]
@@ -815,10 +816,10 @@ async def show_media_preview(message: types.Message, db_user: User, state: FSMCo
     media_file_id = data.get('media_file_id')
 
     preview_text = (
-        f'🖼️ <b>Медиафайл добавлен</b>\n\n'
+        f'🖼️ <b>媒体文件已添加</b>\n\n'
         f'📎 <b>类型：</b> {media_type}\n'
-        f'✅ Файл сохранен и готов к отправке\n\n'
-        f'Что делать дальше?'
+        f'✅ 文件已保存并可发送\n\n'
+        f'接下来要做什么？'
     )
 
     # Для предпросмотра рассылки используем оригинальный метод без патчинга логотипа
@@ -882,10 +883,10 @@ async def show_button_selector_callback(callback: types.CallbackQuery, db_user: 
 
     media_info = ''
     if has_media:
-        media_type = data.get('media_type', 'файл')
-        media_info = f'\n🖼️ <b>Медиафайл:</b> {media_type} добавлен'
+        media_type = data.get('media_type', '文件')
+        media_info = f'\n🖼️ <b>媒体文件：</b> 已添加 {media_type}'
 
-    text = f'📘 <b>附加按钮选择</b>\n\n选择将添加到新闻通讯消息中的按钮：\n\n💰 <b>充值余额</b> - 开启充值方式\n🤝 <b>Affiliate</b> - 将开设推荐计划\n🎫 <b>促销代码</b> - 将打开一个用于输入促销代码的表格\n🔗 <b>Connect</b> - 该应用程序将帮助您连接\n📱 <b>Subscription</b> - 将显示订阅状态\n🛠️ <b>技术支持</b> - 将联系支持人员\n\n🏠 <b>“Home”按钮 </b> 默认启用，但如果需要您可以禁用它。{media_info}\n\n选择所需的按钮并单击“继续”：'
+    text = f'📘 <b>附加按钮选择</b>\n\n选择将添加到群发消息中的按钮：\n\n💰 <b>余额充值</b> - 打开充值方式\n🤝 <b>推广计划</b> - 打开推荐计划页面\n🎫 <b>促销代码</b> - 打开促销代码输入页面\n🔗 <b>连接帮助</b> - 打开连接说明\n📱 <b>我的订阅</b> - 显示订阅状态\n🛠️ <b>技术支持</b> - 联系客服\n\n🏠 <b>“首页”按钮</b> 默认启用，如有需要你也可以关闭它。{media_info}\n\n选择需要的按钮后点击“继续”：'
 
     keyboard = get_updated_message_buttons_selector_keyboard_with_media(selected_buttons, has_media, db_user.language)
 
@@ -923,7 +924,7 @@ async def show_button_selector(message: types.Message, db_user: User, state: FSM
 
     has_media = data.get('has_media', False)
 
-    text = '📘 <b>附加按钮选择</b>\n\n选择将添加到新闻通讯消息中的按钮：\n\n💰 <b>充值余额</b> - 开启充值方式\n🤝 <b>Affiliate</b> - 将开设推荐计划\n🎫 <b>促销代码</b> - 将打开一个用于输入促销代码的表格\n🔗 <b>Connect</b> - 该应用程序将帮助您连接\n📱 <b>Subscription</b> - 将显示订阅状态\n🛠️ <b>技术支持</b> - 将联系支持人员\n\n🏠 <b>“主页”按钮 </b> 默认启用，但您可以根据需要禁用它。\n\n选择所需的按钮并单击“继续”：'
+    text = '📘 <b>附加按钮选择</b>\n\n选择将添加到群发消息中的按钮：\n\n💰 <b>余额充值</b> - 打开充值方式\n🤝 <b>推广计划</b> - 打开推荐计划页面\n🎫 <b>促销代码</b> - 打开促销代码输入页面\n🔗 <b>连接帮助</b> - 打开连接说明\n📱 <b>我的订阅</b> - 显示订阅状态\n🛠️ <b>技术支持</b> - 联系客服\n\n🏠 <b>“首页”按钮</b> 默认启用，如有需要你也可以关闭它。\n\n选择需要的按钮后点击“继续”：'
 
     keyboard = get_updated_message_buttons_selector_keyboard_with_media(selected_buttons, has_media, db_user.language)
 
@@ -977,29 +978,29 @@ async def confirm_button_selection(callback: types.CallbackQuery, db_user: User,
 
     media_info = ''
     if has_media:
-        media_type_names = {'photo': 'Фотография', 'video': 'Видео', 'document': 'Документ'}
-        media_info = f'\n🖼️ <b>Медиафайл:</b> {media_type_names.get(media_type, media_type)}'
+        media_type_names = {'photo': '图片', 'video': '视频', 'document': '文件'}
+        media_info = f'\n🖼️ <b>媒体文件：</b> {media_type_names.get(media_type, media_type)}'
 
     ordered_keys = [button_key for row in BUTTON_ROWS for button_key in row]
     button_labels = get_broadcast_button_labels(db_user.language)
     selected_names = [button_labels[key] for key in ordered_keys if key in selected_buttons]
     if selected_names:
-        buttons_info = f'\n📘 <b>Кнопки:</b> {", ".join(selected_names)}'
+        buttons_info = f'\n📘 <b>按钮：</b> {", ".join(selected_names)}'
     else:
-        buttons_info = '\n📘 <b>Кнопки:</b> отсутствуют'
+        buttons_info = '\n📘 <b>按钮：</b> 无'
 
     preview_text = f"""
-📨 <b>Предварительный просмотр рассылки</b>
+📨 <b>群发预览</b>
 
-🎯 <b>Аудитория:</b> {target_display}
-👥 <b>Получателей:</b> {user_count}
+🎯 <b>受众：</b> {target_display}
+👥 <b>接收人数：</b> {user_count}
 
-📝 <b>Сообщение:</b>
+📝 <b>消息内容：</b>
 {message_text}{media_info}
 
 {buttons_info}
 
-Подтвердить отправку?
+确认发送吗？
 """
 
     keyboard = [
@@ -1362,18 +1363,18 @@ async def confirm_broadcast(callback: types.CallbackQuery, db_user: User, state:
     )
 
     success_rate = round(sent_count / total_users_count * 100, 1) if total_users_count else 0
-    media_info = f'\n🖼️ <b>Медиафайл:</b> {media_type}' if has_media else ''
-    blocked_line = f'• Заблокировали бота: {blocked_count}\n' if blocked_count else ''
+    media_info = f'\n🖼️ <b>媒体文件：</b> {media_type}' if has_media else ''
+    blocked_line = f'• 已拉黑机器人：{blocked_count}\n' if blocked_count else ''
 
     result_text = (
-        f'✅ <b>Рассылка завершена!</b>\n\n'
-        f'📊 <b>Результат:</b>\n'
-        f'• Отправлено: {sent_count}\n'
+        f'✅ <b>群发完成！</b>\n\n'
+        f'📊 <b>结果：</b>\n'
+        f'• 已发送：{sent_count}\n'
         f'{blocked_line}'
-        f'• Не доставлено: {failed_count}\n'
-        f'• Всего пользователей: {total_users_count}\n'
-        f'• Успешность: {success_rate}%{media_info}\n\n'
-        f'<b>Администратор:</b> {html.escape(admin_name)}'
+        f'• 发送失败：{failed_count}\n'
+        f'• 总用户数：{total_users_count}\n'
+        f'• 成功率：{success_rate}%{media_info}\n\n'
+        f'<b>管理员：</b> {html.escape(admin_name)}'
     )
 
     back_keyboard = types.InlineKeyboardMarkup(
@@ -1901,24 +1902,24 @@ async def get_users_statistics(db: AsyncSession) -> dict:
 
 def get_target_name(target_type: str) -> str:
     names = {
-        'all': 'Всем пользователям',
-        'active': 'С активной подпиской',
-        'trial': 'С триальной подпиской',
-        'no': 'Без подписки',
-        'sub': 'Без подписки',
-        'expiring': 'С истекающей подпиской',
-        'expired': 'С истекшей подпиской',
-        'active_zero': 'Активная подписка, трафик 0 GB',
-        'trial_zero': 'Триальная подписка, трафик 0 GB',
-        'zero': 'Подписка, трафик 0 GB',
-        'custom_today': 'Зарегистрированные сегодня',
-        'custom_week': 'Зарегистрированные за неделю',
-        'custom_month': 'Зарегистрированные за месяц',
-        'custom_active_today': 'Активные сегодня',
-        'custom_inactive_week': 'Неактивные 7+ 天',
-        'custom_inactive_month': 'Неактивные 30+ 天',
-        'custom_referrals': 'Через рефералов',
-        'custom_direct': 'Прямая регистрация',
+        'all': '全部用户',
+        'active': '有有效订阅的用户',
+        'trial': '有试用订阅的用户',
+        'no': '无订阅用户',
+        'sub': '无订阅用户',
+        'expiring': '即将到期的订阅用户',
+        'expired': '已过期订阅用户',
+        'active_zero': '有效订阅且流量为 0 GB',
+        'trial_zero': '试用订阅且流量为 0 GB',
+        'zero': '订阅流量为 0 GB',
+        'custom_today': '今日注册',
+        'custom_week': '近 7 天注册',
+        'custom_month': '近 30 天注册',
+        'custom_active_today': '今日活跃',
+        'custom_inactive_week': '7+ 天未活跃',
+        'custom_inactive_month': '30+ 天未活跃',
+        'custom_referrals': '通过推荐注册',
+        'custom_direct': '直接注册',
     }
     # Обработка фильтра по тарифу
     if target_type.startswith('tariff_'):
