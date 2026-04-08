@@ -108,14 +108,14 @@ async def _activate_pending_gift_after_registration(
         # Prevent self-activation: buyer cannot activate their own gift
         if gift_purchase.buyer_user_id is not None and gift_purchase.buyer_user_id == user.id:
             await answer_func(
-                '⚠️ Нельзя активировать свой собственный подарок.\nОтправьте код другу!',
+                '⚠️ 不能激活您自己购买的礼物。\n请把兑换码发给朋友！',
                 parse_mode=ParseMode.HTML,
             )
             return
 
         if gift_purchase.status == GuestPurchaseStatus.DELIVERED.value:
             await answer_func(
-                'ℹ️ Этот подарок уже был активирован.',
+                'ℹ️ 这个礼物已经被激活。',
                 parse_mode=ParseMode.HTML,
             )
             return
@@ -126,7 +126,7 @@ async def _activate_pending_gift_after_registration(
         }
         if gift_purchase.status not in activatable_statuses:
             await answer_func(
-                '❌ Этот подарок невозможно активировать.',
+                '❌ 这个礼物无法激活。',
                 parse_mode=ParseMode.HTML,
             )
             return
@@ -144,9 +144,9 @@ async def _activate_pending_gift_after_registration(
         await svc_activate(db, gift_purchase.token, skip_notification=True)
         tariff_name = html.escape(gift_purchase.tariff.name) if gift_purchase.tariff else ''
         await answer_func(
-            f'🎁 <b>Подарок активирован!</b>\n'
-            f'{tariff_name} — {gift_purchase.period_days} дн.\n\n'
-            f'Ваша подписка обновлена.',
+            f'🎁 <b>礼物已激活！</b>\n'
+            f'{tariff_name} — {gift_purchase.period_days} 天\n\n'
+            f'您的订阅已更新。',
             parse_mode=ParseMode.HTML,
         )
     except Exception:
@@ -156,7 +156,7 @@ async def _activate_pending_gift_after_registration(
         )
         try:
             await answer_func(
-                '❌ Произошла ошибка при активации подарка. Попробуйте активировать через личный кабинет.',
+                '❌ 激活礼物时出错，请尝试在个人中心中激活。',
                 parse_mode=ParseMode.HTML,
             )
         except Exception:
@@ -401,9 +401,9 @@ async def _apply_campaign_bonus_if_needed(
         traffic_text = texts.format_traffic(result.subscription_traffic_gb or 0)
         return texts.t(
             'CAMPAIGN_BONUS_TARIFF',
-            "🎁 Вам выдан тариф '{tariff_name}' на {days} дней!\n📊 Трафик: {traffic}\n📱 Устройств: {devices}",
+            "🎁 已向您发放套餐“{tariff_name}”，有效期 {days} 天！\n📊 流量：{traffic}\n📱 设备：{devices}",
         ).format(
-            tariff_name=result.tariff_name or 'Подарочный',
+            tariff_name=result.tariff_name or '赠送套餐',
             days=result.tariff_duration_days,
             traffic=traffic_text,
             devices=result.subscription_device_limit,
@@ -455,7 +455,7 @@ async def handle_potential_referral_code(message: types.Message, state: FSMConte
         await message.answer(
             texts.t(
                 'PROMO_RATE_LIMITED',
-                '⏳ Слишком много попыток. Попробуйте через {cooldown} сек.',
+                '⏳ 尝试次数过多。请在 {cooldown} 秒后尝试。',
             ).format(cooldown=cooldown)
         )
         return True
@@ -467,7 +467,7 @@ async def handle_potential_referral_code(message: types.Message, state: FSMConte
         data['referrer_id'] = referrer.id
         await state.set_data(data)
 
-        await message.answer(texts.t('REFERRAL_CODE_ACCEPTED', '✅ Реферальный код принят!'))
+        await message.answer(texts.t('REFERRAL_CODE_ACCEPTED', '✅推荐码已接受！'))
         logger.info(
             '✅ Реферальный код применен для пользователя',
             potential_code=potential_code,
@@ -500,7 +500,7 @@ async def handle_potential_referral_code(message: types.Message, state: FSMConte
         await message.answer(
             texts.t(
                 'PROMOCODE_ACCEPTED_WILL_ACTIVATE',
-                '✅ Промокод принят! Он будет активирован после завершения регистрации.',
+                '✅优惠码已接受！将在注册完成后激活。',
             )
         )
         logger.info(
@@ -529,16 +529,14 @@ async def handle_potential_referral_code(message: types.Message, state: FSMConte
     await message.answer(
         texts.t(
             'REFERRAL_OR_PROMO_CODE_INVALID_HELP',
-            '❌ Неверный реферальный код или промокод.\n\n'
-            '💡 Если у вас есть реферальный код или промокод, убедитесь что он введен правильно.\n'
-            '⏭️ Для продолжения регистрации без кода используйте команду /start',
+            '❌推荐码或优惠码无效。\n\n💡如果您有推荐码或优惠码，请确保输入正确。\n⏭️要在没有代码的情况下继续注册，请使用启动命令命令',
         )
     )
     return True
 
 
 def _get_language_prompt_text() -> str:
-    return '🌐 Выберите язык / Choose your language:'
+    return '🌐 请选择语言：'
 
 
 async def _prompt_language_selection(message: types.Message, state: FSMContext) -> None:
@@ -590,7 +588,7 @@ async def _continue_registration_after_language(
                 await target_message.answer(
                     texts.t(
                         'REFERRAL_CODE_QUESTION',
-                        "У вас есть реферальный код? Введите его или нажмите 'Пропустить'",
+                        '\n🤝 <b>你有推荐码或优惠码吗？</b>\n\n如果你有朋友分享的优惠码或推荐链接，现在输入即可获得奖励！\n\n发送代码，或点击“跳过”：\n',
                     ),
                     reply_markup=get_referral_code_keyboard(language),
                 )
@@ -678,11 +676,11 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
                     inline_keyboard=[
                         [
                             types.InlineKeyboardButton(
-                                text=texts.t('WEB_AUTH_CONFIRM_YES', '✅ Да, войти'),
+                                text=texts.t('WEB_AUTH_CONFIRM_YES', '✅ 是，登录'),
                                 callback_data=f'webauth_confirm:{web_auth_token}',
                             ),
                             types.InlineKeyboardButton(
-                                text=texts.t('WEB_AUTH_CONFIRM_NO', '❌ Нет'),
+                                text=texts.t('WEB_AUTH_CONFIRM_NO', '❌ 否'),
                                 callback_data='webauth_deny',
                             ),
                         ],
@@ -691,13 +689,13 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
                 await message.answer(
                     texts.t(
                         'WEB_AUTH_CONFIRM_PROMPT',
-                        '🔐 Подтвердите вход в личный кабинет. Если вы не запрашивали вход — нажмите «Нет».',
+                        '🔐 请确认登录个人中心。如果这不是您本人发起的登录，请点击“否”。',
                     ),
                     reply_markup=keyboard,
                 )
             else:
                 logger.warning('Web auth attempt from unregistered user', telegram_id=message.from_user.id)
-                await message.answer('❌ Сначала зарегистрируйтесь в боте, затем попробуйте войти в кабинет.')
+                await message.answer('❌ 请先在机器人中完成注册，然后再尝试登录个人中心。')
             return
         start_parameter = None  # Invalid token, ignore
 
@@ -819,7 +817,7 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
             await message.answer(
                 texts.t(
                     'ALREADY_REGISTERED_REFERRAL',
-                    'ℹ️ Вы уже зарегистрированы в системе. Реферальная ссылка не может быть применена.',
+                    'ℹ️您已在系统中注册。推荐链接无法应用。',
                 )
             )
 
@@ -828,7 +826,7 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
                 await message.answer(
                     texts.t(
                         'CAMPAIGN_EXISTING_USERL',
-                        'ℹ️ Эта рекламная ссылка доступна только новым пользователям.',
+                        'ℹ️此广告链接仅对新用户可用。',
                     )
                 )
             except Exception as e:
@@ -1043,14 +1041,14 @@ async def process_language_selection(
             await callback.message.edit_text(
                 texts.t(
                     'LANGUAGE_SELECTION_DISABLED',
-                    '⚙️ Выбор языка временно недоступен. Используем язык по умолчанию.',
+                    '⚙️语言选择暂时不可用。将使用默认语言。',
                 )
             )
         except Exception:
             await callback.message.answer(
                 texts.t(
                     'LANGUAGE_SELECTION_DISABLED',
-                    '⚙️ Выбор языка временно недоступен. Используем язык по умолчанию.',
+                    '⚙️语言选择暂时不可用。将使用默认语言。',
                 )
             )
 
@@ -1092,12 +1090,12 @@ async def process_language_selection(
 
     try:
         await callback.message.edit_text(
-            texts.t('LANGUAGE_SELECTED', '🌐 Язык интерфейса обновлен.'),
+            texts.t('LANGUAGE_SELECTED', '🌐界面语言已设置为：<b>中文（简体）</b>'),
         )
     except Exception as error:
         logger.warning('⚠️ LANGUAGE: Не удалось обновить сообщение выбора языка', error=error)
         await callback.message.answer(
-            texts.t('LANGUAGE_SELECTED', '🌐 Язык интерфейса обновлен.'),
+            texts.t('LANGUAGE_SELECTED', '🌐界面语言已设置为：<b>中文（简体）</b>'),
         )
 
     await callback.answer()
@@ -1188,7 +1186,7 @@ async def _continue_registration_after_rules(
             await callback.message.edit_text(
                 texts.t(
                     'REFERRAL_CODE_QUESTION',
-                    "У вас есть реферальный код? Введите его или нажмите 'Пропустить'",
+                    '\n🤝 <b>你有推荐码或优惠码吗？</b>\n\n如果你有朋友分享的优惠码或推荐链接，现在输入即可获得奖励！\n\n发送代码，或点击“跳过”：\n',
                 ),
                 reply_markup=get_referral_code_keyboard(language),
             )
@@ -1235,7 +1233,7 @@ async def process_rules_accept(callback: types.CallbackQuery, state: FSMContext,
 
             rules_required_text = texts.t(
                 'RULES_REQUIRED',
-                'Для использования бота необходимо принять правила сервиса.',
+                '❗️要使用服务，您必须接受规则！',
             )
 
             try:
@@ -1251,7 +1249,7 @@ async def process_rules_accept(callback: types.CallbackQuery, state: FSMContext,
     except Exception as e:
         logger.error('❌ Ошибка обработки правил', error=e, exc_info=True)
         await callback.answer(
-            texts.t('ERROR_TRY_AGAIN', '❌ Произошла ошибка. Попробуйте еще раз.'),
+            texts.t('ERROR_TRY_AGAIN', '❌发生错误。请重试。'),
             show_alert=True,
         )
 
@@ -1262,7 +1260,7 @@ async def process_rules_accept(callback: types.CallbackQuery, state: FSMContext,
             await callback.message.answer(
                 texts.t(
                     'ERROR_RULES_RETRY',
-                    'Произошла ошибка. Попробуйте принять правила еще раз:',
+                    '发生错误。请尝试再次接受规则：',
                 ),
                 reply_markup=get_rules_keyboard(language),
             )
@@ -1301,7 +1299,7 @@ async def process_privacy_policy_accept(callback: types.CallbackQuery, state: FS
                     await callback.message.edit_text(
                         texts.t(
                             'PRIVACY_POLICY_ACCEPTED_PROCESSING',
-                            '✅ Политика конфиденциальности принята! Продолжаем регистрацию...',
+                            '✅ 已接受隐私政策！正在继续注册...',
                         ),
                         reply_markup=None,
                     )
@@ -1330,7 +1328,7 @@ async def process_privacy_policy_accept(callback: types.CallbackQuery, state: FS
                         chat_id=callback.from_user.id,
                         text=texts.t(
                             'REFERRAL_CODE_QUESTION',
-                            "У вас есть реферальный код? Введите его или нажмите 'Пропустить'",
+                            '\n🤝 <b>你有推荐码或优惠码吗？</b>\n\n如果你有朋友分享的优惠码或推荐链接，现在输入即可获得奖励！\n\n发送代码，或点击“跳过”：\n',
                         ),
                         reply_markup=get_referral_code_keyboard(language),
                     )
@@ -1344,7 +1342,7 @@ async def process_privacy_policy_accept(callback: types.CallbackQuery, state: FS
 
             privacy_policy_required_text = texts.t(
                 'PRIVACY_POLICY_REQUIRED',
-                'Для использования бота необходимо принять политику конфиденциальности.',
+                '使用机器人前，必须先接受隐私政策。',
             )
 
             try:
@@ -1362,7 +1360,7 @@ async def process_privacy_policy_accept(callback: types.CallbackQuery, state: FS
     except Exception as e:
         logger.error('❌ Ошибка обработки политики конфиденциальности', error=e, exc_info=True)
         await callback.answer(
-            texts.t('ERROR_TRY_AGAIN', '❌ Произошла ошибка. Попробуйте еще раз.'),
+            texts.t('ERROR_TRY_AGAIN', '❌发生错误。请重试。'),
             show_alert=True,
         )
 
@@ -1373,7 +1371,7 @@ async def process_privacy_policy_accept(callback: types.CallbackQuery, state: FS
             await callback.message.answer(
                 texts.t(
                     'ERROR_PRIVACY_POLICY_RETRY',
-                    'Произошла ошибка. Попробуйте принять политику конфиденциальности еще раз:',
+                    '发生错误。请再试一次接受隐私政策：',
                 ),
                 reply_markup=get_privacy_policy_keyboard(language),
             )
@@ -1390,7 +1388,7 @@ async def process_referral_code_input(message: types.Message, state: FSMContext,
     texts = get_texts(language)
 
     if not message.text:
-        await message.answer(texts.t('REFERRAL_OR_PROMO_CODE_INVALID', '❌ Неверный реферальный код или промокод'))
+        await message.answer(texts.t('REFERRAL_OR_PROMO_CODE_INVALID', '❌推荐码或优惠码无效'))
         return
 
     from app.utils.promo_rate_limiter import promo_limiter, validate_promo_format
@@ -1399,7 +1397,7 @@ async def process_referral_code_input(message: types.Message, state: FSMContext,
 
     # Валидация формата
     if not validate_promo_format(code):
-        await message.answer(texts.t('REFERRAL_OR_PROMO_CODE_INVALID', '❌ Неверный реферальный код или промокод'))
+        await message.answer(texts.t('REFERRAL_OR_PROMO_CODE_INVALID', '❌推荐码或优惠码无效'))
         return
 
     # Rate-limit на перебор
@@ -1408,7 +1406,7 @@ async def process_referral_code_input(message: types.Message, state: FSMContext,
         await message.answer(
             texts.t(
                 'PROMO_RATE_LIMITED',
-                '⏳ Слишком много попыток. Попробуйте через {cooldown} сек.',
+                '⏳ 尝试次数过多。请在 {cooldown} 秒后尝试。',
             ).format(cooldown=cooldown)
         )
         return
@@ -1418,7 +1416,7 @@ async def process_referral_code_input(message: types.Message, state: FSMContext,
     if referrer:
         data['referrer_id'] = referrer.id
         await state.set_data(data)
-        await message.answer(texts.t('REFERRAL_CODE_ACCEPTED', '✅ Реферальный код принят!'))
+        await message.answer(texts.t('REFERRAL_CODE_ACCEPTED', '✅推荐码已接受！'))
         logger.info('✅ Реферальный код применен', code=code)
         await complete_registration(message, state, db)
         return
@@ -1435,7 +1433,7 @@ async def process_referral_code_input(message: types.Message, state: FSMContext,
         await message.answer(
             texts.t(
                 'PROMOCODE_ACCEPTED_WILL_ACTIVATE',
-                '✅ Промокод принят! Он будет активирован после завершения регистрации.',
+                '✅优惠码已接受！将在注册完成后激活。',
             )
         )
         logger.info('✅ Промокод сохранен для активации', code=code)
@@ -1446,7 +1444,7 @@ async def process_referral_code_input(message: types.Message, state: FSMContext,
     promo_limiter.record_failed_attempt(message.from_user.id)
     promo_limiter.cleanup()
 
-    await message.answer(texts.t('REFERRAL_OR_PROMO_CODE_INVALID', '❌ Неверный реферальный код или промокод'))
+    await message.answer(texts.t('REFERRAL_OR_PROMO_CODE_INVALID', '❌推荐码或优惠码无效'))
     logger.info('❌ Неверный код (ни реферальный, ни промокод)', code=code)
     return
 
@@ -1466,7 +1464,7 @@ async def process_referral_code_skip(callback: types.CallbackQuery, state: FSMCo
         logger.warning('⚠️ Не удалось удалить сообщение с вопросом о реферальном коде', error=e)
         try:
             await callback.message.edit_text(
-                texts.t('REGISTRATION_COMPLETING', '✅ Завершаем регистрацию...'), reply_markup=None
+                texts.t('REGISTRATION_COMPLETING', '✅正在完成注册...'), reply_markup=None
             )
         except Exception:
             pass
@@ -1488,7 +1486,7 @@ async def complete_registration_from_callback(callback: types.CallbackQuery, sta
             await callback.message.answer(
                 texts.t(
                     'ALREADY_REGISTERED_REFERRAL',
-                    'ℹ️ Вы уже зарегистрированы в системе. Реферальная ссылка не может быть применена.',
+                    'ℹ️您已在系统中注册。推荐链接无法应用。',
                 )
             )
 
@@ -1539,7 +1537,7 @@ async def complete_registration_from_callback(callback: types.CallbackQuery, sta
             await callback.message.answer(
                 texts.t(
                     'WELCOME_FALLBACK',
-                    'Добро пожаловать, {user_name}!',
+                    '欢迎，{user_name}！',
                 ).format(user_name=html.escape(existing_user.full_name or ''))
             )
 
@@ -1786,7 +1784,7 @@ async def complete_registration_from_callback(callback: types.CallbackQuery, sta
             await callback.message.answer(
                 texts.t(
                     'WELCOME_FALLBACK',
-                    'Добро пожаловать, {user_name}!',
+                    '欢迎，{user_name}！',
                 ).format(user_name=html.escape(user.full_name or ''))
             )
 
@@ -1807,7 +1805,7 @@ async def complete_registration(message: types.Message, state: FSMContext, db: A
             await message.answer(
                 texts.t(
                     'ALREADY_REGISTERED_REFERRAL',
-                    'ℹ️ Вы уже зарегистрированы в системе. Реферальная ссылка не может быть применена.',
+                    'ℹ️您已在系统中注册。推荐链接无法应用。',
                 )
             )
 
@@ -1858,7 +1856,7 @@ async def complete_registration(message: types.Message, state: FSMContext, db: A
             await message.answer(
                 texts.t(
                     'WELCOME_FALLBACK',
-                    'Добро пожаловать, {user_name}!',
+                    '欢迎，{user_name}！',
                 ).format(user_name=html.escape(existing_user.full_name or ''))
             )
 
@@ -1995,7 +1993,7 @@ async def complete_registration(message: types.Message, state: FSMContext, db: A
 
             if promocode_result['success']:
                 await message.answer(
-                    texts.t('PROMOCODE_ACTIVATED_AT_REGISTRATION', '✅ Промокод активирован!\n\n{description}').format(
+                    texts.t('PROMOCODE_ACTIVATED_AT_REGISTRATION', '✅优惠码已激活！\n\n{description}').format(
                         description=promocode_result['description']
                     )
                 )
@@ -2140,7 +2138,7 @@ async def complete_registration(message: types.Message, state: FSMContext, db: A
             await message.answer(
                 texts.t(
                     'WELCOME_FALLBACK',
-                    'Добро пожаловать, {user_name}!',
+                    '欢迎，{user_name}！',
                 ).format(user_name=html.escape(user.full_name or ''))
             )
 
@@ -2151,7 +2149,7 @@ def _get_subscription_status(user, texts):
     _subs = getattr(user, 'subscriptions', None) or [] if user else []
     _first_sub = next((s for s in _subs if s.is_active), _subs[0] if _subs else None)
     if not user or not _first_sub:
-        return texts.t('SUBSCRIPTION_NONE', 'Нет активной подписки')
+        return texts.t('SUBSCRIPTION_NONE', '❌没有活跃的订阅')
 
     subscription = _first_sub
     actual_status = getattr(subscription, 'actual_status', None)
@@ -2161,70 +2159,70 @@ def _get_subscription_status(user, texts):
     current_time = datetime.now(UTC)
 
     if actual_status == 'disabled':
-        return texts.t('SUB_STATUS_DISABLED', '⚫ Отключена')
+        return texts.t('SUB_STATUS_DISABLED', '⚫已禁用')
 
     if actual_status == 'limited':
-        return texts.t('SUB_STATUS_LIMITED', '⚠️ Трафик исчерпан')
+        return texts.t('SUB_STATUS_LIMITED', '⚠️流量耗尽')
 
     if actual_status == 'pending':
-        return texts.t('SUB_STATUS_PENDING', '⏳ Ожидает активации')
+        return texts.t('SUB_STATUS_PENDING', '⏳等待激活')
 
     if actual_status == 'expired' or (end_date and end_date <= current_time):
         if end_date_display:
             return texts.t(
                 'SUB_STATUS_EXPIRED',
-                '🔴 Истекла\n📅 {end_date}',
+                '🔴已过期\n📅{end_date}',
             ).format(end_date=end_date_display)
-        return texts.t('SUBSCRIPTION_STATUS_EXPIRED', '🔴 Истекла')
+        return texts.t('SUBSCRIPTION_STATUS_EXPIRED', '已过期')
 
     if not end_date:
-        return texts.t('SUBSCRIPTION_ACTIVE', '✅ Активна')
+        return texts.t('SUBSCRIPTION_ACTIVE', '✅活跃')
 
     days_left = (end_date - current_time).days
     is_trial = actual_status == 'trial' or getattr(subscription, 'is_trial', False)
 
     if actual_status not in {'active', 'trial', None} and not is_trial:
-        return texts.t('SUBSCRIPTION_STATUS_UNKNOWN', '❓ Статус неизвестен')
+        return texts.t('SUBSCRIPTION_STATUS_UNKNOWN', '未知')
 
     if is_trial:
         if days_left > 1 and end_date_display:
             return texts.t(
                 'SUB_STATUS_TRIAL_ACTIVE',
-                '🎁 Тестовая подписка\n📅 до {end_date} ({days} дн.)',
+                '🎁试用订阅\n📅至{end_date}({days}天)',
             ).format(end_date=end_date_display, days=days_left)
         if days_left == 1:
             return texts.t(
                 'SUB_STATUS_TRIAL_TOMORROW',
-                '🎁 Тестовая подписка\n⚠️ истекает завтра!',
+                '🎁试用订阅\n⚠️明天过期！',
             )
         return texts.t(
             'SUB_STATUS_TRIAL_TODAY',
-            '🎁 Тестовая подписка\n⚠️ истекает сегодня!',
+            '🎁试用订阅\n⚠️今天过期！',
         )
 
     if days_left > 7 and end_date_display:
         return texts.t(
             'SUB_STATUS_ACTIVE_LONG',
-            '💎 Активна\n📅 до {end_date} ({days} дн.)',
+            '💎活跃\n📅至{end_date}({days}天)',
         ).format(end_date=end_date_display, days=days_left)
     if days_left > 1:
         return texts.t(
             'SUB_STATUS_ACTIVE_FEW_DAYS',
-            '💎 Активна\n⚠️ истекает через {days} дн.',
+            '💎活跃\n⚠️{days}天后过期',
         ).format(days=days_left)
     if days_left == 1:
         return texts.t(
             'SUB_STATUS_ACTIVE_TOMORROW',
-            '💎 Активна\n⚠️ истекает завтра!',
+            '💎活跃\n⚠️明天过期！',
         )
     return texts.t(
         'SUB_STATUS_ACTIVE_TODAY',
-        '💎 Активна\n⚠️ истекает сегодня!',
+        '💎活跃\n⚠️今天过期！',
     )
 
 
 def _get_subscription_status_simple(texts):
-    return texts.t('SUBSCRIPTION_NONE', 'Нет активной подписки')
+    return texts.t('SUBSCRIPTION_NONE', '❌没有活跃的订阅')
 
 
 def _insert_random_message(base_text: str, random_message: str, action_prompt: str) -> str:
@@ -2247,7 +2245,7 @@ def get_referral_code_keyboard(language: str):
     texts = get_texts(language)
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=texts.t('REFERRAL_CODE_SKIP', '⭐️ Пропустить'), callback_data='referral_skip')]
+            [InlineKeyboardButton(text=texts.t('REFERRAL_CODE_SKIP', '⏭️跳过'), callback_data='referral_skip')]
         ]
     )
 
@@ -2257,7 +2255,7 @@ async def get_main_menu_text(user, texts, db: AsyncSession):
         user_name=html.escape(user.full_name or ''), subscription_status=_get_subscription_status(user, texts)
     )
 
-    action_prompt = texts.t('MAIN_MENU_ACTION_PROMPT', 'Выберите действие:')
+    action_prompt = texts.t('MAIN_MENU_ACTION_PROMPT', '请选择操作：')
 
     info_sections: list[str] = []
 
@@ -2304,7 +2302,7 @@ async def get_main_menu_text_simple(user_name, texts, db: AsyncSession):
         user_name=html.escape(user_name or ''), subscription_status=_get_subscription_status_simple(texts)
     )
 
-    action_prompt = texts.t('MAIN_MENU_ACTION_PROMPT', 'Выберите действие:')
+    action_prompt = texts.t('MAIN_MENU_ACTION_PROMPT', '请选择操作：')
 
     try:
         random_message = await get_random_active_message(db)
@@ -2371,7 +2369,7 @@ async def required_sub_channel_check(
                 pending_start_payload=pending_start_payload,
             )
             return await query.answer(
-                texts.t('CHANNEL_SUBSCRIBE_REQUIRED_ALERT', 'Please subscribe to all required channels first!'),
+                texts.t('CHANNEL_SUBSCRIBE_REQUIRED_ALERT', '请先订阅所有必需频道！'),
                 show_alert=True,
             )
 
@@ -2445,7 +2443,7 @@ async def required_sub_channel_check(
                 )
 
         await query.answer(
-            texts.t('CHANNEL_SUBSCRIBE_THANKS', '✅ Спасибо за подписку'),
+            texts.t('CHANNEL_SUBSCRIBE_THANKS', '✅感谢您的订阅'),
             show_alert=True,
         )
 
@@ -2685,7 +2683,7 @@ async def required_sub_channel_check(
                         chat_id=query.from_user.id,
                         text=texts.t(
                             'REFERRAL_CODE_QUESTION',
-                            "У вас есть реферальный код? Введите его или нажмите 'Пропустить'",
+                            '\n🤝 <b>你有推荐码或优惠码吗？</b>\n\n如果你有朋友分享的优惠码或推荐链接，现在输入即可获得奖励！\n\n发送代码，或点击“跳过”：\n',
                         ),
                         reply_markup=get_referral_code_keyboard(language),
                     )
@@ -2738,29 +2736,29 @@ async def process_webauth_confirm(
         return
 
     if callback.data == 'webauth_deny':
-        await callback.message.edit_text('❌ Вход отменён.')
+        await callback.message.edit_text('❌ 登录已取消。')
         return
 
     # Extract token from callback_data: "webauth_confirm:{token}"
     token = callback.data.split(':', 1)[1] if ':' in callback.data else ''
     if len(token) < WEB_AUTH_TOKEN_MIN_LENGTH:
-        await callback.message.edit_text('❌ Ошибка: неверный токен.')
+        await callback.message.edit_text('❌ 错误：令牌无效。')
         return
 
     user = await get_user_by_telegram_id(db, callback.from_user.id)
     if not user or user.status != UserStatus.ACTIVE.value:
-        await callback.message.edit_text('❌ Учётная запись неактивна.')
+        await callback.message.edit_text('❌ 账号未激活。')
         return
 
     linked = await link_web_auth_token(token, callback.from_user.id, user.id)
     texts = get_texts(user.language)
     if linked:
         await callback.message.edit_text(
-            texts.t('WEB_AUTH_SUCCESS', '✅ Авторизация в кабинете подтверждена! Вернитесь в браузер.'),
+            texts.t('WEB_AUTH_SUCCESS', '✅ 个人中心登录已确认！请返回浏览器继续。'),
         )
     else:
         await callback.message.edit_text(
-            texts.t('WEB_AUTH_EXPIRED', '❌ Ссылка для входа истекла. Попробуйте снова.'),
+            texts.t('WEB_AUTH_EXPIRED', '❌ 登录链接已过期，请重试。'),
         )
 
 

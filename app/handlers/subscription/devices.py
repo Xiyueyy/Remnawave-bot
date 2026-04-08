@@ -84,7 +84,7 @@ async def get_current_devices_detailed(db_user: User, subscription=None) -> dict
 
 async def get_servers_display_names(squad_uuids: list[str]) -> str:
     if not squad_uuids:
-        return 'Нет серверов'
+        return '没有服务器'
 
     try:
         from app.database.crud.server_squad import get_server_squad_by_uuid
@@ -112,20 +112,20 @@ async def get_servers_display_names(squad_uuids: list[str]) -> str:
 
         if not server_names:
             if len(squad_uuids) == 1:
-                return '🎯 Тестовый сервер'
-            return f'{len(squad_uuids)} стран'
+                return '🎯 测试服务器'
+            return f'{len(squad_uuids)} 国家'
 
         if len(server_names) > 6:
             displayed = ', '.join(server_names[:6])
             remaining = len(server_names) - 6
-            return f'{displayed} и ещё {remaining}'
+            return f'{displayed} 以及 {remaining}'
         return ', '.join(server_names)
 
     except Exception as e:
         logger.error('Ошибка получения названий серверов', error=e)
         if len(squad_uuids) == 1:
-            return '🎯 Тестовый сервер'
-        return f'{len(squad_uuids)} стран'
+            return '🎯 测试服务器'
+        return f'{len(squad_uuids)} 国家'
 
 
 async def get_current_devices_count(db_user: User, subscription=None) -> str:
@@ -161,7 +161,7 @@ async def handle_change_devices(
 
     if not subscription or subscription.is_trial:
         await callback.answer(
-            texts.t('PAID_FEATURE_ONLY', '⚠️ Эта функция доступна только для платных подписок'),
+            texts.t('PAID_FEATURE_ONLY', '⚠此功能仅适用于付费订阅'),
             show_alert=True,
         )
         return
@@ -178,14 +178,14 @@ async def handle_change_devices(
     if tariff:
         if tariff_device_price is None or tariff_device_price <= 0:
             await callback.answer(
-                texts.t('TARIFF_DEVICES_DISABLED', '⚠️ Изменение устройств недоступно для вашего тарифа'),
+                texts.t('TARIFF_DEVICES_DISABLED', '⚠️ 您的套餐不支持更换设备'),
                 show_alert=True,
             )
             return
     # Для обычных подписок проверяем глобальную настройку
     elif not settings.is_devices_selection_enabled():
         await callback.answer(
-            texts.t('DEVICES_SELECTION_DISABLED', '⚠️ Изменение количества устройств недоступно'),
+            texts.t('DEVICES_SELECTION_DISABLED', '⚠️设备数量选择不可用'),
             show_alert=True,
         )
         return
@@ -206,25 +206,14 @@ async def handle_change_devices(
         prompt_text = texts.t(
             'CHANGE_DEVICES_PROMPT_TARIFF',
             (
-                '📱 <b>Изменение количества устройств</b>\n\n'
-                'Текущий лимит: {current_devices} устройств\n'
-                'Цена за доп. устройство: {price}/мес\n'
-                'Выберите новое количество устройств:\n\n'
-                '💡 <b>Важно:</b>\n'
-                '• При увеличении - доплата пропорционально оставшемуся времени\n'
-                '• При уменьшении - возврат средств не производится'
+                '📱<b>更改设备数量</b>\n\n当前限制：{current_devices}台设备\n每台额外设备价格：{price}/月\n请选择新的设备数量：\n\n💡<b>重要提示：</b>\n•增加-按剩余时间比例补差价\n•减少-不退款'
             ),
         ).format(current_devices=current_devices, price=price_text)
     else:
         prompt_text = texts.t(
             'CHANGE_DEVICES_PROMPT',
             (
-                '📱 <b>Изменение количества устройств</b>\n\n'
-                'Текущий лимит: {current_devices} устройств\n'
-                'Выберите новое количество устройств:\n\n'
-                '💡 <b>Важно:</b>\n'
-                '• При увеличении - доплата пропорционально оставшемуся времени\n'
-                '• При уменьшении - возврат средств не производится'
+                '📱<b>更改设备数量</b>\n\n当前限制：{current_devices}台设备\n请选择新的设备数量：\n\n💡<b>重要提示：</b>\n•增加-按剩余时间比例补差价\n•减少-不退款'
             ),
         ).format(current_devices=current_devices)
 
@@ -271,7 +260,7 @@ async def confirm_change_devices(
     if tariff:
         if tariff_device_price is None or tariff_device_price <= 0:
             await callback.answer(
-                texts.t('TARIFF_DEVICES_DISABLED', '⚠️ Изменение устройств недоступно для вашего тарифа'),
+                texts.t('TARIFF_DEVICES_DISABLED', '⚠️ 您的套餐不支持更换设备'),
                 show_alert=True,
             )
             return
@@ -279,7 +268,7 @@ async def confirm_change_devices(
     else:
         if not settings.is_devices_selection_enabled():
             await callback.answer(
-                texts.t('DEVICES_SELECTION_DISABLED', '⚠️ Изменение количества устройств недоступно'),
+                texts.t('DEVICES_SELECTION_DISABLED', '⚠️设备数量选择不可用'),
                 show_alert=True,
             )
             return
@@ -289,7 +278,7 @@ async def confirm_change_devices(
 
     if new_devices_count == current_devices:
         await callback.answer(
-            texts.t('DEVICES_NO_CHANGE', 'ℹ️ Количество устройств не изменилось'),
+            texts.t('DEVICES_NO_CHANGE', 'ℹ️设备数量未更改'),
             show_alert=True,
         )
         return
@@ -303,7 +292,7 @@ async def confirm_change_devices(
         await callback.answer(
             texts.t(
                 'DEVICES_LIMIT_EXCEEDED',
-                '⚠️ Превышен максимальный лимит устройств ({limit})',
+                '⚠️超过最大设备限制({limit})',
             ).format(limit=effective_max),
             show_alert=True,
         )
@@ -314,7 +303,7 @@ async def confirm_change_devices(
         await callback.answer(
             texts.t(
                 'DEVICES_MIN_LIMIT_REACHED',
-                '⚠️ Минимальное количество устройств: {limit}',
+                '⚠️ 最小设备数量：{limit}',
             ).format(limit=1),
             show_alert=True,
         )
@@ -362,11 +351,7 @@ async def confirm_change_devices(
             message_text = texts.t(
                 'ADDON_INSUFFICIENT_FUNDS_MESSAGE',
                 (
-                    '⚠️ <b>Недостаточно средств</b>\n\n'
-                    'Стоимость услуги: {required}\n'
-                    'На балансе: {balance}\n'
-                    'Не хватает: {missing}\n\n'
-                    'Выберите способ пополнения. Сумма подставится автоматически.'
+                    '⚠️<b>资金不足</b>\n\n服务费用：{required}\n当前余额：{balance}\n缺少：{missing}\n\n请选择充值方式。金额将自动填入。'
                 ),
             ).format(
                 required=required_text,
@@ -404,12 +389,12 @@ async def confirm_change_devices(
 
         action_text = texts.t(
             'DEVICE_CHANGE_ACTION_INCREASE',
-            'увеличить до {count}',
+            '增加到{count}',
         ).format(count=new_devices_count)
         if price > 0:
             cost_text = texts.t(
                 'DEVICE_CHANGE_EXTRA_COST',
-                'Доплата: {amount} (за {period})',
+                '补差价：{amount}({period})',
             ).format(
                 amount=texts.format_price(price),
                 period=period_label,
@@ -418,21 +403,21 @@ async def confirm_change_devices(
             if total_discount > 0:
                 cost_text += texts.t(
                     'DEVICE_CHANGE_DISCOUNT_INFO',
-                    ' (скидка {percent}%: -{amount})',
+                    '(折扣{percent}%:-{amount})',
                 ).format(
                     percent=devices_discount_percent,
                     amount=texts.format_price(total_discount),
                 )
         else:
-            cost_text = texts.t('DEVICE_CHANGE_FREE', 'Бесплатно')
+            cost_text = texts.t('DEVICE_CHANGE_FREE', '免费')
 
     else:
         price = 0
         action_text = texts.t(
             'DEVICE_CHANGE_ACTION_DECREASE',
-            'уменьшить до {count}',
+            '减少到{count}',
         ).format(count=new_devices_count)
-        cost_text = texts.t('DEVICE_CHANGE_NO_REFUND', 'Возврат средств не производится')
+        cost_text = texts.t('DEVICE_CHANGE_NO_REFUND', '不退款')
 
     # Проверяем количество подключённых устройств для предупреждения
     devices_warning = ''
@@ -448,10 +433,7 @@ async def confirm_change_devices(
                         devices_warning = texts.t(
                             'DEVICE_CHANGE_RESET_WARNING',
                             (
-                                '\n⚠️ <b>Внимание!</b>\n'
-                                'У вас подключено {connected} устройств.\n'
-                                'При уменьшении лимита до {new} все устройства будут сброшены.\n'
-                                'Вам нужно будет заново подключить нужные устройства.\n'
+                                '⚠️<b>注意！</b>\n您已连接 {connected} 设备。\n当限制减少到{new}时，所有设备将被重置。\n您将需要重新连接所需的设备。'
                             ),
                         ).format(connected=connected_count, new=new_devices_count)
         except Exception as e:
@@ -460,12 +442,7 @@ async def confirm_change_devices(
     confirm_text = texts.t(
         'DEVICE_CHANGE_CONFIRMATION',
         (
-            '📱 <b>Подтверждение изменения</b>\n\n'
-            'Текущее количество: {current} устройств\n'
-            'Новое количество: {new} устройств\n\n'
-            'Действие: {action}\n'
-            '💰 {cost}\n\n'
-            'Подтвердить изменение?'
+            '📱<b>确认更改</b>\n\n当前数量：{current}台设备\n新数量：{new}台设备\n\n操作：{action}\n💰{cost}\n\n确认更改吗？'
         ),
     ).format(
         current=current_devices,
@@ -506,7 +483,7 @@ async def execute_change_devices(
     subscription, _ = await _resolve_subscription(callback, db_user, db, state)
     if not subscription:
         await callback.answer(
-            texts.t('NO_ACTIVE_SUBSCRIPTION', '⚠️ У вас нет активной подписки'),
+            texts.t('NO_ACTIVE_SUBSCRIPTION', '⚠️您没有有效的订阅'),
             show_alert=True,
         )
         return
@@ -524,14 +501,14 @@ async def execute_change_devices(
         tariff_device_price = getattr(tariff, 'device_price_kopeks', None)
         if tariff_device_price is None or tariff_device_price <= 0:
             await callback.answer(
-                texts.t('TARIFF_DEVICES_DISABLED', '⚠️ Изменение устройств недоступно для вашего тарифа'),
+                texts.t('TARIFF_DEVICES_DISABLED', '⚠️ 您的套餐不支持更换设备'),
                 show_alert=True,
             )
             return
         price_per_device = tariff_device_price
     elif not settings.is_devices_selection_enabled():
         await callback.answer(
-            texts.t('DEVICES_SELECTION_DISABLED', '⚠️ Изменение количества устройств недоступно'),
+            texts.t('DEVICES_SELECTION_DISABLED', '⚠️设备数量选择不可用'),
             show_alert=True,
         )
         return
@@ -543,7 +520,7 @@ async def execute_change_devices(
         await callback.answer(
             texts.t(
                 'DEVICES_MIN_LIMIT_REACHED',
-                '⚠️ Минимальное количество устройств: {limit}',
+                '⚠️ 最小设备数量：{limit}',
             ).format(limit=1),
             show_alert=True,
         )
@@ -584,7 +561,7 @@ async def execute_change_devices(
 
             if not success:
                 await callback.answer(
-                    texts.t('PAYMENT_CHARGE_ERROR', '⚠️ Ошибка списания средств'),
+                    texts.t('PAYMENT_CHARGE_ERROR', '⚠️扣款失败'),
                     show_alert=True,
                 )
                 return
@@ -625,7 +602,7 @@ async def execute_change_devices(
                     refund_user.balance_kopeks += price
                     await db.commit()
                 await callback.answer(
-                    f'⚠️ Лимит устройств ({max_devices}) превышен. Баланс возвращён.',
+                    f'⚠️ 已超出设备限制 ({max_devices})。余额已退回。',
                     show_alert=True,
                 )
                 return
@@ -641,7 +618,7 @@ async def execute_change_devices(
                 refund_user.balance_kopeks += price
                 await db.commit()
                 await callback.answer(
-                    '⚠️ Изменение уже применено. Баланс возвращён.',
+                    '⚠️ 更改已应用。余额已退回。',
                     show_alert=True,
                 )
                 return
@@ -723,34 +700,34 @@ async def execute_change_devices(
         if new_devices_count > current_devices:
             success_text = texts.t(
                 'DEVICE_CHANGE_INCREASE_SUCCESS',
-                '✅ Количество устройств увеличено!\n\n',
+                '✅设备数量已增加！\n\n',
             )
             success_text += texts.t(
                 'DEVICE_CHANGE_RESULT_LINE',
-                '📱 Было: {old} → Стало: {new}\n',
+                '📱之前：{old}→现在：{new}\n',
             ).format(old=current_devices, new=new_devices_count)
             if price > 0:
                 success_text += texts.t(
                     'DEVICE_CHANGE_CHARGED',
-                    '💰 Списано: {amount}',
+                    '💰已扣除：{amount}',
                 ).format(amount=texts.format_price(price))
         else:
             success_text = texts.t(
                 'DEVICE_CHANGE_DECREASE_SUCCESS',
-                '✅ Количество устройств уменьшено!\n\n',
+                '✅设备数量已减少！\n\n',
             )
             success_text += texts.t(
                 'DEVICE_CHANGE_RESULT_LINE',
-                '📱 Было: {old} → Стало: {new}\n',
+                '📱之前：{old}→现在：{new}\n',
             ).format(old=current_devices, new=new_devices_count)
             if devices_reset_count > 0:
                 success_text += texts.t(
                     'DEVICE_CHANGE_DEVICES_REMOVED',
-                    '\n🗑 Удалено устройств: {count}\n',
+                    '🗑已删除的设备：{count}',
                 ).format(count=devices_reset_count)
             success_text += texts.t(
                 'DEVICE_CHANGE_NO_REFUND_INFO',
-                'ℹ️ Возврат средств не производится',
+                'ℹ️不退款',
             )
 
         await callback.message.edit_text(success_text, reply_markup=get_back_keyboard(db_user.language))
@@ -780,7 +757,7 @@ async def handle_device_management(
 
     if not subscription or subscription.is_trial:
         await callback.answer(
-            texts.t('PAID_FEATURE_ONLY', '⚠️ Эта функция доступна только для платных подписок'),
+            texts.t('PAID_FEATURE_ONLY', '⚠此功能仅适用于付费订阅'),
             show_alert=True,
         )
         return
@@ -788,7 +765,7 @@ async def handle_device_management(
     remnawave_uuid = _get_remnawave_uuid(subscription, db_user)
     if not remnawave_uuid:
         await callback.answer(
-            texts.t('DEVICE_UUID_NOT_FOUND', '❌ UUID пользователя не найден'),
+            texts.t('DEVICE_UUID_NOT_FOUND', '❌未找到用户UUID'),
             show_alert=True,
         )
         return
@@ -808,7 +785,7 @@ async def handle_device_management(
 
                 if total_devices == 0:
                     await callback.message.edit_text(
-                        texts.t('DEVICE_NONE_CONNECTED', 'ℹ️ У вас нет подключенных устройств'),
+                        texts.t('DEVICE_NONE_CONNECTED', 'ℹ️您没有已连接的设备'),
                         reply_markup=get_back_keyboard(db_user.language),
                     )
                     await callback.answer()
@@ -819,7 +796,7 @@ async def handle_device_management(
                 await callback.answer(
                     texts.t(
                         'DEVICE_FETCH_INFO_ERROR',
-                        '❌ Ошибка получения информации об устройствах',
+                        '❌获取设备信息失败',
                     ),
                     show_alert=True,
                 )
@@ -829,7 +806,7 @@ async def handle_device_management(
         await callback.answer(
             texts.t(
                 'DEVICE_FETCH_INFO_ERROR',
-                '❌ Ошибка получения информации об устройствах',
+                '❌获取设备信息失败',
             ),
             show_alert=True,
         )
@@ -848,16 +825,14 @@ async def show_devices_page(
     devices_text = texts.t(
         'DEVICE_MANAGEMENT_OVERVIEW',
         (
-            '🔄 <b>Управление устройствами</b>\n\n'
-            '📊 Всего подключено: {total} устройств\n'
-            '📄 Страница {page} из {pages}\n\n'
+            '🔄<b>设备管理</b>\n\n📊总共连接：{total}台设备\n📄第{page}页，共{pages}页\n\n'
         ),
     ).format(total=len(devices_list), page=pagination.page, pages=pagination.total_pages)
 
     if pagination.items:
         devices_text += texts.t(
             'DEVICE_MANAGEMENT_CONNECTED_HEADER',
-            '<b>Подключенные устройства:</b>\n',
+            '<b>已连接设备：</b>\n',
         )
         for i, device in enumerate(pagination.items, 1):
             platform = device.get('platform', 'Unknown')
@@ -869,12 +844,12 @@ async def show_devices_page(
 
             devices_text += texts.t(
                 'DEVICE_MANAGEMENT_LIST_ITEM',
-                '• {device}\n',
+                '•{device}\n',
             ).format(device=device_info)
 
     devices_text += texts.t(
         'DEVICE_MANAGEMENT_ACTIONS',
-        ('\n💡 <b>Действия:</b>\n• Выберите устройство для сброса\n• Или сбросьте все устройства сразу'),
+        ('\n💡<b>操作：</b>\n•选择要重置的设备\n•或者立即重置所有设备'),
     )
 
     await callback.message.edit_text(
@@ -907,14 +882,14 @@ async def handle_devices_page(callback: types.CallbackQuery, db_user: User, db: 
                 await show_devices_page(callback, db_user, devices_list, page=page, sub_id=sub_id)
             else:
                 await callback.answer(
-                    texts.t('DEVICE_FETCH_ERROR', '❌ Ошибка получения устройств'),
+                    texts.t('DEVICE_FETCH_ERROR', '❌获取设备失败'),
                     show_alert=True,
                 )
 
     except Exception as e:
         logger.error('Ошибка перехода на страницу устройств', error=e)
         await callback.answer(
-            texts.t('DEVICE_PAGE_LOAD_ERROR', '❌ Ошибка загрузки страницы'),
+            texts.t('DEVICE_PAGE_LOAD_ERROR', '❌加载页面失败'),
             show_alert=True,
         )
 
@@ -930,7 +905,7 @@ async def handle_single_device_reset(
         if len(callback_parts) < 4:
             logger.error('Некорректный формат callback_data', callback_data=callback.data)
             await callback.answer(
-                texts.t('DEVICE_RESET_INVALID_REQUEST', '❌ Ошибка: некорректный запрос'),
+                texts.t('DEVICE_RESET_INVALID_REQUEST', '❌错误：请求无效'),
                 show_alert=True,
             )
             return
@@ -943,7 +918,7 @@ async def handle_single_device_reset(
     except (ValueError, IndexError) as e:
         logger.error('❌ Ошибка парсинга callback_data', callback_data=callback.data, error=e)
         await callback.answer(
-            texts.t('DEVICE_RESET_PARSE_ERROR', '❌ Ошибка обработки запроса'),
+            texts.t('DEVICE_RESET_PARSE_ERROR', '❌处理请求失败'),
             show_alert=True,
         )
         return
@@ -978,7 +953,7 @@ async def handle_single_device_reset(
                         await callback.answer(
                             texts.t(
                                 'DEVICE_RESET_SUCCESS',
-                                '✅ Устройство {device} успешно сброшено!',
+                                '✅设备{device}已成功重置！',
                             ).format(device=device_info),
                             show_alert=True,
                         )
@@ -999,7 +974,7 @@ async def handle_single_device_reset(
                                 await callback.message.edit_text(
                                     texts.t(
                                         'DEVICE_RESET_ALL_DONE',
-                                        'ℹ️ Все устройства сброшены',
+                                        'ℹ️所有设备已重置',
                                     ),
                                     reply_markup=get_back_keyboard(db_user.language),
                                 )
@@ -1013,25 +988,25 @@ async def handle_single_device_reset(
                         await callback.answer(
                             texts.t(
                                 'DEVICE_RESET_ID_FAILED',
-                                '❌ Не удалось получить ID устройства',
+                                '❌获取设备ID失败',
                             ),
                             show_alert=True,
                         )
                 else:
                     await callback.answer(
-                        texts.t('DEVICE_RESET_NOT_FOUND', '❌ Устройство не найдено'),
+                        texts.t('DEVICE_RESET_NOT_FOUND', '❌未找到设备'),
                         show_alert=True,
                     )
             else:
                 await callback.answer(
-                    texts.t('DEVICE_FETCH_ERROR', '❌ Ошибка получения устройств'),
+                    texts.t('DEVICE_FETCH_ERROR', '❌获取设备失败'),
                     show_alert=True,
                 )
 
     except Exception as e:
         logger.error('Ошибка сброса устройства', error=e)
         await callback.answer(
-            texts.t('DEVICE_RESET_ERROR', '❌ Ошибка сброса устройства'),
+            texts.t('DEVICE_RESET_ERROR', '❌重置设备失败'),
             show_alert=True,
         )
 
@@ -1045,7 +1020,7 @@ async def handle_all_devices_reset_from_management(
 
     if not remnawave_uuid:
         await callback.answer(
-            texts.t('DEVICE_UUID_NOT_FOUND', '❌ UUID пользователя не найден'),
+            texts.t('DEVICE_UUID_NOT_FOUND', '❌未找到用户UUID'),
             show_alert=True,
         )
         return
@@ -1062,7 +1037,7 @@ async def handle_all_devices_reset_from_management(
                 await callback.answer(
                     texts.t(
                         'DEVICE_LIST_FETCH_ERROR',
-                        '❌ Ошибка получения списка устройств',
+                        '❌获取设备列表失败',
                     ),
                     show_alert=True,
                 )
@@ -1072,7 +1047,7 @@ async def handle_all_devices_reset_from_management(
 
             if not devices_list:
                 await callback.answer(
-                    texts.t('DEVICE_NONE_CONNECTED', 'ℹ️ У вас нет подключенных устройств'),
+                    texts.t('DEVICE_NONE_CONNECTED', 'ℹ️您没有已连接的设备'),
                     show_alert=True,
                 )
                 return
@@ -1107,10 +1082,7 @@ async def handle_all_devices_reset_from_management(
                         texts.t(
                             'DEVICE_RESET_ALL_SUCCESS_MESSAGE',
                             (
-                                '✅ <b>Все устройства успешно сброшены!</b>\n\n'
-                                '🔄 Сброшено: {count} устройств\n'
-                                '📱 Теперь вы можете заново подключить свои устройства\n\n'
-                                "💡 Используйте ссылку из раздела 'Моя подписка' для повторного подключения"
+                                '✅<b>所有设备已成功重置！</b>\n\n🔄已重置：{count}台设备\n📱您现在可以重新连接您的设备\n\n💡使用“我的订阅”部分中的链接重新连接'
                             ),
                         ).format(count=success_count),
                         reply_markup=get_back_keyboard(db_user.language),
@@ -1126,10 +1098,7 @@ async def handle_all_devices_reset_from_management(
                         texts.t(
                             'DEVICE_RESET_PARTIAL_MESSAGE',
                             (
-                                '⚠️ <b>Частичный сброс устройств</b>\n\n'
-                                '✅ Удалено: {success} устройств\n'
-                                '❌ Не удалось удалить: {failed} устройств\n\n'
-                                'Попробуйте еще раз или обратитесь в поддержку.'
+                                '⚠️<b>部分设备重置</b>\n\n✅已删除：{success}台设备\n❌删除失败：{failed}台设备\n\n请重试或联系支持。'
                             ),
                         ).format(success=success_count, failed=failed_count),
                         reply_markup=get_back_keyboard(db_user.language),
@@ -1146,9 +1115,7 @@ async def handle_all_devices_reset_from_management(
                     texts.t(
                         'DEVICE_RESET_ALL_FAILED_MESSAGE',
                         (
-                            '❌ <b>Не удалось сбросить устройства</b>\n\n'
-                            'Попробуйте еще раз позже или обратитесь в техподдержку.\n\n'
-                            'Всего устройств: {total}'
+                            '❌<b>重置设备失败</b>\n\n请稍后再试或联系技术支持。\n\n总设备数：{total}'
                         ),
                     ).format(total=len(devices_list)),
                     reply_markup=get_back_keyboard(db_user.language),
@@ -1184,7 +1151,7 @@ async def confirm_add_devices(callback: types.CallbackQuery, db_user: User, db: 
     if tariff:
         if tariff_device_price is None or tariff_device_price <= 0:
             await callback.answer(
-                texts.t('TARIFF_DEVICES_DISABLED', '⚠️ Добавление устройств недоступно для вашего тарифа'),
+                texts.t('TARIFF_DEVICES_DISABLED', '⚠️ 添加设备不适用于您的套餐'),
                 show_alert=True,
             )
             return
@@ -1192,7 +1159,7 @@ async def confirm_add_devices(callback: types.CallbackQuery, db_user: User, db: 
     else:
         if not settings.is_devices_selection_enabled():
             await callback.answer(
-                texts.t('DEVICES_SELECTION_DISABLED', '⚠️ Изменение количества устройств недоступно'),
+                texts.t('DEVICES_SELECTION_DISABLED', '⚠️设备数量选择不可用'),
                 show_alert=True,
             )
             return
@@ -1209,7 +1176,7 @@ async def confirm_add_devices(callback: types.CallbackQuery, db_user: User, db: 
         await callback.answer(
             texts.t(
                 'DEVICES_LIMIT_EXCEEDED_DETAIL',
-                '⚠️ Превышен максимальный лимит устройств ({limit}). У вас: {current}, добавляете: {adding}',
+                '⚠️ 已超出最大设备限制 ({limit})。您有：{current}，添加：{adding}',
             ).format(limit=effective_max, current=subscription.device_limit, adding=devices_count),
             show_alert=True,
         )
@@ -1279,11 +1246,7 @@ async def confirm_add_devices(callback: types.CallbackQuery, db_user: User, db: 
         message_text = texts.t(
             'ADDON_INSUFFICIENT_FUNDS_MESSAGE',
             (
-                '⚠️ <b>Недостаточно средств</b>\n\n'
-                'Стоимость услуги: {required}\n'
-                'На балансе: {balance}\n'
-                'Не хватает: {missing}\n\n'
-                'Выберите способ пополнения. Сумма подставится автоматически.'
+                '⚠️<b>资金不足</b>\n\n服务费用：{required}\n当前余额：{balance}\n缺少：{missing}\n\n请选择充值方式。金额将自动填入。'
             ),
         ).format(
             required=required_text,
@@ -1326,7 +1289,7 @@ async def confirm_add_devices(callback: types.CallbackQuery, db_user: User, db: 
         )
 
         if not success:
-            await callback.answer('⚠️ Ошибка списания средств', show_alert=True)
+            await callback.answer('⚠️ 借方错误', show_alert=True)
             return
 
         # Re-lock subscription after subtract_user_balance committed (released all locks)
@@ -1352,7 +1315,7 @@ async def confirm_add_devices(callback: types.CallbackQuery, db_user: User, db: 
             refund_user.balance_kopeks += price
             await db.commit()
             await callback.answer(
-                f'⚠️ Лимит устройств ({max_devices}) превышен. Баланс возвращён.',
+                f'⚠️ 已超出设备限制 ({max_devices})。余额已退回。',
                 show_alert=True,
             )
             return
@@ -1398,13 +1361,11 @@ async def confirm_add_devices(callback: types.CallbackQuery, db_user: User, db: 
             logger.error('Ошибка отправки уведомления о докупке устройств', error=e)
 
         success_text = (
-            '✅ Устройства успешно добавлены!\n\n'
-            f'📱 Добавлено: {devices_count} устройств\n'
-            f'Новый лимит: {subscription.device_limit} устройств\n'
+            f'✅ 设备添加成功！\n\n📱 新增：{devices_count} 设备\n新限制：{subscription.device_limit} 设备'
         )
-        success_text += f'💰 Списано: {texts.format_price(price)} (за {period_label})'
+        success_text += f'💰 注销：{texts.format_price(price)}（对于 {period_label}）'
         if total_discount > 0:
-            success_text += f' (скидка {devices_discount_percent}%: -{texts.format_price(total_discount)})'
+            success_text += f'（折扣{devices_discount_percent}%：-{texts.format_price(total_discount)}）'
 
         await callback.message.edit_text(success_text, reply_markup=get_back_keyboard(db_user.language))
 
@@ -1444,7 +1405,7 @@ async def handle_device_guide(callback: types.CallbackQuery, db_user: User, db: 
 
     if not subscription_link:
         await callback.answer(
-            texts.t('SUBSCRIPTION_LINK_UNAVAILABLE', '❌ Ссылка подписки недоступна'),
+            texts.t('SUBSCRIPTION_LINK_UNAVAILABLE', '❌订阅链接不可用'),
             show_alert=True,
         )
         return
@@ -1455,7 +1416,7 @@ async def handle_device_guide(callback: types.CallbackQuery, db_user: User, db: 
 
     if not apps:
         await callback.answer(
-            texts.t('SUBSCRIPTION_DEVICE_APPS_NOT_FOUND', '❌ Приложения для этого устройства не найдены'),
+            texts.t('SUBSCRIPTION_DEVICE_APPS_NOT_FOUND', '❌未找到此设备的应用程序'),
             show_alert=True,
         )
         return
@@ -1472,65 +1433,65 @@ async def handle_device_guide(callback: types.CallbackQuery, db_user: User, db: 
 
     if hide_subscription_link:
         link_section = (
-            texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗 <b>Ссылка подписки:</b>')
+            texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗<b>订阅链接：</b>')
             + '\n'
             + texts.t(
                 'SUBSCRIPTION_LINK_HIDDEN_NOTICE',
-                'ℹ️ Ссылка подписки доступна по кнопкам ниже или в разделе "Моя подписка".',
+                'ℹ️订阅链接在下方按钮中或“我的订阅”部分可用。',
             )
             + '\n\n'
         )
     else:
         link_section = (
-            texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗 <b>Ссылка подписки:</b>')
+            texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗<b>订阅链接：</b>')
             + f'\n<code>{html_mod.escape(subscription_link)}</code>\n\n'
         )
 
     guide_text = (
         texts.t(
             'SUBSCRIPTION_DEVICE_GUIDE_TITLE',
-            '📱 <b>Настройка для {device_name}</b>',
+            '📱<b>{device_name}设置</b>',
         ).format(device_name=html_mod.escape(get_device_name(device_type, db_user.language)))
         + '\n\n'
         + link_section
         + texts.t(
             'SUBSCRIPTION_DEVICE_FEATURED_APP',
-            '📋 <b>Рекомендуемое приложение:</b> {app_name}',
+            '📋<b>推荐应用：</b>{app_name}',
         ).format(app_name=html_mod.escape(featured_app.get('name', '')))
     )
 
     if other_app_names:
         guide_text += '\n\n' + texts.t(
             'SUBSCRIPTION_DEVICE_OTHER_APPS',
-            '📦 <b>Другие приложения:</b> {app_list}',
+            '📦<b>其他应用：</b>{app_list}',
         ).format(app_list=other_app_names)
         guide_text += '\n' + texts.t(
             'SUBSCRIPTION_DEVICE_OTHER_APPS_HINT',
-            'Нажмите кнопку "Другие приложения" ниже, чтобы выбрать приложение.',
+            '点击下方的“其他应用”按钮选择应用。',
         )
 
     blocks_text = render_guide_blocks(featured_app.get('blocks', []), db_user.language)
     if blocks_text:
         guide_text += '\n\n' + blocks_text
 
-    guide_text += '\n\n' + texts.t('SUBSCRIPTION_DEVICE_HOW_TO_TITLE', '💡 <b>Как подключить:</b>')
+    guide_text += '\n\n' + texts.t('SUBSCRIPTION_DEVICE_HOW_TO_TITLE', '💡<b>如何连接：</b>')
     guide_text += '\n' + '\n'.join(
         [
             texts.t(
                 'SUBSCRIPTION_DEVICE_HOW_TO_STEP1',
-                '1. Установите приложение по ссылке выше',
+                '1.通过上方链接安装应用',
             ),
             texts.t(
                 'SUBSCRIPTION_DEVICE_HOW_TO_STEP2',
-                '2. Нажмите кнопку "Подключиться" ниже',
+                '2.点击下方的“连接”按钮',
             ),
             texts.t(
                 'SUBSCRIPTION_DEVICE_HOW_TO_STEP3',
-                '3. Откройте приложение и вставьте ссылку',
+                '3.打开应用并粘贴链接',
             ),
             texts.t(
                 'SUBSCRIPTION_DEVICE_HOW_TO_STEP4',
-                '4. Подключитесь к серверу',
+                '4.连接到服务器',
             ),
         ]
     )
@@ -1558,7 +1519,7 @@ async def handle_app_selection(callback: types.CallbackQuery, db_user: User, db:
 
     if not apps:
         await callback.answer(
-            texts.t('SUBSCRIPTION_DEVICE_APPS_NOT_FOUND', '❌ Приложения для этого устройства не найдены'),
+            texts.t('SUBSCRIPTION_DEVICE_APPS_NOT_FOUND', '❌未找到此设备的应用程序'),
             show_alert=True,
         )
         return
@@ -1566,10 +1527,10 @@ async def handle_app_selection(callback: types.CallbackQuery, db_user: User, db:
     app_text = (
         texts.t(
             'SUBSCRIPTION_APPS_TITLE',
-            '📱 <b>Приложения для {device_name}</b>',
+            '📱<b>适用于{device_name}的应用程序</b>',
         ).format(device_name=html_mod.escape(get_device_name(device_type, db_user.language)))
         + '\n\n'
-        + texts.t('SUBSCRIPTION_APPS_PROMPT', 'Выберите приложение для подключения:')
+        + texts.t('SUBSCRIPTION_APPS_PROMPT', '请选择要连接的应用程序：')
     )
 
     await callback.message.edit_text(
@@ -1595,7 +1556,7 @@ async def handle_specific_app_guide(
 
     if not subscription_link:
         await callback.answer(
-            texts.t('SUBSCRIPTION_LINK_UNAVAILABLE', '❌ Ссылка подписки недоступна'),
+            texts.t('SUBSCRIPTION_LINK_UNAVAILABLE', '❌订阅链接不可用'),
             show_alert=True,
         )
         return
@@ -1605,7 +1566,7 @@ async def handle_specific_app_guide(
 
     if not app:
         await callback.answer(
-            texts.t('SUBSCRIPTION_APP_NOT_FOUND', '❌ Приложение не найдено'),
+            texts.t('SUBSCRIPTION_APP_NOT_FOUND', '❌未找到应用程序'),
             show_alert=True,
         )
         return
@@ -1614,24 +1575,24 @@ async def handle_specific_app_guide(
 
     if hide_subscription_link:
         link_section = (
-            texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗 <b>Ссылка подписки:</b>')
+            texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗<b>订阅链接：</b>')
             + '\n'
             + texts.t(
                 'SUBSCRIPTION_LINK_HIDDEN_NOTICE',
-                'ℹ️ Ссылка подписки доступна по кнопкам ниже или в разделе "Моя подписка".',
+                'ℹ️订阅链接在下方按钮中或“我的订阅”部分可用。',
             )
             + '\n\n'
         )
     else:
         link_section = (
-            texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗 <b>Ссылка подписки:</b>')
+            texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗<b>订阅链接：</b>')
             + f'\n<code>{html_mod.escape(subscription_link)}</code>\n\n'
         )
 
     guide_text = (
         texts.t(
             'SUBSCRIPTION_SPECIFIC_APP_TITLE',
-            '📱 <b>{app_name} - {device_name}</b>',
+            '📱<b>{app_name}-{device_name}</b>',
         ).format(
             app_name=html_mod.escape(app.get('name', '')),
             device_name=html_mod.escape(get_device_name(device_type, db_user.language)),
@@ -1667,31 +1628,10 @@ async def show_device_connection_help(
     subscription_link = get_display_subscription_link(subscription)
 
     if not subscription_link:
-        await callback.answer('❌ Ссылка подписки недоступна', show_alert=True)
+        await callback.answer('❌ 订阅链接不可用', show_alert=True)
         return
 
-    help_text = f"""
-📱 <b>Как подключить устройство заново</b>
-
-После сброса устройства вам нужно:
-
-<b>1. Получить ссылку подписки:</b>
-📋 Скопируйте ссылку ниже или найдите её в разделе "Моя подписка"
-
-<b>2. Настроить VPN приложение:</b>
-• Откройте ваше VPN приложение
-• Найдите функцию "Добавить подписку" или "Import"
-• Вставьте скопированную ссылку
-
-<b>3. Подключиться:</b>
-• Выберите сервер
-• Нажмите "Подключить"
-
-<b>🔗 Ваша ссылка подписки:</b>
-<code>{html_mod.escape(subscription_link)}</code>
-
-💡 <b>Совет:</b> Сохраните эту ссылку - она понадобится для подключения новых устройств
-"""
+    help_text = f'📱 <b>如何重新连接设备</b>\n\n重置设备后，您需要：\n\n<b>1.获取订阅链接：</b>\n📋复制下面的链接或在“我的订阅”部分找到它\n\n<b>2.设置 VPN 应用程序：</b>\n• 打开您的VPN 应用程序\n• 找到“添加订阅”或“导入”功能\n• 粘贴复制的链接\n\n<b>3.连接：</b>\n• 选择服务器\n• 单击“连接”\n\n<b>🔗您的订阅链接：</b>\n<代码>{html_mod.escape(subscription_link)}</code>\n\n💡 <b>提示：</b> 保存此链接 - 您将需要它来连接新设备'
 
     await callback.message.edit_text(
         help_text, reply_markup=get_device_management_help_keyboard(db_user.language), parse_mode='HTML'

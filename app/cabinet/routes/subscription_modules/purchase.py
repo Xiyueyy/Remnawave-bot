@@ -320,7 +320,7 @@ async def get_purchase_options(
                 purchased_tariff_ids = set()
                 subscription = await get_subscription_by_user_id(db, user.id)
             current_tariff_id = subscription.tariff_id if subscription else None
-            language = getattr(user, 'language', 'ru') or 'ru'
+            language = getattr(user, 'language', settings.DEFAULT_LANGUAGE) or settings.DEFAULT_LANGUAGE
 
             # Determine subscription status for frontend to decide purchase vs switch flow
             subscription_status = None

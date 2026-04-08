@@ -1,4 +1,4 @@
-"""
+﻿"""
 Хендлеры админ-панели для управления заблокированными пользователями.
 
 Позволяет сканировать пользователей, выявлять тех, кто заблокировал бота,
@@ -76,7 +76,7 @@ class BlockedUsersText(Enum):
         '• Реферальные данные'
     )
     CLEANUP_CONFIRM_DELETE_REMNAWAVE = (
-        'Вы собираетесь <b>удалить из Remnawave</b> {count} пользователей.\nИх VPN доступ будет полностью отключен.'
+        'Вы собираетесь <b>удалить из Remnawave</b> {count} пользователей.\nИх VPN доступ будет полностью 已禁用.'
     )
     CLEANUP_CONFIRM_DELETE_BOTH = (
         'Вы собираетесь <b>полностью удалить</b> {count} пользователей:\n'
@@ -93,22 +93,22 @@ class BlockedUsersText(Enum):
     CLEANUP_COMPLETE = (
         '✅ <b>Очистка завершена</b>\n\n'
         '📊 <b>Результаты:</b>\n'
-        '• Удалено из БД: {deleted_db}\n'
-        '• Удалено из Remnawave: {deleted_remnawave}\n'
+        '• 已删除о из БД: {deleted_db}\n'
+        '• 已删除о из Remnawave: {deleted_remnawave}\n'
         '• Помечено как заблокированные: {marked}\n'
         '• Ошибок: {errors}'
     )
 
-    BUTTON_START_SCAN = '🔍 Начать сканирование'
-    BUTTON_VIEW_BLOCKED = '👥 Список заблокированных ({count})'
-    BUTTON_DELETE_DB = '🗑 Удалить из БД'
-    BUTTON_DELETE_REMNAWAVE = '🌐 Удалить из Remnawave'
-    BUTTON_DELETE_BOTH = '💀 Удалить везде'
-    BUTTON_MARK_BLOCKED = '🚫 Пометить как заблокированных'
-    BUTTON_CONFIRM = '✅ Подтвердить'
-    BUTTON_CANCEL = '❌ Отмена'
-    BUTTON_BACK = '⬅️ Назад'
-    BUTTON_BACK_TO_USERS = '⬅️ К пользователям'
+    BUTTON_START_SCAN = '🔍 开始扫描'
+    BUTTON_VIEW_BLOCKED = '👥 已封禁用户列表（{count}）'
+    BUTTON_DELETE_DB = '🗑 从数据库删除'
+    BUTTON_DELETE_REMNAWAVE = '🌐 从 Remnawave 删除'
+    BUTTON_DELETE_BOTH = '💀 全部删除'
+    BUTTON_MARK_BLOCKED = '🚫 标记为已封禁'
+    BUTTON_CONFIRM = '✅ 确认'
+    BUTTON_CANCEL = '❌ 取消'
+    BUTTON_BACK = '⬅️ 返回'
+    BUTTON_BACK_TO_USERS = '⬅️ 返回用户列表'
 
 
 class BlockedUsersCallback(Enum):
@@ -300,9 +300,7 @@ async def show_blocked_users_menu(
 
     if scan_result:
         text += (
-            f'\n\n📊 <b>Последнее сканирование:</b>\n'
-            f'• Заблокированных: {scan_result.get("blocked_count", 0)}\n'
-            f'• Активных: {scan_result.get("active_users", 0)}'
+            f"📊 <b>最后扫描：</b>\n• 已阻止：{scan_result.get('blocked_count', 0)}\n• 主动：{scan_result.get('active_users', 0)}"
         )
 
     await callback.message.edit_text(
@@ -421,7 +419,7 @@ async def show_blocked_list(
     blocked_list: list[dict[str, Any]] = data.get('blocked_users_list', [])
 
     if not blocked_list:
-        await callback.answer('Нет заблокированных пользователей', show_alert=True)
+        await callback.answer('没有被阻止的用户', show_alert=True)
         return
 
     # Пагинация
@@ -480,7 +478,7 @@ async def show_action_confirm(
     count = len(blocked_list)
 
     if count == 0:
-        await callback.answer('Нет пользователей для обработки', show_alert=True)
+        await callback.answer('没有要处理的用户', show_alert=True)
         return
 
     await state.set_state(BlockedUsersStates.confirming_action)
@@ -573,11 +571,11 @@ async def handle_confirm_action(
     action = action_map.get(action_code)
 
     if not action:
-        await callback.answer('Неизвестное действие', show_alert=True)
+        await callback.answer('未知行动', show_alert=True)
         return
 
     if not blocked_list:
-        await callback.answer('Нет пользователей для обработки', show_alert=True)
+        await callback.answer('没有要处理的用户', show_alert=True)
         return
 
     await state.set_state(BlockedUsersStates.processing_cleanup)
@@ -645,7 +643,7 @@ async def handle_confirm_action(
     )
 
     logger.info(
-        'Очистка заблокированных пользователей завершена: DB=, RW=, marked=, errors',
+        '清除被阻止的用户已完成：DB=、RW=、marked=、错误',
         deleted_from_db=result.deleted_from_db,
         deleted_from_remnawave=result.deleted_from_remnawave,
         marked_as_blocked=result.marked_as_blocked,
@@ -729,3 +727,4 @@ def register_handlers(dp: Dispatcher) -> None:
         handle_cancel,
         F.data == BlockedUsersCallback.CANCEL.value,
     )
+

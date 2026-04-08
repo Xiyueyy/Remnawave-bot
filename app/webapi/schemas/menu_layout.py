@@ -226,7 +226,7 @@ class AddCustomButtonRequest(BaseModel):
 class MenuPreviewRequest(BaseModel):
     """Запрос на предпросмотр меню."""
 
-    language: str = Field(default='ru', description='Язык для предпросмотра')
+    language: str = Field(default='zh', description='预览语言')
     is_admin: bool = Field(default=False, description='Режим админа')
     is_moderator: bool = Field(default=False, description='Режим модератора')
     has_active_subscription: bool = Field(default=False, description='Есть активная подписка')

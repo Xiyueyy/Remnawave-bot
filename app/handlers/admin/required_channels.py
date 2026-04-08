@@ -1,4 +1,4 @@
-"""Admin handler for managing required channel subscriptions."""
+﻿"""Admin handler for managing required channel subscriptions."""
 
 import structlog
 from aiogram import F, Router
@@ -46,18 +46,18 @@ def _channels_keyboard(channels: list) -> InlineKeyboardMarkup:
                 )
             ]
         )
-    buttons.append([InlineKeyboardButton(text='➕ Добавить канал', callback_data='reqch:add')])
-    buttons.append([InlineKeyboardButton(text='◀️ Назад', callback_data='admin_submenu_settings')])
+    buttons.append([InlineKeyboardButton(text='➕ 添加频道', callback_data='reqch:add')])
+    buttons.append([InlineKeyboardButton(text='◀️ 返回', callback_data='admin_submenu_settings')])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def _channel_detail_keyboard(channel_id: int, is_active: bool) -> InlineKeyboardMarkup:
-    toggle_text = '❌ Отключить' if is_active else '✅ Включить'
+    toggle_text = '❌ 禁用' if is_active else '✅ 启用'
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text=toggle_text, callback_data=f'reqch:toggle:{channel_id}')],
-            [InlineKeyboardButton(text='🗑 Удалить', callback_data=f'reqch:delete:{channel_id}')],
-            [InlineKeyboardButton(text='◀️ К списку', callback_data='reqch:list')],
+            [InlineKeyboardButton(text='🗑 删除', callback_data=f'reqch:delete:{channel_id}')],
+            [InlineKeyboardButton(text='◀️ 前往列表', callback_data='reqch:list')],
         ]
     )
 
@@ -69,9 +69,9 @@ async def show_channels_list(callback: CallbackQuery, **kwargs) -> None:
         channels = await get_all_channels(db)
 
     if not channels:
-        text = '<b>📢 Обязательные каналы</b>\n\nКаналы не настроены. Нажмите «Добавить» чтобы создать.'
+        text = '<b>📢 所需频道</b>\n\n通道未配置。点击“添加”即可创建。'
     else:
-        lines = ['<b>📢 Обязательные каналы</b>\n']
+        lines = ['<b>📢 所需频道</b>']
         for ch in channels:
             status = '✅' if ch.is_active else '❌'
             title = ch.title or ch.channel_id
@@ -88,22 +88,24 @@ async def view_channel(callback: CallbackQuery, **kwargs) -> None:
     try:
         channel_db_id = int(callback.data.split(':')[2])
     except (ValueError, IndexError):
-        await callback.answer('Неверный ID канала', show_alert=True)
+        await callback.answer('无效的 ID 频道', show_alert=True)
         return
     async with AsyncSessionLocal() as db:
         ch = await get_channel_by_id(db, channel_db_id)
 
     if not ch:
-        await callback.answer('Канал не найден', show_alert=True)
+        await callback.answer('找不到频道', show_alert=True)
         return
 
-    status = '✅ Активен' if ch.is_active else '❌ Отключён'
+    status = '✅ 已启用' if ch.is_active else '❌ 已禁用'
+    title = ch.title or '未命名频道'
+    link = ch.channel_link or '—'
     text = (
-        f'<b>{ch.title or "Без названия"}</b>\n\n'
-        f'<b>ID:</b> <code>{ch.channel_id}</code>\n'
-        f'<b>Ссылка:</b> {ch.channel_link or "—"}\n'
-        f'<b>Статус:</b> {status}\n'
-        f'<b>Порядок:</b> {ch.sort_order}'
+        f'<b>{title}</b>\n\n'
+        f'<b>ID：</b> <code>{ch.channel_id}</code>\n'
+        f'<b>链接：</b> {link}\n'
+        f'<b>状态：</b> {status}\n'
+        f'<b>顺序：</b> {ch.sort_order}'
     )
 
     await callback.message.edit_text(text, reply_markup=_channel_detail_keyboard(ch.id, ch.is_active))
@@ -119,21 +121,21 @@ async def toggle_channel_handler(callback: CallbackQuery, **kwargs) -> None:
     try:
         channel_db_id = int(callback.data.split(':')[2])
     except (ValueError, IndexError):
-        await callback.answer('Неверный ID канала', show_alert=True)
+        await callback.answer('无效的 ID 频道', show_alert=True)
         return
     async with AsyncSessionLocal() as db:
         ch = await toggle_channel(db, channel_db_id)
 
     if ch:
         await channel_subscription_service.invalidate_channels_cache()
-        status = 'включён' if ch.is_active else 'отключён'
-        await callback.answer(f'Канал {status}', show_alert=True)
+        status = '已启用' if ch.is_active else '已禁用'
+        await callback.answer(f'频道已{status}', show_alert=True)
 
     # Refresh list
     async with AsyncSessionLocal() as db:
         channels = await get_all_channels(db)
     await callback.message.edit_text(
-        '<b>📢 Обязательные каналы</b>',
+        '<b>📢 所需频道</b>',
         reply_markup=_channels_keyboard(channels),
     )
 
@@ -144,21 +146,21 @@ async def delete_channel_handler(callback: CallbackQuery, **kwargs) -> None:
     try:
         channel_db_id = int(callback.data.split(':')[2])
     except (ValueError, IndexError):
-        await callback.answer('Неверный ID канала', show_alert=True)
+        await callback.answer('无效的 ID 频道', show_alert=True)
         return
     async with AsyncSessionLocal() as db:
         ok = await delete_channel(db, channel_db_id)
 
     if ok:
         await channel_subscription_service.invalidate_channels_cache()
-        await callback.answer('Канал удалён', show_alert=True)
+        await callback.answer('频道已删除', show_alert=True)
     else:
-        await callback.answer('Ошибка удаления', show_alert=True)
+        await callback.answer('卸载错误', show_alert=True)
 
     async with AsyncSessionLocal() as db:
         channels = await get_all_channels(db)
     await callback.message.edit_text(
-        '<b>📢 Обязательные каналы</b>',
+        '<b>📢 所需频道</b>',
         reply_markup=_channels_keyboard(channels),
     )
 
@@ -171,9 +173,7 @@ async def delete_channel_handler(callback: CallbackQuery, **kwargs) -> None:
 async def start_add_channel(callback: CallbackQuery, state: FSMContext, **kwargs) -> None:
     await state.set_state(AddChannelStates.waiting_channel_id)
     await callback.message.edit_text(
-        '<b>➕ Добавить канал</b>\n\n'
-        'Отправьте числовой ID канала (например <code>1234567890</code>).\n'
-        'Префикс <code>-100</code> добавляется автоматически.'
+        '<b>➕添加频道</b>\n\n发送频道数字 ID（例如 <code>1234567890</code>）。\n前缀 <code>-100</code> 会自动添加。'
     )
     await callback.answer()
 
@@ -182,7 +182,7 @@ async def start_add_channel(callback: CallbackQuery, state: FSMContext, **kwargs
 @admin_required
 async def process_channel_id(message: Message, state: FSMContext, **kwargs) -> None:
     if not message.text:
-        await message.answer('Отправьте текстовое сообщение.')
+        await message.answer('发送短信。')
         return
     channel_id = message.text.strip()
 
@@ -190,15 +190,15 @@ async def process_channel_id(message: Message, state: FSMContext, **kwargs) -> N
     try:
         channel_id = validate_channel_id(channel_id)
     except ValueError as e:
-        await message.answer(f'Неверный формат. {e}\n\nПопробуйте ещё раз:')
+        await message.answer(f'格式无效。{e}\n\n请重试：')
         return
 
     await state.update_data(channel_id=channel_id)
     await state.set_state(AddChannelStates.waiting_channel_link)
     await message.answer(
-        f'Канал: <code>{channel_id}</code>\n\n'
-        'Теперь отправьте ссылку на канал (например <code>https://t.me/mychannel</code>)\n'
-        'Или отправьте <code>-</code> чтобы пропустить:'
+        f'频道：<code>{channel_id}</code>\n\n'
+        '现在发送频道链接（例如 <code>https://t.me/mychannel</code>）\n'
+        '或者发送 <code>-</code> 跳过：'
     )
 
 
@@ -206,7 +206,7 @@ async def process_channel_id(message: Message, state: FSMContext, **kwargs) -> N
 @admin_required
 async def process_channel_link(message: Message, state: FSMContext, **kwargs) -> None:
     if not message.text:
-        await message.answer('Отправьте текстовое сообщение.')
+        await message.answer('发送短信。')
         return
     link = message.text.strip()
     if link == '-':
@@ -215,7 +215,7 @@ async def process_channel_link(message: Message, state: FSMContext, **kwargs) ->
     if link is not None:
         # Validate and normalize channel link
         if not link.startswith(('https://t.me/', 'http://t.me/', '@')):
-            await message.answer('Ссылка должна быть URL вида t.me или @username. Попробуйте ещё раз:')
+            await message.answer('该链接应为 URL，如 t.me 或 @username。再试一次：')
             return
         if link.startswith('@'):
             link = f'https://t.me/{link[1:]}'
@@ -225,8 +225,7 @@ async def process_channel_link(message: Message, state: FSMContext, **kwargs) ->
     await state.update_data(channel_link=link)
     await state.set_state(AddChannelStates.waiting_channel_title)
     await message.answer(
-        'Отправьте название канала (например <code>Новости проекта</code>)\n'
-        'Или отправьте <code>-</code> чтобы пропустить:'
+        '发送频道名称（例如<code>项目新闻</code>）\n或者发送 <code>-</code> 跳过：'
     )
 
 
@@ -234,7 +233,7 @@ async def process_channel_link(message: Message, state: FSMContext, **kwargs) ->
 @admin_required
 async def process_channel_title(message: Message, state: FSMContext, **kwargs) -> None:
     if not message.text:
-        await message.answer('Отправьте текстовое сообщение.')
+        await message.answer('发送短信。')
         return
     title = message.text.strip()
     if title == '-':
@@ -254,13 +253,13 @@ async def process_channel_title(message: Message, state: FSMContext, **kwargs) -
             await channel_subscription_service.invalidate_channels_cache()
 
             text = (
-                '✅ Канал добавлен!\n\n'
-                f'<b>ID:</b> <code>{ch.channel_id}</code>\n'
-                f'<b>Ссылка:</b> {ch.channel_link or "—"}\n'
-                f'<b>Название:</b> {ch.title or "—"}'
+                f'✅ 频道已添加！\n\n'
+                f'<b>ID：</b> <code>{ch.channel_id}</code>\n'
+                f'<b>链接：</b> {ch.channel_link or "—"}\n'
+                f'<b>名称：</b> {ch.title or "未填写"}'
             )
         except Exception as e:
-            text = '❌ Ошибка добавления канала. Попробуйте ещё раз.'
+            text = '❌ 添加频道时出错。再试一次。'
             logger.error('Error adding channel', error=e)
 
     async with AsyncSessionLocal() as db:
@@ -271,3 +270,4 @@ async def process_channel_title(message: Message, state: FSMContext, **kwargs) -
 
 def register_handlers(dp_router: Router) -> None:
     dp_router.include_router(router)
+

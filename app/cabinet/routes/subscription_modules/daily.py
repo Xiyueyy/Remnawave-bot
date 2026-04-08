@@ -38,21 +38,21 @@ async def toggle_subscription_pause(
     if not subscription:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='No subscription found',
+            detail='未找到订阅',
         )
 
     tariff_id = getattr(subscription, 'tariff_id', None)
     if not tariff_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Subscription has no tariff',
+            detail='该订阅没有套餐',
         )
 
     tariff = await get_tariff_by_id(db, tariff_id)
     if not tariff or not getattr(tariff, 'is_daily', False):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Pause is only available for daily tariffs',
+            detail='暂停功能仅适用于按日套餐',
         )
 
     # Determine current state
@@ -84,7 +84,7 @@ async def toggle_subscription_pause(
     # Re-fetch subscription after lock (selectinload may have replaced the ORM object)
     subscription = await resolve_subscription(db, user, subscription_id)
     if not subscription:
-        raise HTTPException(status_code=404, detail='Subscription not found after lock')
+        raise HTTPException(status_code=404, detail='加锁后未找到订阅')
 
     subscription.is_daily_paused = new_paused_state
 
@@ -104,7 +104,7 @@ async def toggle_subscription_pause(
                 status_code=status.HTTP_402_PAYMENT_REQUIRED,
                 detail={
                     'code': 'insufficient_balance',
-                    'message': 'Insufficient balance to resume daily subscription',
+                    'message': '余额不足，无法恢复按日订阅',
                     'required': daily_price,
                     'balance': user.balance_kopeks,
                 },
@@ -127,7 +127,7 @@ async def toggle_subscription_pause(
                         status_code=status.HTTP_402_PAYMENT_REQUIRED,
                         detail={
                             'code': 'insufficient_balance',
-                            'message': 'Balance deduction failed',
+                            'message': '扣除余额失败',
                             'required': daily_price,
                             'balance': user.balance_kopeks,
                         },
@@ -170,9 +170,9 @@ async def toggle_subscription_pause(
             logger.error('Error syncing RemnaWave user on resume', error=e)
 
     if new_paused_state:
-        message = 'Daily subscription paused'
+        message = '按日订阅已暂停'
     else:
-        message = 'Daily subscription resumed'
+        message = '按日订阅已恢复'
 
     return {
         'success': True,

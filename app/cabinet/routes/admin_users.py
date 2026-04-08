@@ -1373,7 +1373,7 @@ async def update_user_subscription(
 
         return UpdateSubscriptionResponse(
             success=True,
-            message=f'Added {request.traffic_gb} GB traffic (30 days)',
+            message=f'已添加 {request.traffic_gb} GB 流量（30 天）',
             subscription=await _build_subscription_info_async(db, subscription),
         )
 
@@ -1438,7 +1438,7 @@ async def update_user_subscription(
 
         return UpdateSubscriptionResponse(
             success=True,
-            message=f'Removed {removed_gb} GB traffic package',
+            message=f'已移除 {removed_gb} GB 流量包',
             subscription=await _build_subscription_info_async(db, subscription),
         )
 

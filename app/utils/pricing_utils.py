@@ -257,33 +257,21 @@ def _pluralize_days_ru(n: int) -> str:
     return 'дней'
 
 
-def format_period_description(days: int, language: str = 'ru') -> str:
-    language_code = (language or 'ru').split('-')[0].lower()
-    if language_code in {'ru', 'fa'}:
-        if days == 30:
-            return '1 месяц'
-        if days == 60:
-            return '2 месяца'
-        if days == 90:
-            return '3 месяца'
-        if days == 180:
-            return '6 месяцев'
-        if days == 360:
-            return '12 месяцев'
-        return f'{days} {_pluralize_days_ru(days)}'
-
+def format_period_description(days: int, language: str = 'zh') -> str:
+    language_code = (language or 'zh').split('-')[0].lower()
+    if language_code != 'zh':
+        language_code = 'zh'
     if days == 30:
-        return '1 month'
+        return '1个月'
     if days == 60:
-        return '2 months'
+        return '2个月'
     if days == 90:
-        return '3 months'
+        return '3个月'
     if days == 180:
-        return '6 months'
+        return '6个月'
     if days == 360:
-        return '12 months'
-    day_word = 'day' if days == 1 else 'days'
-    return f'{days} {day_word}'
+        return '12个月'
+    return f'{days}天'
 
 
 def validate_pricing_calculation(base_price: int, monthly_additions: int, months: int, total_calculated: int) -> bool:

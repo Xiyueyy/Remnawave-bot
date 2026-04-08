@@ -32,9 +32,7 @@ def _format_preview_block(text: str) -> str:
 def _build_logs_message(log_path: Path) -> str:
     if not log_path.exists():
         message = (
-            '🧾 <b>Системные логи</b>\n\n'
-            f'Файл <code>{log_path}</code> пока не создан.\n'
-            'Логи появятся автоматически после первой записи.'
+            f'🧾 <b>系统日志</b>\n\n文件 <code>{log_path}</code> 尚未创建。\n第一次输入后日志将自动出现。'
         )
         return message
 
@@ -42,7 +40,7 @@ def _build_logs_message(log_path: Path) -> str:
         content = log_path.read_text(encoding='utf-8', errors='ignore')
     except Exception as error:  # pragma: no cover - защита от проблем чтения
         logger.error('Ошибка чтения лог-файла', log_path=log_path, error=error)
-        message = f'❌ <b>Ошибка чтения логов</b>\n\nНе удалось прочитать файл <code>{log_path}</code>.'
+        message = f'❌ <b>读取日志时出错</b>\n\n无法读取文件 <code>{log_path}</code>。'
         return message
 
     total_length = len(content)
@@ -73,9 +71,9 @@ def _build_logs_message(log_path: Path) -> str:
 def _get_logs_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text='🔄 Обновить', callback_data='admin_system_logs_refresh')],
-            [InlineKeyboardButton(text='⬇️ Скачать лог', callback_data='admin_system_logs_download')],
-            [InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_submenu_system')],
+            [InlineKeyboardButton(text='🔄 刷新', callback_data='admin_system_logs_refresh')],
+            [InlineKeyboardButton(text='⬇️下载日志', callback_data='admin_system_logs_download')],
+            [InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_submenu_system')],
         ]
     )
 
@@ -107,7 +105,7 @@ async def refresh_system_logs(
 
     reply_markup = _get_logs_keyboard()
     await callback.message.edit_text(message, reply_markup=reply_markup, parse_mode='HTML')
-    await callback.answer('🔄 Обновлено')
+    await callback.answer('🔄 已更新')
 
 
 @admin_required
@@ -120,23 +118,23 @@ async def download_system_logs(
     log_path = _resolve_log_path()
 
     if not log_path.exists() or not log_path.is_file():
-        await callback.answer('❌ Лог-файл не найден', show_alert=True)
+        await callback.answer('❌ 未找到日志文件', show_alert=True)
         return
 
     try:
-        await callback.answer('⬇️ Отправляю лог...')
+        await callback.answer('⬇️我正在发送日志...')
 
         document = FSInputFile(log_path)
         stats = log_path.stat()
         updated_at = datetime.fromtimestamp(stats.st_mtime, tz=UTC).strftime('%d.%m.%Y %H:%M:%S')
         caption = (
-            f'🧾 Лог-файл <code>{log_path.name}</code>\n📁 Путь: <code>{log_path}</code>\n🕒 Обновлен: {updated_at}'
+            f'🧾 日志文件 <code>{log_path.name}</code>\n📁 路径：<code>{log_path}</code>\n🕒 更新：{updated_at}'
         )
         await callback.message.answer_document(document=document, caption=caption, parse_mode='HTML')
     except Exception as error:  # pragma: no cover - защита от ошибок отправки
         logger.error('Ошибка отправки лог-файла', log_path=log_path, error=error)
         await callback.message.answer(
-            '❌ <b>Не удалось отправить лог-файл</b>\n\nПроверьте журналы приложения или повторите попытку позже.',
+            '❌ <b>发送日志文件失败</b>\n\n检查应用程序日志或稍后重试。',
             parse_mode='HTML',
         )
 

@@ -321,7 +321,7 @@ async def fulfill_purchase(
 
         # Resolve notification params before any commit (avoids lazy-loading after commit)
         notification_tariff_name = tariff.name
-        notification_language = user.language or 'ru'
+        notification_language = user.language or settings.DEFAULT_LANGUAGE
 
         # Verify the tariff still has a price configured for this period.
         # We do NOT re-verify the exact amount because discounts, price changes,
@@ -1022,7 +1022,7 @@ async def activate_purchase(db: AsyncSession, purchase_token: str, *, skip_notif
 
     # Resolve notification params before any commit (avoids lazy-loading after commit)
     notification_tariff_name = tariff.name
-    notification_language = user.language or 'ru'
+    notification_language = user.language or settings.DEFAULT_LANGUAGE
 
     try:
         subscription_service = SubscriptionService()

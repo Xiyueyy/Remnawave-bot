@@ -82,7 +82,7 @@ async def _create_freekassa_payment_and_respond(
     if not result:
         error_text = texts.t(
             'PAYMENT_CREATE_ERROR',
-            'Не удалось создать платёж. Попробуйте позже.',
+            '❌ 创建支付失败，请稍后再试。',
         )
         if edit_message:
             await message_or_callback.edit_text(
@@ -106,14 +106,14 @@ async def _create_freekassa_payment_and_respond(
                 InlineKeyboardButton(
                     text=texts.t(
                         'PAY_BUTTON',
-                        '💳 Оплатить {amount}₽',
+                        '💳 支付{amount}₽',
                     ).format(amount=f'{amount_rub:.0f}'),
                     url=payment_url,
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=texts.t('BACK_BUTTON', '◀️ Назад'),
+                    text=texts.t('BACK_BUTTON', '◀️ 返回'),
                     callback_data='menu_balance',
                 )
             ],
@@ -122,10 +122,7 @@ async def _create_freekassa_payment_and_respond(
 
     response_text = texts.t(
         'FREEKASSA_PAYMENT_CREATED',
-        '💳 <b>Оплата через {name}</b>\n\n'
-        'Сумма: <b>{amount}₽</b>\n\n'
-        'Нажмите кнопку ниже для оплаты.\n'
-        'После успешной оплаты баланс будет пополнен автоматически.',
+        '💳 <b>通过 {name}</b> 付款\n\n金额：<b>{amount}₽</b>\n\n点击下面的按钮即可付款。\n支付成功后，余额将自动充值。',
     ).format(name=html.escape(display_name), amount=f'{amount_rub:.2f}')
 
     if edit_message:
@@ -165,11 +162,11 @@ async def process_freekassa_payment_amount(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await message.answer(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}',
+            f'🚫 <b>补货有限</b>\n\n{reason}',
             parse_mode='HTML',
             reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
@@ -184,7 +181,7 @@ async def process_freekassa_payment_amount(
         await message.answer(
             texts.t(
                 'PAYMENT_AMOUNT_TOO_LOW',
-                'Минимальная сумма пополнения: {min_amount}₽',
+                '最低存款金额：{min_amount}₽',
             ).format(min_amount=min_amount // 100),
             reply_markup=get_back_keyboard(db_user.language),
             parse_mode='HTML',
@@ -195,7 +192,7 @@ async def process_freekassa_payment_amount(
         await message.answer(
             texts.t(
                 'PAYMENT_AMOUNT_TOO_HIGH',
-                'Максимальная сумма пополнения: {max_amount}₽',
+                '最大补货金额：{max_amount}₽',
             ).format(max_amount=max_amount // 100),
             reply_markup=get_back_keyboard(db_user.language),
             parse_mode='HTML',
@@ -229,21 +226,21 @@ async def _start_freekassa_topup_impl(
     # Проверка доступности метода
     if not settings.is_freekassa_enabled():
         await callback.answer(
-            texts.t('FREEKASSA_NOT_AVAILABLE', 'Freekassa временно недоступен'),
+            texts.t('FREEKASSA_NOT_AVAILABLE', 'Freekassa 暂时不可用'),
             show_alert=True,
         )
         return
 
     if payment_method == 'freekassa_sbp' and not settings.is_freekassa_sbp_enabled():
         await callback.answer(
-            texts.t('FREEKASSA_NOT_AVAILABLE', 'Freekassa временно недоступен'),
+            texts.t('FREEKASSA_NOT_AVAILABLE', 'Freekassa 暂时不可用'),
             show_alert=True,
         )
         return
 
     if payment_method == 'freekassa_card' and not settings.is_freekassa_card_enabled():
         await callback.answer(
-            texts.t('FREEKASSA_NOT_AVAILABLE', 'Freekassa временно недоступен'),
+            texts.t('FREEKASSA_NOT_AVAILABLE', 'Freekassa 暂时不可用'),
             show_alert=True,
         )
         return
@@ -254,11 +251,11 @@ async def _start_freekassa_topup_impl(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await callback.message.edit_text(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}',
+            f'🚫 <b>补货有限</b>\n\n{reason}',
             parse_mode='HTML',
             reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
@@ -275,7 +272,7 @@ async def _start_freekassa_topup_impl(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=texts.t('BACK_BUTTON', '◀️ Назад'),
+                    text=texts.t('BACK_BUTTON', '◀️ 返回'),
                     callback_data='menu_balance',
                 )
             ]
@@ -285,10 +282,7 @@ async def _start_freekassa_topup_impl(
     await callback.message.edit_text(
         texts.t(
             'FREEKASSA_ENTER_AMOUNT',
-            '💳 <b>Пополнение через {name}</b>\n\n'
-            'Введите сумму пополнения в рублях.\n\n'
-            'Минимум: {min_amount}₽\n'
-            'Максимум: {max_amount}₽',
+            '💳 <b>通过 {name} 充值</b>\n\n请输入充值金额（卢布）。\n\n最小值：{min_amount}\n最大值：{max_amount}',
         ).format(
             name=display_name,
             min_amount=min_amount,
@@ -356,7 +350,7 @@ async def process_freekassa_custom_amount(
         await message.answer(
             texts.t(
                 'PAYMENT_INVALID_AMOUNT',
-                'Введите корректную сумму числом.',
+                '输入正确的数字金额。',
             ),
             parse_mode='HTML',
         )

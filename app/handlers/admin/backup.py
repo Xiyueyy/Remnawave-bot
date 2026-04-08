@@ -1,4 +1,4 @@
-import html
+﻿import html
 from datetime import datetime
 
 import structlog
@@ -25,14 +25,14 @@ def get_backup_main_keyboard(language: str = 'ru'):
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text='🚀 Создать бекап', callback_data='backup_create'),
-                InlineKeyboardButton(text='📥 Восстановить', callback_data='backup_restore'),
+                InlineKeyboardButton(text='🚀 创建备份', callback_data='backup_create'),
+                InlineKeyboardButton(text='📥 恢复', callback_data='backup_restore'),
             ],
             [
-                InlineKeyboardButton(text='📋 Список бекапов', callback_data='backup_list'),
-                InlineKeyboardButton(text='⚙️ Настройки', callback_data='backup_settings'),
+                InlineKeyboardButton(text='📋 备份列表', callback_data='backup_list'),
+                InlineKeyboardButton(text='⚙️设置', callback_data='backup_settings'),
             ],
-            [InlineKeyboardButton(text='◀️ Назад', callback_data='admin_panel')],
+            [InlineKeyboardButton(text='◀️ 返回', callback_data='admin_panel')],
         ]
     )
 
@@ -57,7 +57,7 @@ def get_backup_list_keyboard(backups: list, page: int = 1, per_page: int = 5):
         size_str = f'{backup.get("file_size_mb", 0):.1f}MB'
         records_str = backup.get('total_records', '?')
 
-        button_text = f'📦 {date_str} • {size_str} • {records_str} записей'
+        button_text = f'📦 {date_str} • {size_str} • {records_str} 记录'
         callback_data = f'backup_manage_{backup["filename"]}'
 
         keyboard.append([InlineKeyboardButton(text=button_text, callback_data=callback_data)])
@@ -76,7 +76,7 @@ def get_backup_list_keyboard(backups: list, page: int = 1, per_page: int = 5):
 
         keyboard.append(nav_row)
 
-    keyboard.extend([[InlineKeyboardButton(text='◀️ Назад', callback_data='backup_panel')]])
+    keyboard.extend([[InlineKeyboardButton(text='◀️ 返回', callback_data='backup_panel')]])
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
@@ -84,24 +84,24 @@ def get_backup_list_keyboard(backups: list, page: int = 1, per_page: int = 5):
 def get_backup_manage_keyboard(backup_filename: str):
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text='📥 Восстановить', callback_data=f'backup_restore_file_{backup_filename}')],
-            [InlineKeyboardButton(text='🗑️ Удалить', callback_data=f'backup_delete_{backup_filename}')],
-            [InlineKeyboardButton(text='◀️ К списку', callback_data='backup_list')],
+            [InlineKeyboardButton(text='📥 恢复', callback_data=f'backup_restore_file_{backup_filename}')],
+            [InlineKeyboardButton(text='🗑️ 删除', callback_data=f'backup_delete_{backup_filename}')],
+            [InlineKeyboardButton(text='◀️ 前往列表', callback_data='backup_list')],
         ]
     )
 
 
 def get_backup_settings_keyboard(settings_obj):
-    auto_status = '✅ Включены' if settings_obj.auto_backup_enabled else '❌ Отключены'
-    compression_status = '✅ Включено' if settings_obj.compression_enabled else '❌ Отключено'
-    logs_status = '✅ Включены' if settings_obj.include_logs else '❌ Отключены'
+    auto_status = '✅ 已启用' if settings_obj.auto_backup_enabled else '❌ 已禁用'
+    compression_status = '✅ 已启用' if settings_obj.compression_enabled else '❌ 已禁用'
+    logs_status = '✅ 已启用' if settings_obj.include_logs else '❌ 已禁用'
 
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=f'🔄 Автобекапы: {auto_status}', callback_data='backup_toggle_auto')],
-            [InlineKeyboardButton(text=f'🗜️ Сжатие: {compression_status}', callback_data='backup_toggle_compression')],
-            [InlineKeyboardButton(text=f'📋 Логи в бекапе: {logs_status}', callback_data='backup_toggle_logs')],
-            [InlineKeyboardButton(text='◀️ Назад', callback_data='backup_panel')],
+            [InlineKeyboardButton(text=f'🔄 自动备份：{auto_status}', callback_data='backup_toggle_auto')],
+            [InlineKeyboardButton(text=f'🗜️压缩：{compression_status}', callback_data='backup_toggle_compression')],
+            [InlineKeyboardButton(text=f'📋 登录备份：{logs_status}', callback_data='backup_toggle_logs')],
+            [InlineKeyboardButton(text='◀️ 返回', callback_data='backup_panel')],
         ]
     )
 
@@ -111,23 +111,10 @@ def get_backup_settings_keyboard(settings_obj):
 async def show_backup_panel(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
     settings_obj = await backup_service.get_backup_settings()
 
-    status_auto = '✅ Включены' if settings_obj.auto_backup_enabled else '❌ Отключены'
+    status_auto = '✅ 已启用' if settings_obj.auto_backup_enabled else '❌ 已关闭'
+    compression_status = '是' if settings_obj.compression_enabled else '否'
 
-    text = f"""🗄️ <b>СИСТЕМА БЕКАПОВ</b>
-
-📊 <b>Статус:</b>
-• Автобекапы: {status_auto}
-• Интервал: {settings_obj.backup_interval_hours} часов
-• Хранить: {settings_obj.max_backups_keep} файлов
-• Сжатие: {'Да' if settings_obj.compression_enabled else 'Нет'}
-
-📁 <b>Расположение:</b> <code>/app/data/backups</code>
-
-⚡ <b>Доступные операции:</b>
-• Создание полного бекапа всех данных
-• Восстановление из файла бекапа
-• Управление автоматическими бекапами
-"""
+    text = f"🗄️ <b>备份系统</b>\n\n📊 <b>状态：</b>\n• 自动备份：{status_auto}\n• 间隔：{settings_obj.backup_interval_hours} 小时\n• 存储：{settings_obj.max_backups_keep} 个文件\n• 压缩：{compression_status}\n\n📁 <b>位置：</b> <code>/app/data/backups</code>\n\n⚡ <b>可操作：</b>\n• 创建全部数据的完整备份\n• 从备份文件恢复\n• 管理自动备份"
 
     await callback.message.edit_text(text, parse_mode='HTML', reply_markup=get_backup_main_keyboard(db_user.language))
     await callback.answer()
@@ -136,10 +123,10 @@ async def show_backup_panel(callback: types.CallbackQuery, db_user: User, db: As
 @admin_required
 @error_handler
 async def create_backup_handler(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
-    await callback.answer('🔄 Создание бекапа запущено...')
+    await callback.answer('🔄备份创建开始...')
 
     progress_msg = await callback.message.edit_text(
-        '🔄 <b>Создание бекапа...</b>\n\n⏳ Экспортируем данные из базы...\nЭто может занять несколько минут.',
+        '🔄 <b> 正在创建备份...</b>\n\n⏳ 从数据库导出数据...\n这可能需要几分钟。',
         parse_mode='HTML',
     )
 
@@ -149,13 +136,13 @@ async def create_backup_handler(callback: types.CallbackQuery, db_user: User, db
 
     if success:
         await progress_msg.edit_text(
-            f'✅ <b>Бекап создан успешно!</b>\n\n{message}',
+            f'✅ <b>备份创建成功！</b>\n\n{message}',
             parse_mode='HTML',
             reply_markup=get_backup_main_keyboard(db_user.language),
         )
     else:
         await progress_msg.edit_text(
-            f'❌ <b>Ошибка создания бекапа</b>\n\n{html.escape(message)}',
+            f'❌ <b>创建备份时出错</b>\n\n{html.escape(message)}',
             parse_mode='HTML',
             reply_markup=get_backup_main_keyboard(db_user.language),
         )
@@ -174,16 +161,16 @@ async def show_backup_list(callback: types.CallbackQuery, db_user: User, db: Asy
     backups = await backup_service.get_backup_list()
 
     if not backups:
-        text = '📦 <b>Список бекапов пуст</b>\n\nБекапы еще не создавались.'
+        text = '📦 <b> 备份列表为空</b>\n\n尚未创建备份。'
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text='🚀 Создать первый бекап', callback_data='backup_create')],
-                [InlineKeyboardButton(text='◀️ Назад', callback_data='backup_panel')],
+                [InlineKeyboardButton(text='🚀 创建第一个备份', callback_data='backup_create')],
+                [InlineKeyboardButton(text='◀️ 返回', callback_data='backup_panel')],
             ]
         )
     else:
-        text = f'📦 <b>Список бекапов</b> (всего: {len(backups)})\n\n'
-        text += 'Выберите бекап для управления:'
+        text = f'📦 <b> 备份列表</b>（总计：{len(backups)}）'
+        text += '选择要管理的备份：'
         keyboard = get_backup_list_keyboard(backups, page)
 
     await callback.message.edit_text(text, parse_mode='HTML', reply_markup=keyboard)
@@ -204,7 +191,7 @@ async def manage_backup_file(callback: types.CallbackQuery, db_user: User, db: A
             break
 
     if not backup_info:
-        await callback.answer('❌ Файл бекапа не найден', show_alert=True)
+        await callback.answer('❌ 找不到备份文件', show_alert=True)
         return
 
     try:
@@ -212,23 +199,14 @@ async def manage_backup_file(callback: types.CallbackQuery, db_user: User, db: A
             dt = datetime.fromisoformat(backup_info['timestamp'].replace('Z', '+00:00'))
             date_str = dt.strftime('%d.%m.%Y %H:%M:%S')
         else:
-            date_str = 'Неизвестно'
+            date_str = '未知'
     except:
         date_str = 'Ошибка формата даты'
 
-    text = f"""📦 <b>Информация о бекапе</b>
-
-📄 <b>Файл:</b> <code>{filename}</code>
-📅 <b>Создан:</b> {date_str}
-💾 <b>Размер:</b> {backup_info.get('file_size_mb', 0):.2f} MB
-📊 <b>Таблиц:</b> {backup_info.get('tables_count', '?')}
-📈 <b>Записей:</b> {backup_info.get('total_records', '?'):,}
-🗜️ <b>Сжатие:</b> {'Да' if backup_info.get('compressed') else 'Нет'}
-🗄️ <b>БД:</b> {backup_info.get('database_type', 'unknown')}
-"""
+    text = f"📦 <b>备份信息</b>\n\n📄 <b>文件：</b> <code>{filename}</code>\n📅 <b>创建者：</b> {date_str}\n💾 <b>尺寸：</b> {backup_info.get('file_size_mb', 0):.2f} MB\n📊 <b>表：</b> {backup_info.get('tables_count', '?')}\n📈 <b>记录：</b> {backup_info.get('total_records', '?'):,}\n🗜️ <b> 压缩：</b> {('Да' if backup_info.get('compressed') else 'Нет')}\n🗄️<b>DB：</b> {backup_info.get('database_type', 'unknown')}"
 
     if backup_info.get('error'):
-        text += f'\n⚠️ <b>Ошибка:</b> {backup_info["error"]}'
+        text += f"⚠️ <b>错误：</b> {backup_info['error']}"
 
     await callback.message.edit_text(text, parse_mode='HTML', reply_markup=get_backup_manage_keyboard(filename))
     await callback.answer()
@@ -239,16 +217,16 @@ async def manage_backup_file(callback: types.CallbackQuery, db_user: User, db: A
 async def delete_backup_confirm(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
     filename = callback.data.replace('backup_delete_', '')
 
-    text = '🗑️ <b>Удаление бекапа</b>\n\n'
-    text += 'Вы уверены, что хотите удалить бекап?\n\n'
+    text = '🗑️ <b>删除备份</b>'
+    text += '您确定要删除备份吗？'
     text += f'📄 <code>{filename}</code>\n\n'
-    text += '⚠️ <b>Это действие нельзя отменить!</b>'
+    text += '⚠️ <b>此操作无法撤消！</b>'
 
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text='✅ Да, удалить', callback_data=f'backup_delete_confirm_{filename}'),
-                InlineKeyboardButton(text='❌ Отмена', callback_data=f'backup_manage_{filename}'),
+                InlineKeyboardButton(text='✅ 是，删除', callback_data=f'backup_delete_confirm_{filename}'),
+                InlineKeyboardButton(text='❌ 取消', callback_data=f'backup_manage_{filename}'),
             ]
         ]
     )
@@ -266,15 +244,15 @@ async def delete_backup_execute(callback: types.CallbackQuery, db_user: User, db
 
     if success:
         await callback.message.edit_text(
-            f'✅ <b>Бекап удален</b>\n\n{message}',
+            f'✅ <b>备份已删除</b>\n\n{message}',
             parse_mode='HTML',
             reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=[[InlineKeyboardButton(text='📋 К списку бекапов', callback_data='backup_list')]]
+                inline_keyboard=[[InlineKeyboardButton(text='📋 到备份列表', callback_data='backup_list')]]
             ),
         )
     else:
         await callback.message.edit_text(
-            f'❌ <b>Ошибка удаления</b>\n\n{message}',
+            f'❌ <b>删除错误</b>\n\n{message}',
             parse_mode='HTML',
             reply_markup=get_backup_manage_keyboard(filename),
         )
@@ -289,43 +267,34 @@ async def restore_backup_start(callback: types.CallbackQuery, db_user: User, db:
         # Восстановление из конкретного файла
         filename = callback.data.replace('backup_restore_file_', '')
 
-        text = '📥 <b>Восстановление из бекапа</b>\n\n'
-        text += f'📄 <b>Файл:</b> <code>{filename}</code>\n\n'
-        text += '⚠️ <b>ВНИМАНИЕ!</b>\n'
-        text += '• Процесс может занять несколько минут\n'
-        text += '• Рекомендуется создать бекап перед восстановлением\n'
-        text += '• Существующие данные будут дополнены\n\n'
-        text += 'Продолжить восстановление?'
+        text = '📥 <b>从备份恢复</b>'
+        text += f'📄 <b>文件：</b> <code>{filename}</code>'
+        text += '⚠️ <b>注意！</b>'
+        text += '• 该过程可能需要几分钟'
+        text += '• 建议在恢复之前创建备份'
+        text += '• 现有数据将得到补充'
+        text += '继续恢复吗？'
 
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text='✅ Да, восстановить', callback_data=f'backup_restore_execute_{filename}'
+                        text='✅ 是，恢复', callback_data=f'backup_restore_execute_{filename}'
                     ),
                     InlineKeyboardButton(
-                        text='🗑️ Очистить и восстановить', callback_data=f'backup_restore_clear_{filename}'
+                        text='🗑️清洁和恢复', callback_data=f'backup_restore_clear_{filename}'
                     ),
                 ],
-                [InlineKeyboardButton(text='❌ Отмена', callback_data=f'backup_manage_{filename}')],
+                [InlineKeyboardButton(text='❌ 取消', callback_data=f'backup_manage_{filename}')],
             ]
         )
     else:
-        text = """📥 <b>Восстановление из бекапа</b>
-
-📎 Отправьте файл бекапа (.json или .json.gz)
-
-⚠️ <b>ВАЖНО:</b>
-• Файл должен быть создан этой системой бекапов
-• Процесс может занять несколько минут
-• Рекомендуется создать бекап перед восстановлением
-
-💡 Или выберите из существующих бекапов ниже."""
+        text = '📥 <b>从备份恢复</b>\n\n📎 发送备份文件（.json 或 .json.gz）\n\n⚠️<b>重要：</b>\n• 文件必须由该备份系统创建\n• 该过程可能需要几分钟\n• 建议在恢复之前创建备份\n\n💡 或从下面的现有备份中进行选择。'
 
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text='📋 Выбрать из списка', callback_data='backup_list')],
-                [InlineKeyboardButton(text='❌ Отмена', callback_data='backup_panel')],
+                [InlineKeyboardButton(text='📋 从列表中选择', callback_data='backup_list')],
+                [InlineKeyboardButton(text='❌ 取消', callback_data='backup_panel')],
             ]
         )
 
@@ -345,18 +314,15 @@ async def restore_backup_execute(callback: types.CallbackQuery, db_user: User, d
         filename = callback.data.replace('backup_restore_clear_', '')
         clear_existing = True
     else:
-        await callback.answer('❌ Неверный формат команды', show_alert=True)
+        await callback.answer('❌ 命令格式无效', show_alert=True)
         return
 
-    await callback.answer('🔄 Восстановление запущено...')
+    await callback.answer('🔄恢复已开始...')
 
     # Показываем прогресс
     action_text = 'очисткой и восстановлением' if clear_existing else 'восстановлением'
     progress_msg = await callback.message.edit_text(
-        f'📥 <b>Восстановление из бекапа...</b>\n\n'
-        f'⏳ Работаем с {action_text} данных...\n'
-        f'📄 Файл: <code>{filename}</code>\n\n'
-        f'Это может занять несколько минут.',
+        f'📥 <b> 正在从备份恢复...</b>\n\n⏳ 我们使用 {action_text} 数据...\n📄 文件：<code>{filename}</code>\n\n这可能需要几分钟。',
         parse_mode='HTML',
     )
 
@@ -366,13 +332,13 @@ async def restore_backup_execute(callback: types.CallbackQuery, db_user: User, d
 
     if success:
         await progress_msg.edit_text(
-            f'✅ <b>Восстановление завершено!</b>\n\n{message}',
+            f'✅ <b>恢复完成！</b>\n\n{message}',
             parse_mode='HTML',
             reply_markup=get_backup_main_keyboard(db_user.language),
         )
     else:
         await progress_msg.edit_text(
-            f'❌ <b>Ошибка восстановления</b>\n\n{message}',
+            f'❌ <b>恢复错误</b>\n\n{message}',
             parse_mode='HTML',
             reply_markup=get_backup_manage_keyboard(filename),
         )
@@ -383,9 +349,9 @@ async def restore_backup_execute(callback: types.CallbackQuery, db_user: User, d
 async def handle_backup_file_upload(message: types.Message, db_user: User, db: AsyncSession, state: FSMContext):
     if not message.document:
         await message.answer(
-            '❌ Пожалуйста, отправьте файл бекапа (.json или .json.gz)',
+            '❌ 请发送备份文件（.json 或 .json.gz）',
             reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=[[InlineKeyboardButton(text='◀️ Отмена', callback_data='backup_panel')]]
+                inline_keyboard=[[InlineKeyboardButton(text='◀️ 取消', callback_data='backup_panel')]]
             ),
         )
         return
@@ -394,18 +360,18 @@ async def handle_backup_file_upload(message: types.Message, db_user: User, db: A
 
     if not (document.file_name.endswith('.json') or document.file_name.endswith('.json.gz')):
         await message.answer(
-            '❌ Неподдерживаемый формат файла. Загрузите .json или .json.gz файл',
+            '❌ 不支持的文件格式。上传 .json 或 .json.gz 文件',
             reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=[[InlineKeyboardButton(text='◀️ Отмена', callback_data='backup_panel')]]
+                inline_keyboard=[[InlineKeyboardButton(text='◀️ 取消', callback_data='backup_panel')]]
             ),
         )
         return
 
     if document.file_size > 50 * 1024 * 1024:
         await message.answer(
-            '❌ Файл слишком большой (максимум 50MB)',
+            '❌ 文件太大（最大50MB）',
             reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=[[InlineKeyboardButton(text='◀️ Отмена', callback_data='backup_panel')]]
+                inline_keyboard=[[InlineKeyboardButton(text='◀️ 取消', callback_data='backup_panel')]]
             ),
         )
         return
@@ -417,29 +383,20 @@ async def handle_backup_file_upload(message: types.Message, db_user: User, db: A
 
         await message.bot.download_file(file.file_path, temp_path)
 
-        text = f"""📥 <b>Файл загружен</b>
-
-📄 <b>Имя:</b> <code>{document.file_name}</code>
-💾 <b>Размер:</b> {document.file_size / 1024 / 1024:.2f} MB
-
-⚠️ <b>ВНИМАНИЕ!</b>
-Процесс восстановления изменит данные в базе.
-Рекомендуется создать бекап перед восстановлением.
-
-Продолжить?"""
+        text = f'📥 <b>文件已上传</b>\n\n📄 <b>名称：</b> <code>{document.file_name}</code>\n💾 <b>尺寸：</b> {document.file_size / 1024 / 1024:.2f} MB\n\n⚠️<b>注意！</b>\n恢复过程将更改数据库中的数据。\n建议在恢复之前创建备份。\n\n继续？'
 
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text='✅ Восстановить', callback_data=f'backup_restore_execute_{temp_path.name}'
+                        text='✅ 恢复', callback_data=f'backup_restore_execute_{temp_path.name}'
                     ),
                     InlineKeyboardButton(
-                        text='🗑️ Очистить и восстановить',
+                        text='🗑️清洁和恢复',
                         callback_data=f'backup_restore_clear_{temp_path.name}',
                     ),
                 ],
-                [InlineKeyboardButton(text='❌ Отмена', callback_data='backup_panel')],
+                [InlineKeyboardButton(text='❌ 取消', callback_data='backup_panel')],
             ]
         )
 
@@ -447,11 +404,11 @@ async def handle_backup_file_upload(message: types.Message, db_user: User, db: A
         await state.clear()
 
     except Exception as e:
-        logger.error('Ошибка загрузки файла бекапа', error=e)
+        logger.error('加载备份文件时出错', error=e)
         await message.answer(
-            f'❌ Ошибка загрузки файла: {e!s}',
+            f'❌ 文件上传错误：{e!s}',
             reply_markup=InlineKeyboardMarkup(
-                inline_keyboard=[[InlineKeyboardButton(text='◀️ Отмена', callback_data='backup_panel')]]
+                inline_keyboard=[[InlineKeyboardButton(text='◀️ 取消', callback_data='backup_panel')]]
             ),
         )
 
@@ -461,20 +418,7 @@ async def handle_backup_file_upload(message: types.Message, db_user: User, db: A
 async def show_backup_settings(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
     settings_obj = await backup_service.get_backup_settings()
 
-    text = f"""⚙️ <b>Настройки системы бекапов</b>
-
-🔄 <b>Автоматические бекапы:</b>
-• Статус: {'✅ Включены' if settings_obj.auto_backup_enabled else '❌ Отключены'}
-• Интервал: {settings_obj.backup_interval_hours} часов
-• Время запуска: {settings_obj.backup_time}
-
-📦 <b>Хранение:</b>
-• Максимум файлов: {settings_obj.max_backups_keep}
-• Сжатие: {'✅ Включено' if settings_obj.compression_enabled else '❌ Отключено'}
-• Включать логи: {'✅ Да' if settings_obj.include_logs else '❌ Нет'}
-
-📁 <b>Расположение:</b> <code>{settings_obj.backup_location}</code>
-"""
+    text = f"⚙️ <b>备份系统设置</b>\n\n🔄 <b>自动备份：</b>\n• 状态：{('✅ 已启用' if settings_obj.auto_backup_enabled else '❌ 已禁用')}\n• 间隔：{settings_obj.backup_interval_hours} 小时\n• 开始时间：{settings_obj.backup_time}\n\n📦 <b>存储：</b>\n• 最大文件数：{settings_obj.max_backups_keep}\n• 压缩：{('✅ 已启用' if settings_obj.compression_enabled else '❌ 已禁用')}\n• 包含日志：{('✅ 是' if settings_obj.include_logs else '❌ Нет')}\n\n📁 <b>位置：</b> <code>{settings_obj.backup_location}</code>"
 
     await callback.message.edit_text(text, parse_mode='HTML', reply_markup=get_backup_settings_keyboard(settings_obj))
     await callback.answer()
@@ -488,20 +432,20 @@ async def toggle_backup_setting(callback: types.CallbackQuery, db_user: User, db
     if callback.data == 'backup_toggle_auto':
         new_value = not settings_obj.auto_backup_enabled
         await backup_service.update_backup_settings(auto_backup_enabled=new_value)
-        status = 'включены' if new_value else 'отключены'
-        await callback.answer(f'Автобекапы {status}')
+        status = '已启用ы' if new_value else '已禁用ы'
+        await callback.answer(f'自动备份 {status}')
 
     elif callback.data == 'backup_toggle_compression':
         new_value = not settings_obj.compression_enabled
         await backup_service.update_backup_settings(compression_enabled=new_value)
-        status = 'включено' if new_value else 'отключено'
-        await callback.answer(f'Сжатие {status}')
+        status = '已启用о' if new_value else '已禁用о'
+        await callback.answer(f'压缩 {status}')
 
     elif callback.data == 'backup_toggle_logs':
         new_value = not settings_obj.include_logs
         await backup_service.update_backup_settings(include_logs=new_value)
-        status = 'включены' if new_value else 'отключены'
-        await callback.answer(f'Логи в бекапе {status}')
+        status = '已启用ы' if new_value else '已禁用ы'
+        await callback.answer(f'登录备份{status}')
 
     await show_backup_settings(callback, db_user, db)
 
@@ -537,3 +481,4 @@ def register_handlers(dp: Dispatcher):
     )
 
     dp.message.register(handle_backup_file_upload, BackupStates.waiting_backup_file)
+

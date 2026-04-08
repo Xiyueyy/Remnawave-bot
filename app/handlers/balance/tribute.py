@@ -25,19 +25,18 @@ async def start_tribute_payment(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await callback.message.edit_text(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
         await callback.answer()
         return
 
     if not settings.TRIBUTE_ENABLED:
-        await callback.answer('❌ Оплата картой временно недоступна', show_alert=True)
+        await callback.answer('❌暂时无法刷卡支付', show_alert=True)
         return
 
     try:
@@ -51,24 +50,18 @@ async def start_tribute_payment(
         )
 
         if not payment_url:
-            await callback.answer('❌ Ошибка создания платежа', show_alert=True)
+            await callback.answer('❌ 创建付款时出错', show_alert=True)
             return
 
         keyboard = types.InlineKeyboardMarkup(
             inline_keyboard=[
-                [types.InlineKeyboardButton(text='💳 Перейти к оплате', url=payment_url)],
+                [types.InlineKeyboardButton(text='💳 前往支付', url=payment_url)],
                 [types.InlineKeyboardButton(text=texts.BACK, callback_data='balance_topup')],
             ]
         )
 
         message_text = (
-            '💳 <b>Пополнение банковской картой</b>\n\n'
-            '• Введите любую сумму от 100₽\n'
-            '• Безопасная оплата через Tribute\n'
-            '• Мгновенное зачисление на баланс\n'
-            '• Принимаем карты Visa, MasterCard, МИР\n\n'
-            '• 🚨 НЕ ОТПРАВЛЯТЬ ПЛАТЕЖ АНОНИМНО!\n\n'
-            'Нажмите кнопку для перехода к оплате:'
+            '💳<b>银行卡充值</b>\n\n• 输入 100₽ 之间的任意金额\n• 通过Tribute 进行安全支付\n• 即时记入余额\n• 我们接受 Visa、MasterCard、MIR 卡\n\n• 🚨 请勿匿名付款！\n\n点击按钮进行付款：'
         )
 
         await callback.message.edit_text(
@@ -85,6 +78,6 @@ async def start_tribute_payment(
 
     except Exception as e:
         logger.error('Ошибка создания Tribute платежа', error=e)
-        await callback.answer('❌ Ошибка создания платежа', show_alert=True)
+        await callback.answer('❌ 创建付款时出错', show_alert=True)
 
     await callback.answer()

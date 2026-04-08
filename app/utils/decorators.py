@@ -128,7 +128,7 @@ async def _send_error_message(args, kwargs, original_error, func_name: str = 'un
         if not event:
             return
 
-        texts = get_texts(db_user.language if db_user else 'ru')
+        texts = get_texts(db_user.language if db_user else settings.DEFAULT_LANGUAGE)
 
         if isinstance(event, types.Message):
             await event.answer(texts.ERROR)

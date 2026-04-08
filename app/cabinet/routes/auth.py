@@ -648,7 +648,7 @@ async def auth_telegram_widget(
             username=request.username,
             first_name=request.first_name,
             last_name=request.last_name,
-            language='ru',
+            language=settings.DEFAULT_LANGUAGE,
             referred_by_id=referrer_id,
         )
         logger.info('User created successfully: id=, telegram_id', user_id=user.id, telegram_id=user.telegram_id)
@@ -764,7 +764,7 @@ async def auth_telegram_oidc(
     first_name = claims.get('name', claims.get('given_name', ''))
     username = claims.get('preferred_username')
     last_name = claims.get('family_name')
-    language = claims.get('locale', 'ru')[:2] if claims.get('locale') else 'ru'
+    language = claims.get('locale', settings.DEFAULT_LANGUAGE)[:2] if claims.get('locale') else settings.DEFAULT_LANGUAGE
 
     user = await get_user_by_telegram_id(db, telegram_id)
 
@@ -932,7 +932,7 @@ async def register_email(
         if email_service.is_configured():
             cabinet_url = settings.CABINET_URL
             verification_url = f'{cabinet_url}/verify-email'
-            lang = user.language or 'ru'
+            lang = user.language or settings.DEFAULT_LANGUAGE
             full_url = f'{verification_url}?token={verification_token}'
             expire_hours = settings.get_cabinet_email_verification_expire_hours()
 
@@ -1076,7 +1076,7 @@ async def register_email_standalone(
         if settings.is_cabinet_email_verification_enabled() and email_service.is_configured():
             cabinet_url = settings.CABINET_URL
             verification_url = f'{cabinet_url}/verify-email'
-            lang = user.language or request.language or 'ru'
+            lang = user.language or request.language or settings.DEFAULT_LANGUAGE
             full_url = f'{verification_url}?token={verification_token}'
             expire_hours = settings.get_cabinet_email_verification_expire_hours()
 
@@ -1212,7 +1212,7 @@ async def resend_verification(
     if settings.is_cabinet_email_verification_enabled() and email_service.is_configured():
         cabinet_url = settings.CABINET_URL
         verification_url = f'{cabinet_url}/verify-email'
-        lang = user.language or 'ru'
+        lang = user.language or settings.DEFAULT_LANGUAGE
         full_url = f'{verification_url}?token={verification_token}'
         expire_hours = settings.get_cabinet_email_verification_expire_hours()
 
@@ -1288,7 +1288,7 @@ async def login_email(
                 email=request.email,
                 password_hash=password_hash,
                 first_name='Test User',
-                language='ru',
+                language=settings.DEFAULT_LANGUAGE,
             )
             user.email_verified = True
             user.email_verified_at = datetime.now(UTC)
@@ -1525,7 +1525,7 @@ async def forgot_password(
     if email_service.is_configured():
         cabinet_url = settings.CABINET_URL
         reset_url = f'{cabinet_url}/reset-password'
-        lang = user.language or 'ru'
+        lang = user.language or settings.DEFAULT_LANGUAGE
         full_url = f'{reset_url}?token={reset_token}'
         expire_hours = settings.get_cabinet_password_reset_expire_hours()
 
@@ -1689,7 +1689,7 @@ async def request_email_change(
         if settings.is_cabinet_email_verification_enabled() and email_service.is_configured():
             cabinet_url = settings.CABINET_URL
             verification_url = f'{cabinet_url}/verify-email'
-            lang = user.language or 'ru'
+            lang = user.language or settings.DEFAULT_LANGUAGE
             full_url = f'{verification_url}?token={verification_token}'
             expire_hours = settings.get_cabinet_email_verification_expire_hours()
 
@@ -1745,7 +1745,7 @@ async def request_email_change(
 
     # Send verification email to new address
     if email_service.is_configured():
-        lang = user.language or 'ru'
+        lang = user.language or settings.DEFAULT_LANGUAGE
 
         # Check for admin template override
         override = await get_rendered_override(

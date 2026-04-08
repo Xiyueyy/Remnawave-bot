@@ -236,7 +236,7 @@ async def get_service_info():
 async def get_available_languages():
     """Get list of available languages."""
     codes = _get_available_language_codes()
-    default_language = _normalize_language_code(getattr(settings, 'DEFAULT_LANGUAGE', 'ru') or 'ru')
+    default_language = _normalize_language_code(getattr(settings, 'DEFAULT_LANGUAGE', 'zh') or 'zh')
 
     return {
         'languages': [
@@ -256,7 +256,7 @@ async def get_user_language(
     user: User = Depends(get_current_cabinet_user),
 ):
     """Get current user's language."""
-    return {'language': user.language or 'ru'}
+    return {'language': user.language or settings.DEFAULT_LANGUAGE}
 
 
 @router.patch('/user/language')

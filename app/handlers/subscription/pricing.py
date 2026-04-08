@@ -200,7 +200,7 @@ async def _prepare_subscription_summary(
         details_lines.append(
             texts.t(
                 'SUBSCRIPTION_SUMMARY_PROMO_DISCOUNT',
-                '- Промо-предложение: -{amount} ({percent}% дополнительно)',
+                '-促销优惠：-{amount}(额外{percent}%)',
             ).format(
                 amount=texts.format_price(promo_offer_discount),
                 percent=offer_pct,
@@ -210,11 +210,11 @@ async def _prepare_subscription_summary(
     details_text = '\n'.join(details_lines)
 
     summary_lines = [
-        '📋 <b>Сводка заказа</b>',
+        '📋 <b>订单摘要</b>',
         '',
-        f'📅 <b>Период:</b> {period_display}',
-        f'📊 <b>Трафик:</b> {traffic_display}',
-        f'🌍 <b>Страны:</b> {", ".join(selected_countries_names)}',
+        f'📅 <b>期间：</b> {period_display}',
+        f'📊 <b>流量：</b> {traffic_display}',
+        f"🌍 <b>国家/地区：</b> {', '.join(selected_countries_names)}",
     ]
 
     if devices_selection_enabled:
@@ -298,13 +298,13 @@ async def get_subscription_info_text(subscription, texts, db_user, db: AsyncSess
     subscription_url = getattr(subscription, 'subscription_url', None) or 'Генерируется...'
 
     if subscription.is_trial:
-        status_text = '🎁 Тестовая'
+        status_text = '🎁 测试'
         type_text = 'Триал'
     else:
         if subscription.is_active:
-            status_text = '✅ Оплачена'
+            status_text = '✅ 付费'
         else:
-            status_text = '⌛ Истекла'
+            status_text = '⌛ 已过期'
         type_text = 'Платная подписка'
 
     traffic_limit = subscription.traffic_limit_gb or 0
@@ -387,13 +387,13 @@ async def get_subscription_info_text(subscription, texts, db_user, db: AsyncSess
 
                 # Формируем текст о времени
                 if days_remaining == 0:
-                    time_text = 'истекает сегодня'
+                    time_text = '今天到期'
                 elif days_remaining == 1:
-                    time_text = 'остался 1 день'
+                    time_text = '还剩 1 天'
                 elif days_remaining < 5:
-                    time_text = f'осталось {days_remaining} дня'
+                    time_text = f'{days_remaining} 还剩几天'
                 else:
-                    time_text = f'осталось {days_remaining} дней'
+                    time_text = f'{days_remaining} 还剩几天'
 
                 info_text += f'\n• {purchase.traffic_gb} ГБ — {time_text}'
                 info_text += f'\n  {bar} {progress_percent:.0f}% | до {expire_date}'

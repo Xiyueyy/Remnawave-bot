@@ -42,22 +42,22 @@ async def _build_overview(
 
     description = texts.t(
         'ADMIN_PRIVACY_POLICY_DESCRIPTION',
-        'Политика конфиденциальности отображается в разделе «Инфо».',
+        '隐私政策显示在“信息”部分。',
     )
 
     status_text = texts.t(
         'ADMIN_PRIVACY_POLICY_STATUS_DISABLED',
-        '⚠️ Показ политики выключен или текст отсутствует.',
+        '⚠️政策显示已禁用或文本缺失。',
     )
     if policy and policy.is_enabled and has_content:
         status_text = texts.t(
             'ADMIN_PRIVACY_POLICY_STATUS_ENABLED',
-            '✅ Политика активна и показывается пользователям.',
+            '✅政策已激活并向用户显示。',
         )
     elif policy and policy.is_enabled:
         status_text = texts.t(
             'ADMIN_PRIVACY_POLICY_STATUS_ENABLED_EMPTY',
-            '⚠️ Политика включена, но текст пуст — пользователи её не увидят.',
+            '⚠️政策已启用，但文本为空—用户将看不到。',
         )
 
     updated_at = _format_timestamp(getattr(policy, 'updated_at', None))
@@ -65,17 +65,17 @@ async def _build_overview(
     if updated_at:
         updated_block = texts.t(
             'ADMIN_PRIVACY_POLICY_UPDATED_AT',
-            'Последнее обновление: {timestamp}',
+            '最后更新：{timestamp}',
         ).format(timestamp=updated_at)
 
     preview_block = texts.t(
         'ADMIN_PRIVACY_POLICY_PREVIEW_EMPTY',
-        'Текст ещё не задан.',
+        '尚未设置文本。',
     )
     if has_content:
         preview_title = texts.t(
             'ADMIN_PRIVACY_POLICY_PREVIEW_TITLE',
-            '<b>Превью текста:</b>',
+            '<b>文本预览：</b>',
         )
         preview_raw = policy.content.strip()
         preview_trimmed = preview_raw[:400]
@@ -85,16 +85,16 @@ async def _build_overview(
 
     language_block = texts.t(
         'ADMIN_PRIVACY_POLICY_LANGUAGE',
-        'Язык: <code>{lang}</code>',
+        '语言：<code>{lang}</code>',
     ).format(lang=normalized_language)
 
     header = texts.t(
         'ADMIN_PRIVACY_POLICY_HEADER',
-        '🛡️ <b>Политика конфиденциальности</b>',
+        '🛡️<b>隐私政策</b>',
     )
     actions_prompt = texts.t(
         'ADMIN_PRIVACY_POLICY_ACTION_PROMPT',
-        'Выберите действие:',
+        '请选择操作：',
     )
 
     message_parts = [
@@ -119,7 +119,7 @@ async def _build_overview(
             types.InlineKeyboardButton(
                 text=texts.t(
                     'ADMIN_PRIVACY_POLICY_EDIT_BUTTON',
-                    '✏️ Изменить текст',
+                    '✏️编辑文本',
                 ),
                 callback_data='admin_privacy_policy_edit',
             )
@@ -132,7 +132,7 @@ async def _build_overview(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PRIVACY_POLICY_VIEW_BUTTON',
-                        '👀 Просмотреть текущий текст',
+                        '👀查看当前文本',
                     ),
                     callback_data='admin_privacy_policy_view',
                 )
@@ -141,12 +141,12 @@ async def _build_overview(
 
     toggle_text = texts.t(
         'ADMIN_PRIVACY_POLICY_ENABLE_BUTTON',
-        '✅ Включить показ',
+        '✅启用显示',
     )
     if policy and policy.is_enabled:
         toggle_text = texts.t(
             'ADMIN_PRIVACY_POLICY_DISABLE_BUTTON',
-            '🚫 Отключить показ',
+            '🚫禁用显示',
         )
 
     buttons.append(
@@ -163,7 +163,7 @@ async def _build_overview(
             types.InlineKeyboardButton(
                 text=texts.t(
                     'ADMIN_PRIVACY_POLICY_HTML_HELP',
-                    'ℹ️ HTML помощь',
+                    'ℹ️标记帮助',
                 ),
                 callback_data='admin_privacy_policy_help',
             )
@@ -208,14 +208,14 @@ async def toggle_privacy_policy(
     texts = get_texts(db_user.language)
     updated_policy = await PrivacyPolicyService.toggle_enabled(db, db_user.language)
     logger.info(
-        'Админ %s переключил показ политики конфиденциальности: %s',
+        '管理员 %s 切换了隐私策略的显示：%s',
         db_user.telegram_id,
         'enabled' if updated_policy.is_enabled else 'disabled',
     )
     status_message = (
-        texts.t('ADMIN_PRIVACY_POLICY_ENABLED', '✅ Политика включена')
+        texts.t('ADMIN_PRIVACY_POLICY_ENABLED', '✅政策已启用')
         if updated_policy.is_enabled
-        else texts.t('ADMIN_PRIVACY_POLICY_DISABLED', '🚫 Политика отключена')
+        else texts.t('ADMIN_PRIVACY_POLICY_DISABLED', '🚫政策已禁用')
     )
 
     overview_text, markup, _ = await _build_overview(db_user, db)
@@ -250,23 +250,23 @@ async def start_edit_privacy_policy(
         current_preview = (
             texts.t(
                 'ADMIN_PRIVACY_POLICY_CURRENT_PREVIEW',
-                'Текущий текст (превью):',
+                '当前文本（预览）：',
             )
             + f'\n<code>{html.escape(preview)}</code>\n\n'
         )
 
     prompt = texts.t(
         'ADMIN_PRIVACY_POLICY_EDIT_PROMPT',
-        'Отправьте новый текст политики конфиденциальности. Допускается HTML-разметка.',
+        '请发送新的隐私政策文本。允许使用标记标记。',
     )
 
     hint = texts.t(
         'ADMIN_PRIVACY_POLICY_EDIT_HINT',
-        'Используйте /html_help для справки по тегам.',
+        '使用/html_help获取标签帮助。',
     )
 
     message_text = (
-        f'📝 <b>{texts.t("ADMIN_PRIVACY_POLICY_EDIT_TITLE", "Редактирование политики")}</b>\n\n'
+        f'📝 <b>{texts.t("ADMIN_PRIVACY_POLICY_EDIT_TITLE", '编辑政策')}</b>\n\n'
         f'{current_preview}{prompt}\n\n{hint}'
     )
 
@@ -276,14 +276,14 @@ async def start_edit_privacy_policy(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PRIVACY_POLICY_HTML_HELP',
-                        'ℹ️ HTML помощь',
+                        'ℹ️标记帮助',
                     ),
                     callback_data='admin_privacy_policy_help',
                 )
             ],
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PRIVACY_POLICY_CANCEL', '❌ Отмена'),
+                    text=texts.t('ADMIN_PRIVACY_POLICY_CANCEL', '❌取消'),
                     callback_data='admin_privacy_policy_cancel',
                 )
             ],
@@ -327,7 +327,7 @@ async def process_privacy_policy_edit(
         await message.answer(
             texts.t(
                 'ADMIN_PRIVACY_POLICY_TOO_LONG',
-                '❌ Текст политики слишком длинный. Максимум 4000 символов.',
+                '❌政策文本太长。最多4000个字符。',
             )
         )
         return
@@ -337,14 +337,14 @@ async def process_privacy_policy_edit(
         await message.answer(
             texts.t(
                 'ADMIN_PRIVACY_POLICY_HTML_ERROR',
-                '❌ Ошибка в HTML: {error}',
+                '❌标记错误：{error}',
             ).format(error=error_message)
         )
         return
 
     await PrivacyPolicyService.save_policy(db, db_user.language, new_text)
     logger.info(
-        'Админ обновил текст политики конфиденциальности (символов)',
+        '管理员已更新隐私政策的文本（符号）',
         telegram_id=db_user.telegram_id,
         new_text_count=len(new_text),
     )
@@ -352,7 +352,7 @@ async def process_privacy_policy_edit(
 
     success_text = texts.t(
         'ADMIN_PRIVACY_POLICY_SAVED',
-        '✅ Политика конфиденциальности обновлена.',
+        '✅隐私政策已更新。',
     )
 
     reply_markup = types.InlineKeyboardMarkup(
@@ -361,7 +361,7 @@ async def process_privacy_policy_edit(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PRIVACY_POLICY_BACK_BUTTON',
-                        '⬅️ К настройкам политики',
+                        '⬅️返回政策设置',
                     ),
                     callback_data='admin_privacy_policy',
                 )
@@ -390,7 +390,7 @@ async def view_privacy_policy(
         await callback.answer(
             texts.t(
                 'ADMIN_PRIVACY_POLICY_PREVIEW_EMPTY_ALERT',
-                'Текст политики пока не задан.',
+                '尚未设置政策文本。',
             ),
             show_alert=True,
         )
@@ -405,14 +405,14 @@ async def view_privacy_policy(
 
     header = texts.t(
         'ADMIN_PRIVACY_POLICY_VIEW_TITLE',
-        '👀 <b>Текущий текст политики</b>',
+        '👀<b>当前政策文本</b>',
     )
 
     note = ''
     if truncated:
         note = texts.t(
             'ADMIN_PRIVACY_POLICY_VIEW_TRUNCATED',
-            '\n\n⚠️ Текст сокращён для отображения. Полную версию увидят пользователи в меню.',
+            '\n\n⚠️文本已缩短以便显示。用户将在菜单中看到完整版本。',
         )
 
     keyboard = types.InlineKeyboardMarkup(
@@ -421,7 +421,7 @@ async def view_privacy_policy(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PRIVACY_POLICY_BACK_BUTTON',
-                        '⬅️ К настройкам политики',
+                        '⬅️返回政策设置',
                     ),
                     callback_data='admin_privacy_policy',
                 )
@@ -430,7 +430,7 @@ async def view_privacy_policy(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PRIVACY_POLICY_EDIT_BUTTON',
-                        '✏️ Изменить текст',
+                        '✏️编辑文本',
                     ),
                     callback_data='admin_privacy_policy_edit',
                 )
@@ -466,7 +466,7 @@ async def show_privacy_policy_html_help(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PRIVACY_POLICY_RETURN_TO_EDIT',
-                        '⬅️ Назад к редактированию',
+                        '⬅️返回编辑',
                     ),
                     callback_data='admin_privacy_policy_edit',
                 )
@@ -478,7 +478,7 @@ async def show_privacy_policy_html_help(
             types.InlineKeyboardButton(
                 text=texts.t(
                     'ADMIN_PRIVACY_POLICY_BACK_BUTTON',
-                    '⬅️ К настройкам политики',
+                    '⬅️返回政策设置',
                 ),
                 callback_data='admin_privacy_policy',
             )

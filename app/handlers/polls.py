@@ -36,7 +36,7 @@ async def _render_question_text(
     language: str,
 ) -> str:
     texts = get_texts(language)
-    header = texts.t('POLL_QUESTION_HEADER', '<b>Вопрос {current}/{total}</b>').format(
+    header = texts.t('POLL_QUESTION_HEADER', '<b>问题{current}/{total}</b>').format(
         current=current_index,
         total=total,
     )
@@ -95,22 +95,22 @@ async def handle_poll_start(
     try:
         response_id = int(callback.data.split(':')[1])
     except (IndexError, ValueError):
-        await callback.answer('❌ Опрос не найден', show_alert=True)
+        await callback.answer('❌ 未找到民意调查', show_alert=True)
         return
 
     response = await get_poll_response_by_id(db, response_id)
     if not response or response.user_id != db_user.id:
-        await callback.answer('❌ Опрос не найден', show_alert=True)
+        await callback.answer('❌ 未找到民意调查', show_alert=True)
         return
 
     texts = get_texts(db_user.language)
 
     if response.completed_at:
-        await callback.answer(texts.t('POLL_ALREADY_COMPLETED', 'Вы уже прошли этот опрос.'), show_alert=True)
+        await callback.answer(texts.t('POLL_ALREADY_COMPLETED', '您已经完成此民意调查。'), show_alert=True)
         return
 
     if not response.poll or not response.poll.questions:
-        await callback.answer(texts.t('POLL_EMPTY', 'Опрос пока недоступен.'), show_alert=True)
+        await callback.answer(texts.t('POLL_EMPTY', '民意调查暂时不可用。'), show_alert=True)
         return
 
     if not response.started_at:
@@ -119,7 +119,7 @@ async def handle_poll_start(
 
     index, question = await get_next_question(response)
     if not question:
-        await callback.answer(texts.t('POLL_ERROR', 'Не удалось загрузить вопросы.'), show_alert=True)
+        await callback.answer(texts.t('POLL_ERROR', '无法处理民意调查。请稍后再试。'), show_alert=True)
         return
 
     question_text = await _render_question_text(
@@ -135,7 +135,7 @@ async def handle_poll_start(
         question_text,
         reply_markup=_build_options_keyboard(response.id, question),
     ):
-        await callback.answer(texts.t('POLL_ERROR', 'Не удалось показать вопрос.'), show_alert=True)
+        await callback.answer(texts.t('POLL_ERROR', '无法处理民意调查。请稍后再试。'), show_alert=True)
         return
     await callback.answer()
 
@@ -151,32 +151,32 @@ async def handle_poll_answer(
         question_id = int(question_id)
         option_id = int(option_id)
     except (ValueError, IndexError):
-        await callback.answer('❌ Некорректные данные', show_alert=True)
+        await callback.answer('❌ 数据错误', show_alert=True)
         return
 
     response = await get_poll_response_by_id(db, response_id)
     texts = get_texts(db_user.language)
 
     if not response or response.user_id != db_user.id:
-        await callback.answer('❌ Опрос не найден', show_alert=True)
+        await callback.answer('❌ 未找到民意调查', show_alert=True)
         return
 
     if not response.poll:
-        await callback.answer(texts.t('POLL_ERROR', 'Опрос недоступен.'), show_alert=True)
+        await callback.answer(texts.t('POLL_ERROR', '无法处理民意调查。请稍后再试。'), show_alert=True)
         return
 
     if response.completed_at:
-        await callback.answer(texts.t('POLL_ALREADY_COMPLETED', 'Вы уже прошли этот опрос.'), show_alert=True)
+        await callback.answer(texts.t('POLL_ALREADY_COMPLETED', '您已经完成此民意调查。'), show_alert=True)
         return
 
     question = next((q for q in response.poll.questions if q.id == question_id), None)
     if not question:
-        await callback.answer(texts.t('POLL_ERROR', 'Вопрос не найден.'), show_alert=True)
+        await callback.answer(texts.t('POLL_ERROR', '无法处理民意调查。请稍后再试。'), show_alert=True)
         return
 
     option = await get_question_option(question, option_id)
     if not option:
-        await callback.answer(texts.t('POLL_ERROR', 'Вариант ответа не найден.'), show_alert=True)
+        await callback.answer(texts.t('POLL_ERROR', '无法处理民意调查。请稍后再试。'), show_alert=True)
         return
 
     await record_poll_answer(
@@ -192,7 +192,7 @@ async def handle_poll_answer(
         logger.debug('Не удалось обновить локальные ответы опроса', response_id=response.id, error=error)
         response = await get_poll_response_by_id(db, response.id)
         if not response:
-            await callback.answer(texts.t('POLL_ERROR', 'Опрос недоступен.'), show_alert=True)
+            await callback.answer(texts.t('POLL_ERROR', '无法处理民意调查。请稍后再试。'), show_alert=True)
             return
     index, next_question = await get_next_question(response)
 
@@ -209,7 +209,7 @@ async def handle_poll_answer(
             question_text,
             reply_markup=_build_options_keyboard(response.id, next_question),
         ):
-            await callback.answer(texts.t('POLL_ERROR', 'Не удалось показать вопрос.'), show_alert=True)
+            await callback.answer(texts.t('POLL_ERROR', '无法处理民意调查。请稍后再试。'), show_alert=True)
             return
         await callback.answer()
         return
@@ -219,12 +219,12 @@ async def handle_poll_answer(
 
     reward_amount = await reward_user_for_poll(db, response)
 
-    thanks_lines = [texts.t('POLL_COMPLETED', '🙏 Спасибо за участие в опросе!')]
+    thanks_lines = [texts.t('POLL_COMPLETED', '🙏感谢您参与民意调查！')]
     if reward_amount:
         thanks_lines.append(
             texts.t(
                 'POLL_REWARD_GRANTED',
-                'Награда {amount} зачислена на ваш баланс.',
+                '奖励{amount}已存入您的余额。',
             ).format(amount=settings.format_price(reward_amount))
         )
 
@@ -232,7 +232,7 @@ async def handle_poll_answer(
         callback.message,
         '\n\n'.join(thanks_lines),
     ):
-        await callback.answer(texts.t('POLL_COMPLETED', '🙏 Спасибо за участие в опросе!'))
+        await callback.answer(texts.t('POLL_COMPLETED', '🙏感谢您参与民意调查！'))
         return
     asyncio.create_task(_delete_message_later(callback.bot, callback.message.chat.id, callback.message.message_id))
     await callback.answer()

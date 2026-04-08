@@ -22,7 +22,7 @@ async def start_stars_payment(callback: types.CallbackQuery, db_user: User, stat
     texts = get_texts(db_user.language)
 
     if not settings.TELEGRAM_STARS_ENABLED:
-        await callback.answer('❌ Пополнение через Stars временно недоступно', show_alert=True)
+        await callback.answer('❌暂时无法通过Stars充值', show_alert=True)
         return
 
     # Проверка ограничения на пополнение
@@ -31,12 +31,11 @@ async def start_stars_payment(callback: types.CallbackQuery, db_user: User, stat
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await callback.message.edit_text(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
         await callback.answer()
@@ -68,12 +67,11 @@ async def process_stars_payment_amount(message: types.Message, db_user: User, am
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await message.answer(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
             parse_mode='HTML',
         )
@@ -83,7 +81,7 @@ async def process_stars_payment_amount(message: types.Message, db_user: User, am
     texts = get_texts(db_user.language)
 
     if not settings.TELEGRAM_STARS_ENABLED:
-        await message.answer('⚠️ Оплата Stars временно недоступна')
+        await message.answer('⚠️星星支付暂时无法使用')
         return
 
     try:
@@ -100,7 +98,7 @@ async def process_stars_payment_amount(message: types.Message, db_user: User, am
 
         keyboard = types.InlineKeyboardMarkup(
             inline_keyboard=[
-                [types.InlineKeyboardButton(text='⭐ Оплатить', url=invoice_link)],
+                [types.InlineKeyboardButton(text='⭐ 支付', url=invoice_link)],
                 [types.InlineKeyboardButton(text=texts.BACK, callback_data='balance_topup')],
             ]
         )
@@ -122,11 +120,7 @@ async def process_stars_payment_amount(message: types.Message, db_user: User, am
                 logger.warning('Не удалось удалить сообщение с запросом суммы Stars', delete_error=delete_error)
 
         invoice_message = await message.answer(
-            f'⭐ <b>Оплата через Telegram Stars</b>\n\n'
-            f'💰 Сумма: {texts.format_price(amount_kopeks)}\n'
-            f'⭐ К оплате: {stars_amount} звезд\n'
-            f'📊 Курс: {stars_rate}₽ за звезду\n\n'
-            f'Нажмите кнопку ниже для оплаты:',
+            f'⭐ <b>通过QQQTERM70QQ</b>付款\n\n💰 金额：{texts.format_price(amount_kopeks)}\n⭐ 付款方式：{stars_amount}星星\n📊 价格：每颗星 {stars_rate}₽\n\n点击下方按钮进行支付：',
             reply_markup=keyboard,
             parse_mode='HTML',
         )
@@ -140,4 +134,4 @@ async def process_stars_payment_amount(message: types.Message, db_user: User, am
 
     except Exception as e:
         logger.error('Ошибка создания Stars invoice', error=e)
-        await message.answer('⚠️ Ошибка создания платежа')
+        await message.answer('⚠️ 创建付款时出错')

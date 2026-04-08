@@ -263,7 +263,7 @@ class ContestRotationService:
 
         from app.localization.texts import get_texts
 
-        texts = get_texts('ru')  # Default to ru for announcements
+        texts = get_texts(settings.DEFAULT_LANGUAGE)
 
         # Format prize display based on prize_type
         prize_type = tpl.prize_type or PrizeType.DAYS.value

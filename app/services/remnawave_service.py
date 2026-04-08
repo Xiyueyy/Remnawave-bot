@@ -510,7 +510,7 @@ class RemnaWaveService:
                 username=username,
                 first_name=full_first_name,
                 last_name=full_last_name,
-                language='ru',
+                language=settings.DEFAULT_LANGUAGE,
             )
 
             # Используем SAVEPOINT чтобы при IntegrityError откатить только

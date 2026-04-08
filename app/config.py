@@ -331,7 +331,7 @@ class Settings(BaseSettings):
     MAINTENANCE_AUTO_ENABLE: bool = True
     MAINTENANCE_MONITORING_ENABLED: bool = True
     MAINTENANCE_RETRY_ATTEMPTS: int = 1
-    MAINTENANCE_MESSAGE: str = '🔧 Ведутся технические работы. Сервис временно недоступен. Попробуйте позже.'
+    MAINTENANCE_MESSAGE: str = '🔧 正在进行维护。服务暂时不可用，请稍后再试。'
 
     TELEGRAM_STARS_ENABLED: bool = True
     TELEGRAM_STARS_RATE_RUB: float = 1.3
@@ -390,10 +390,10 @@ class Settings(BaseSettings):
     # Отключение превью ссылок в сообщениях бота
     DISABLE_WEB_PAGE_PREVIEW: bool = False
     ACTIVATE_BUTTON_VISIBLE: bool = False
-    ACTIVATE_BUTTON_TEXT: str = 'активировать'
-    PAYMENT_BALANCE_DESCRIPTION: str = 'Пополнение баланса'
-    PAYMENT_SUBSCRIPTION_DESCRIPTION: str = 'Оплата подписки'
-    PAYMENT_SERVICE_NAME: str = 'Интернет-сервис'
+    ACTIVATE_BUTTON_TEXT: str = '激活'
+    PAYMENT_BALANCE_DESCRIPTION: str = '余额充值'
+    PAYMENT_SUBSCRIPTION_DESCRIPTION: str = '订阅支付'
+    PAYMENT_SERVICE_NAME: str = '网络服务'
     PAYMENT_BALANCE_TEMPLATE: str = '{service_name} - {description}'
     PAYMENT_SUBSCRIPTION_TEMPLATE: str = '{service_name} - {description}'
 
@@ -432,8 +432,8 @@ class Settings(BaseSettings):
     MULENPAY_BASE_URL: str = 'https://mulenpay.ru/api'
     MULENPAY_WEBHOOK_PATH: str = '/mulenpay-webhook'
     MULENPAY_DISPLAY_NAME: str = 'Mulen Pay'
-    MULENPAY_DESCRIPTION: str = 'Пополнение баланса'
-    MULENPAY_LANGUAGE: str = 'ru'
+    MULENPAY_DESCRIPTION: str = '余额充值'
+    MULENPAY_LANGUAGE: str = 'zh'
     MULENPAY_VAT_CODE: int = 0
 
     DISPLAY_NAME_BANNED_KEYWORDS: str = '\n'.join(DEFAULT_DISPLAY_NAME_BANNED_KEYWORDS)
@@ -451,7 +451,7 @@ class Settings(BaseSettings):
     PAL24_SIGNATURE_TOKEN: str | None = None
     PAL24_BASE_URL: str = 'https://pal24.pro/api/v1/'
     PAL24_WEBHOOK_PATH: str = '/pal24-webhook'
-    PAL24_PAYMENT_DESCRIPTION: str = 'Пополнение баланса'
+    PAL24_PAYMENT_DESCRIPTION: str = '余额充值'
     PAL24_MIN_AMOUNT_KOPEKS: int = 10000
     PAL24_MAX_AMOUNT_KOPEKS: int = 100000000
     PAL24_REQUEST_TIMEOUT: int = 30
@@ -481,7 +481,7 @@ class Settings(BaseSettings):
     WATA_BASE_URL: str = 'https://api.wata.pro/api/h2h'
     WATA_ACCESS_TOKEN: str | None = None
     WATA_TERMINAL_PUBLIC_ID: str | None = None
-    WATA_PAYMENT_DESCRIPTION: str = 'Пополнение баланса'
+    WATA_PAYMENT_DESCRIPTION: str = '余额充值'
     WATA_PAYMENT_TYPE: str = 'OneTime'
     WATA_SUCCESS_REDIRECT_URL: str | None = None
     WATA_FAIL_REDIRECT_URL: str | None = None
@@ -502,7 +502,7 @@ class Settings(BaseSettings):
     CLOUDPAYMENTS_API_SECRET: str | None = None
     CLOUDPAYMENTS_API_URL: str = 'https://api.cloudpayments.ru'
     CLOUDPAYMENTS_WIDGET_URL: str = 'https://widget.cloudpayments.ru/show'
-    CLOUDPAYMENTS_DESCRIPTION: str = 'Пополнение баланса'
+    CLOUDPAYMENTS_DESCRIPTION: str = '余额充值'
     CLOUDPAYMENTS_CURRENCY: str = 'RUB'
     CLOUDPAYMENTS_MIN_AMOUNT_KOPEKS: int = 5000
     CLOUDPAYMENTS_MAX_AMOUNT_KOPEKS: int = 10000000
@@ -536,9 +536,9 @@ class Settings(BaseSettings):
     SERVER_PUBLIC_IP: str | None = None
     # Раздельные методы оплаты Freekassa (отображаются как отдельные кнопки)
     FREEKASSA_SBP_ENABLED: bool = False  # СБП (QR код) — i=44
-    FREEKASSA_SBP_DISPLAY_NAME: str = 'СБП (QR код)'
+    FREEKASSA_SBP_DISPLAY_NAME: str = 'SBP（二维码）'
     FREEKASSA_CARD_ENABLED: bool = False  # Карты РФ — i=36
-    FREEKASSA_CARD_DISPLAY_NAME: str = 'Карта РФ'
+    FREEKASSA_CARD_DISPLAY_NAME: str = '俄罗斯银行卡'
 
     # KassaAI (api.fk.life) - отдельная платёжка
     KASSA_AI_ENABLED: bool = False
@@ -556,9 +556,9 @@ class Settings(BaseSettings):
     KASSA_AI_PAYMENT_SYSTEM_ID: int = 44
     # Раздельные методы оплаты KassaAI (отображаются как отдельные кнопки)
     KASSA_AI_SBP_ENABLED: bool = False  # СБП — payment_system_id=44
-    KASSA_AI_SBP_DISPLAY_NAME: str = 'СБП (KassaAI)'
+    KASSA_AI_SBP_DISPLAY_NAME: str = 'SBP（KassaAI）'
     KASSA_AI_CARD_ENABLED: bool = False  # Карты РФ — payment_system_id=36
-    KASSA_AI_CARD_DISPLAY_NAME: str = 'Карта (KassaAI)'
+    KASSA_AI_CARD_DISPLAY_NAME: str = '银行卡（KassaAI）'
     KASSA_AI_SBERPAY_ENABLED: bool = False  # SberPay — payment_system_id=43
     KASSA_AI_SBERPAY_DISPLAY_NAME: str = 'SberPay (KassaAI)'
 
@@ -600,10 +600,12 @@ class Settings(BaseSettings):
     MEDIA_IMAGE_MAX_DIMENSION: int = 2048
     MEDIA_JPEG_QUALITY: int = 85
     MINIAPP_PURCHASE_URL: str = ''
-    MINIAPP_SERVICE_NAME_EN: str = 'Bedolaga VPN'
-    MINIAPP_SERVICE_NAME_RU: str = 'Bedolaga VPN'
+    MINIAPP_SERVICE_NAME_EN: str = '贝多拉加网络代理'
+    MINIAPP_SERVICE_NAME_RU: str = '贝多拉加网络代理'
+    MINIAPP_SERVICE_NAME_ZH: str = '贝多拉加网络代理'
     MINIAPP_SERVICE_DESCRIPTION_EN: str = 'Secure & Fast Connection'
     MINIAPP_SERVICE_DESCRIPTION_RU: str = 'Безопасное и быстрое подключение'
+    MINIAPP_SERVICE_DESCRIPTION_ZH: str = '安全、快速的连接'
     CONNECT_BUTTON_HAPP_DOWNLOAD_ENABLED: bool = False
     HAPP_CRYPTOLINK_REDIRECT_TEMPLATE: str | None = None
     HAPP_DOWNLOAD_LINK_IOS: str | None = None
@@ -617,9 +619,9 @@ class Settings(BaseSettings):
     SKIP_RULES_ACCEPT: bool = False
     SKIP_REFERRAL_CODE: bool = False
 
-    DEFAULT_LANGUAGE: str = 'ru'
-    AVAILABLE_LANGUAGES: str = 'ru,en,ua,zh,fa'
-    LANGUAGE_SELECTION_ENABLED: bool = True
+    DEFAULT_LANGUAGE: str = 'zh'
+    AVAILABLE_LANGUAGES: str = 'zh'
+    LANGUAGE_SELECTION_ENABLED: bool = False
 
     # Округление цен при отображении (≤50 коп вниз, >50 коп вверх)
     PRICE_ROUNDING_ENABLED: bool = True
@@ -649,33 +651,33 @@ class Settings(BaseSettings):
     # Сообщение о блокировке за превышение лимита устройств
     # Переменные: {ip_count}, {limit}, {ban_minutes}, {node_info}
     BAN_MSG_PUNISHMENT: str = (
-        '🚫 <b>АККАУНТ ЗАБЛОКИРОВАН</b>\n'
+        '🚫 <b>账号已被封禁</b>\n'
         '━━━━━━━━━━━━━━━━━━━━━\n\n'
-        '❌ <b>Причина:</b> Превышен лимит устройств\n'
+        '❌ <b>原因：</b> 超出设备数量限制\n'
         '{node_info}\n'
-        '📊 <b>Детали нарушения:</b>\n'
-        '├ 📱 Устройств подключено: <b>{ip_count}</b>\n'
-        '├ 📋 Разрешено по тарифу: <b>{limit}</b>\n'
-        '└ ⏱ Время блокировки: <b>{ban_minutes} мин</b>\n\n'
+        '📊 <b>违规详情：</b>\n'
+        '├ 📱 已连接设备：<b>{ip_count}</b>\n'
+        '├ 📋 套餐允许：<b>{limit}</b>\n'
+        '└ ⏱ 封禁时长：<b>{ban_minutes} 分钟</b>\n\n'
         '━━━━━━━━━━━━━━━━━━━━━\n'
-        '💡 <b>Что делать:</b>\n'
-        '1. Отключите лишние устройства от VPN\n'
-        '2. Дождитесь окончания блокировки\n'
-        '3. Подключитесь заново\n\n'
-        '🔄 Доступ восстановится автоматически'
+        '💡 <b>你可以这样做：</b>\n'
+        '1. 断开多余设备的 VPN 连接\n'
+        '2. 等待封禁结束\n'
+        '3. 重新连接\n\n'
+        '🔄 到时会自动恢复访问'
     )
 
     # Сообщение о разблокировке
     BAN_MSG_ENABLED: str = (
-        '✅ <b>АККАУНТ РАЗБЛОКИРОВАН</b>\n'
+        '✅ <b>账号已解封</b>\n'
         '━━━━━━━━━━━━━━━━━━━━━\n\n'
-        '🎉 Ваш аккаунт успешно разблокирован!\n\n'
-        'Теперь вы можете снова пользоваться VPN.\n\n'
+        '🎉 你的账号已成功解封！\n\n'
+        '现在你可以继续使用 VPN 了。\n\n'
         '━━━━━━━━━━━━━━━━━━━━━\n'
-        '⚠️ <b>Рекомендации:</b>\n'
-        '• Следите за количеством устройств\n'
-        '• Отключайте VPN когда не используете\n'
-        '• Не превышайте лимит по тарифу'
+        '⚠️ <b>建议：</b>\n'
+        '• 注意已连接的设备数量\n'
+        '• 不使用时请断开 VPN\n'
+        '• 不要超过套餐设备限制'
     )
 
     # Сообщение о блокировке за WiFi
@@ -1318,7 +1320,7 @@ class Settings(BaseSettings):
         return bool(value)
 
     def get_available_languages(self) -> list[str]:
-        defaults = ['ru', 'en', 'ua', 'zh', 'fa']
+        defaults = ['zh']
 
         try:
             langs = self.AVAILABLE_LANGUAGES
@@ -1543,20 +1545,24 @@ class Settings(BaseSettings):
 
         name_en = _clean(self.MINIAPP_SERVICE_NAME_EN)
         name_ru = _clean(self.MINIAPP_SERVICE_NAME_RU)
+        name_zh = _clean(self.MINIAPP_SERVICE_NAME_ZH)
         desc_en = _clean(self.MINIAPP_SERVICE_DESCRIPTION_EN)
         desc_ru = _clean(self.MINIAPP_SERVICE_DESCRIPTION_RU)
+        desc_zh = _clean(self.MINIAPP_SERVICE_DESCRIPTION_ZH)
 
-        default_name = name_en or name_ru or 'RemnaWave VPN'
-        default_description = desc_en or desc_ru or 'Secure & Fast Connection'
+        default_name = name_zh or name_en or name_ru or 'RemnaWave VPN'
+        default_description = desc_zh or desc_en or desc_ru or 'Secure & Fast Connection'
 
         return {
             'service_name': {
                 'default': default_name,
+                'zh': name_zh,
                 'en': name_en,
                 'ru': name_ru,
             },
             'service_description': {
                 'default': default_description,
+                'zh': desc_zh,
                 'en': desc_en,
                 'ru': desc_ru,
             },
@@ -1854,10 +1860,10 @@ class Settings(BaseSettings):
     @staticmethod
     def get_platega_method_definitions() -> dict[int, dict[str, str]]:
         return {
-            2: {'name': 'СБП (QR)', 'title': '🏦 СБП (QR)'},
-            11: {'name': 'Карты (RUB)', 'title': '💳 Карты (RUB)'},
-            12: {'name': 'Международные карты', 'title': '🌍 Международные карты'},
-            13: {'name': 'Криптовалюта', 'title': '🪙 Криптовалюта'},
+            2: {'name': 'SBP（二维码）', 'title': '🏦 SBP（二维码）'},
+            11: {'name': '银行卡（RUB）', 'title': '💳 银行卡（RUB）'},
+            12: {'name': '国际银行卡', 'title': '🌍 国际银行卡'},
+            13: {'name': '加密货币', 'title': '🪙 加密货币'},
         }
 
     def get_platega_method_display_name(self, method_code: int) -> str:
@@ -1865,7 +1871,7 @@ class Settings(BaseSettings):
         info = definitions.get(method_code)
         if info and info.get('name'):
             return info['name']
-        return f'Метод {method_code}'
+        return f'方式 {method_code}'
 
     def get_platega_method_display_title(self, method_code: int) -> str:
         definitions = self.get_platega_method_definitions()
@@ -1913,7 +1919,7 @@ class Settings(BaseSettings):
 
     def get_freekassa_sbp_display_name(self) -> str:
         name = (self.FREEKASSA_SBP_DISPLAY_NAME or '').strip()
-        return name or 'СБП (QR код)'
+        return name or 'SBP（二维码）'
 
     def get_freekassa_sbp_display_name_html(self) -> str:
         return html.escape(self.get_freekassa_sbp_display_name())
@@ -1923,7 +1929,7 @@ class Settings(BaseSettings):
 
     def get_freekassa_card_display_name(self) -> str:
         name = (self.FREEKASSA_CARD_DISPLAY_NAME or '').strip()
-        return name or 'Карта РФ'
+        return name or '俄罗斯银行卡'
 
     def get_freekassa_card_display_name_html(self) -> str:
         return html.escape(self.get_freekassa_card_display_name())
@@ -1968,7 +1974,7 @@ class Settings(BaseSettings):
 
     def get_kassa_ai_sbp_display_name(self) -> str:
         name = (self.KASSA_AI_SBP_DISPLAY_NAME or '').strip()
-        return name if name else 'СБП (KassaAI)'
+        return name if name else 'SBP（KassaAI）'
 
     def get_kassa_ai_sbp_display_name_html(self) -> str:
         return html.escape(self.get_kassa_ai_sbp_display_name())
@@ -1978,7 +1984,7 @@ class Settings(BaseSettings):
 
     def get_kassa_ai_card_display_name(self) -> str:
         name = (self.KASSA_AI_CARD_DISPLAY_NAME or '').strip()
-        return name if name else 'Карта (KassaAI)'
+        return name if name else '银行卡（KassaAI）'
 
     def get_kassa_ai_card_display_name_html(self) -> str:
         return html.escape(self.get_kassa_ai_card_display_name())
@@ -2244,8 +2250,17 @@ class Settings(BaseSettings):
     def get_balance_payment_description(
         self, amount_kopeks: int, telegram_user_id: int | None = None, user_db_id: int | None = None
     ) -> str:
-        # Базовое описание
-        description = f'{self.PAYMENT_BALANCE_DESCRIPTION} на {self.format_price(amount_kopeks)}'
+        language_code = (self.DEFAULT_LANGUAGE or 'zh').split('-')[0].lower()
+        formatted_amount = self.format_price(amount_kopeks)
+
+        if language_code in {'ru', 'ua'}:
+            description = f'{self.PAYMENT_BALANCE_DESCRIPTION} на {formatted_amount}'
+        elif language_code == 'en':
+            description = f'{self.PAYMENT_BALANCE_DESCRIPTION} {formatted_amount}'
+        elif language_code == 'fa':
+            description = f'{self.PAYMENT_BALANCE_DESCRIPTION} {formatted_amount}'
+        else:
+            description = f'{self.PAYMENT_BALANCE_DESCRIPTION} {formatted_amount}'
 
         # Добавляем идентификатор пользователя (TG ID приоритет, fallback на DB ID)
         if telegram_user_id is not None:
@@ -2257,9 +2272,22 @@ class Settings(BaseSettings):
         return self.PAYMENT_BALANCE_TEMPLATE.format(service_name=self.PAYMENT_SERVICE_NAME, description=description)
 
     def get_subscription_payment_description(self, period_days: int, amount_kopeks: int) -> str:
+        language_code = (self.DEFAULT_LANGUAGE or 'zh').split('-')[0].lower()
+
+        if language_code == 'ru':
+            description = f'{self.PAYMENT_SUBSCRIPTION_DESCRIPTION} на {period_days} дней'
+        elif language_code == 'ua':
+            description = f'{self.PAYMENT_SUBSCRIPTION_DESCRIPTION} на {period_days} днів'
+        elif language_code == 'en':
+            description = f'{self.PAYMENT_SUBSCRIPTION_DESCRIPTION} for {period_days} days'
+        elif language_code == 'fa':
+            description = f'{self.PAYMENT_SUBSCRIPTION_DESCRIPTION} برای {period_days} روز'
+        else:
+            description = f'{self.PAYMENT_SUBSCRIPTION_DESCRIPTION} {period_days} 天'
+
         return self.PAYMENT_SUBSCRIPTION_TEMPLATE.format(
             service_name=self.PAYMENT_SERVICE_NAME,
-            description=f'{self.PAYMENT_SUBSCRIPTION_DESCRIPTION} на {period_days} дней',
+            description=description,
         )
 
     def get_custom_payment_description(self, description: str) -> str:

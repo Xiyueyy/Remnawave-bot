@@ -15,7 +15,7 @@ from app.config import settings
 
 _logger = structlog.get_logger(__name__)
 
-_FALLBACK_LANGUAGE = 'ru'
+_FALLBACK_LANGUAGE = 'zh'
 
 _BASE_DIR = Path(__file__).resolve().parent
 _DEFAULT_LOCALES_DIR = _BASE_DIR / 'locales'
@@ -71,7 +71,7 @@ def _select_fallback_language(available_map: dict[str, str]) -> str:
     if _FALLBACK_LANGUAGE and _locale_file_exists(_FALLBACK_LANGUAGE):
         return _FALLBACK_LANGUAGE
 
-    return _FALLBACK_LANGUAGE or 'ru'
+    return _FALLBACK_LANGUAGE or 'zh'
 
 
 def _determine_default_language() -> str:
@@ -224,15 +224,12 @@ def ensure_locale_templates() -> None:
             _copy_locale(template, destination / template.name)
         return
 
-    for locale_code in ('ru', 'en', 'fa'):
-        source_path = _DEFAULT_LOCALES_DIR / f'{locale_code}.json'
-        target_path = destination / f'{locale_code}.json'
-
-        if target_path.exists():
+    for source_path in _DEFAULT_LOCALES_DIR.iterdir():
+        if not source_path.is_file():
             continue
 
-        if not source_path.exists():
-            _logger.debug('Default locale template is missing at', locale_code=locale_code, source_path=source_path)
+        target_path = destination / source_path.name
+        if target_path.exists():
             continue
 
         _copy_locale(source_path, target_path)
@@ -288,6 +285,19 @@ def _merge_dicts(base: dict[str, Any], overrides: dict[str, Any]) -> dict[str, A
 @cache
 def load_locale(language: str) -> dict[str, Any]:
     language = language or DEFAULT_LANGUAGE
+    requested_code = _normalize_language_code(language).split('-')[0]
+    try:
+        available_codes = {
+            _normalize_language_code(lang).split('-')[0]
+            for lang in settings.get_available_languages()
+            if isinstance(lang, str) and lang.strip()
+        }
+    except Exception:
+        available_codes = set()
+
+    if available_codes and requested_code not in available_codes:
+        language = DEFAULT_LANGUAGE
+
     defaults = _load_default_locale(language)
     overrides = _load_user_locale(language)
     merged = _merge_dicts(defaults, overrides)

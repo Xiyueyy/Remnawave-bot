@@ -219,11 +219,11 @@ async def show_balance_history(callback: types.CallbackQuery, db_user: User, db:
             total_unique += 1
 
     if not unique_transactions:
-        await callback.message.edit_text('📊 История операций пуста', reply_markup=get_back_keyboard(db_user.language))
+        await callback.message.edit_text('📊 暂无操作记录', reply_markup=get_back_keyboard(db_user.language))
         await callback.answer()
         return
 
-    text = '📊 <b>История операций</b>\n\n'
+    text = '📊 <b>操作记录</b>\n\n'
 
     for transaction in unique_transactions:
         is_credit = transaction.type in CREDIT_TRANSACTION_TYPES
@@ -268,16 +268,16 @@ async def show_payment_methods(callback: types.CallbackQuery, db_user: User, db:
 
     # Проверка ограничения на пополнение
     if getattr(db_user, 'restriction_topup', False):
-        reason = html.escape(getattr(db_user, 'restriction_reason', None) or 'Действие ограничено администратором')
+        reason = html.escape(getattr(db_user, 'restriction_reason', None) or '此操作已被管理员限制')
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await callback.message.edit_text(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>充值已受限</b>\n\n{reason}\n\n'
+            '如果您认为这是误判，可以发起申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
         await callback.answer()
@@ -330,7 +330,7 @@ async def handle_payment_methods_unavailable(callback: types.CallbackQuery, db_u
     await callback.answer(
         texts.t(
             'PAYMENT_METHODS_UNAVAILABLE_ALERT',
-            '⚠️ В данный момент автоматические способы оплаты временно недоступны. Для пополнения баланса обратитесь в техподдержку.',
+            '⚠️目前自动支付方式暂时不可用。如需充值余额，请联系技术支持。',
         ),
         show_alert=True,
     )
@@ -367,26 +367,26 @@ async def handle_successful_topup_with_cart(user_id: int, amount_kopeks: int, bo
                 inline_keyboard=[
                     [
                         types.InlineKeyboardButton(
-                            text='🛒 Вернуться к оформлению подписки', callback_data='return_to_saved_cart'
+                            text='🛒 返回继续下单', callback_data='return_to_saved_cart'
                         )
                     ],
-                    [types.InlineKeyboardButton(text='💰 Мой баланс', callback_data='menu_balance')],
-                    [types.InlineKeyboardButton(text='🏠 Главное меню', callback_data='back_to_menu')],
+                    [types.InlineKeyboardButton(text='💰 我的余额', callback_data='menu_balance')],
+                    [types.InlineKeyboardButton(text='🏠 主页', callback_data='back_to_menu')],
                 ]
             )
 
             if 0 < total_price <= user.balance_kopeks:
-                balance_hint = 'Средств на балансе достаточно для оформления.'
+                balance_hint = '当前余额足够完成下单。'
             else:
                 missing = max(total_price - user.balance_kopeks, 0)
-                balance_hint = f'Не хватает: {texts.format_price(missing)}'
+                balance_hint = f'还差：{texts.format_price(missing)}'
 
             success_text = (
-                f'✅ Баланс пополнен на {texts.format_price(amount_kopeks)}!\n\n'
-                f'💰 Текущий баланс: {texts.format_price(user.balance_kopeks)}\n\n'
-                f'🛒 У вас есть сохранённая корзина на {texts.format_price(total_price)}\n'
+                f'✅ 余额已充值 {texts.format_price(amount_kopeks)}！\n\n'
+                f'💰 当前余额：{texts.format_price(user.balance_kopeks)}\n\n'
+                f'🛒 您有一份已保存的购物车，金额为 {texts.format_price(total_price)}\n'
                 f'{balance_hint}\n\n'
-                f'Хотите продолжить оформление?'
+                f'是否继续下单？'
             )
 
             await bot.send_message(
@@ -405,7 +405,7 @@ async def request_support_topup(callback: types.CallbackQuery, db_user: User):
         await callback.answer(
             texts.t(
                 'SUPPORT_TOPUP_DISABLED',
-                'Пополнение через поддержку отключено. Попробуйте другой способ оплаты.',
+                '通过技术支持充值已关闭，请尝试其他支付方式。',
             ),
             show_alert=True,
         )
@@ -413,29 +413,29 @@ async def request_support_topup(callback: types.CallbackQuery, db_user: User):
 
     user_id_display = db_user.telegram_id or db_user.email or f'#{db_user.id}'
     support_text = f"""
-🛠️ <b>Пополнение через поддержку</b>
+🛠️ <b>通过技术支持充值</b>
 
-Для пополнения баланса обратитесь в техподдержку:
+如需充值余额，请联系技术支持：
 {settings.get_support_contact_display_html()}
 
-Укажите:
+请提供：
 • ID: {user_id_display}
-• Сумму пополнения
-• Способ оплаты
+• 充值金额
+• 支付方式
 
-⏰ Время обработки: 1-24 часа
+⏰ 处理时间：1-24 小时
 
-<b>Доступные способы:</b>
-• Криптовалюта
-• Переводы между банками
-• Другие платежные системы
+<b>可用方式：</b>
+• 加密货币
+• 银行转账
+• 其他支付系统
 """
 
     keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 types.InlineKeyboardButton(
-                    text='💬 Написать в поддержку', url=settings.get_support_contact_url() or 'https://t.me/'
+                    text='💬 联系技术支持', url=settings.get_support_contact_url() or 'https://t.me/'
                 )
             ],
             [types.InlineKeyboardButton(text=texts.BACK, callback_data='balance_topup')],
@@ -470,12 +470,12 @@ async def process_topup_amount(message: types.Message, db_user: User, state: FSM
         amount_rubles = float(amount_text.replace(',', '.'))
 
         if amount_rubles < 1:
-            await message.answer('Минимальная сумма пополнения: 1 ₽', reply_markup=get_back_keyboard(db_user.language))
+            await message.answer('最低充值金额：1 ₽', reply_markup=get_back_keyboard(db_user.language))
             return
 
         if amount_rubles > 50000:
             await message.answer(
-                'Максимальная сумма пополнения: 50,000 ₽', reply_markup=get_back_keyboard(db_user.language)
+                '最高充值金额：50,000 ₽', reply_markup=get_back_keyboard(db_user.language)
             )
             return
 
@@ -487,7 +487,7 @@ async def process_topup_amount(message: types.Message, db_user: User, state: FSM
             if amount_kopeks < settings.YOOKASSA_MIN_AMOUNT_KOPEKS:
                 min_rubles = settings.YOOKASSA_MIN_AMOUNT_KOPEKS / 100
                 await message.answer(
-                    f'❌ Минимальная сумма для оплаты через YooKassa: {min_rubles:.0f} ₽',
+                    f'❌ YooKassa 最低支付金额：{min_rubles:.0f} ₽',
                     reply_markup=get_back_keyboard(db_user.language),
                 )
                 return
@@ -495,13 +495,13 @@ async def process_topup_amount(message: types.Message, db_user: User, state: FSM
             if amount_kopeks > settings.YOOKASSA_MAX_AMOUNT_KOPEKS:
                 max_rubles = settings.YOOKASSA_MAX_AMOUNT_KOPEKS / 100
                 await message.answer(
-                    f'❌ Максимальная сумма для оплаты через YooKassa: {max_rubles:,.0f} ₽'.replace(',', ' '),
+                    f'❌ YooKassa 最高支付金额：{max_rubles:,.0f} ₽'.replace(',', ' '),
                     reply_markup=get_back_keyboard(db_user.language),
                 )
                 return
 
         if not await route_payment_by_method(message, db_user, amount_kopeks, state, payment_method):
-            await message.answer('Неизвестный способ оплаты')
+            await message.answer('未知支付方式')
 
     except ValueError:
         await message.answer(texts.INVALID_AMOUNT, reply_markup=get_back_keyboard(db_user.language))
@@ -517,7 +517,7 @@ async def handle_sbp_payment(callback: types.CallbackQuery, db: AsyncSession):
         payment = await get_yookassa_payment_by_local_id(db, local_payment_id)
 
         if not payment:
-            await callback.answer('❌ Платеж не найден', show_alert=True)
+            await callback.answer('❌ 未找到支付记录', show_alert=True)
             return
 
         import json
@@ -526,24 +526,24 @@ async def handle_sbp_payment(callback: types.CallbackQuery, db: AsyncSession):
         confirmation_token = metadata.get('confirmation_token')
 
         if not confirmation_token:
-            await callback.answer('❌ Токен подтверждения не найден', show_alert=True)
+            await callback.answer('❌ 未找到确认令牌', show_alert=True)
             return
 
         await callback.message.answer(
-            f'Для оплаты через СБП откройте приложение вашего банка и подтвердите платеж.\\n\\n'
-            f'Если у вас не открылось банковское приложение автоматически, вы можете:\\n'
-            f'1. Скопировать этот токен: <code>{confirmation_token}</code>\\n'
-            f'2. Открыть приложение вашего банка\\n'
-            f'3. Найти функцию оплаты по токену\\n'
-            f'4. Вставить токен и подтвердить платеж',
+            f'如需通过 SBP 支付，请打开您的银行 App 并确认支付。\\n\\n'
+            f'如果银行 App 没有自动打开，您可以：\\n'
+            f'1. 复制此令牌：<code>{confirmation_token}</code>\\n'
+            f'2. 打开您的银行 App\\n'
+            f'3. 找到通过令牌支付的功能\\n'
+            f'4. 粘贴令牌并确认支付',
             parse_mode='HTML',
         )
 
-        await callback.answer('Информация об оплате отправлена', show_alert=True)
+        await callback.answer('支付说明已发送', show_alert=True)
 
     except Exception as e:
         logger.error('Ошибка обработки embedded платежа СБП', error=e)
-        await callback.answer('❌ Ошибка обработки платежа', show_alert=True)
+        await callback.answer('❌ 支付处理失败', show_alert=True)
 
 
 @error_handler
@@ -556,11 +556,11 @@ async def handle_topup_amount_callback(
         _, method, amount_str = callback.data.split('|', 2)
         amount_kopeks = int(amount_str)
     except ValueError:
-        await callback.answer('❌ Некорректный запрос', show_alert=True)
+        await callback.answer('❌ 请求无效', show_alert=True)
         return
 
     if amount_kopeks <= 0:
-        await callback.answer('❌ Некорректная сумма', show_alert=True)
+        await callback.answer('❌ 金额无效', show_alert=True)
         return
 
     try:
@@ -595,14 +595,14 @@ async def handle_topup_amount_callback(
             return
         # Стандартные методы через роутер
         elif not await route_payment_by_method(callback.message, db_user, amount_kopeks, state, method):
-            await callback.answer('❌ Неизвестный способ оплаты', show_alert=True)
+            await callback.answer('❌ 未知支付方式', show_alert=True)
             return
 
         await callback.answer()
 
     except Exception as error:
         logger.error('Ошибка быстрого пополнения', error=error)
-        await callback.answer('❌ Ошибка обработки запроса', show_alert=True)
+        await callback.answer('❌ 请求处理失败', show_alert=True)
 
 
 def register_balance_handlers(dp: Dispatcher):

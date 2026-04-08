@@ -103,6 +103,22 @@ _TRAFFIC_TIERS = (
 )
 
 
+def _normalize_supported_language(language: str | None) -> str:
+    language_code = (language or DEFAULT_LANGUAGE).split('-')[0].lower()
+    try:
+        available_codes = {
+            (lang or '').split('-')[0].lower()
+            for lang in settings.get_available_languages()
+            if isinstance(lang, str) and lang.strip()
+        }
+    except Exception:
+        available_codes = set()
+
+    if available_codes and language_code not in available_codes:
+        return DEFAULT_LANGUAGE
+    return language_code or DEFAULT_LANGUAGE
+
+
 def _get_cached_rules_value(language: str) -> str:
     if language in _cached_rules:
         return _cached_rules[language]
@@ -113,8 +129,7 @@ def _get_cached_rules_value(language: str) -> str:
 
 
 def _build_dynamic_values(language: str) -> dict[str, Any]:
-    language_code = (language or DEFAULT_LANGUAGE).split('-')[0].lower()
-
+    language_code = _normalize_supported_language(language)
     language_code = _LANGUAGE_ALIASES.get(language_code, language_code)
     config = _DYNAMIC_LANGUAGE_CONFIGS.get(language_code)
 
@@ -143,7 +158,7 @@ def _build_dynamic_values(language: str) -> dict[str, Any]:
 
 class Texts:
     def __init__(self, language: str = DEFAULT_LANGUAGE):
-        self.language = language or DEFAULT_LANGUAGE
+        self.language = _normalize_supported_language(language)
         raw_data = load_locale(self.language)
         self._values = {key: value for key, value in raw_data.items()}
 
@@ -207,10 +222,10 @@ class Texts:
             is_limit: If True, 0 means unlimited. If False, 0 means zero used.
         """
         if gb == 0:
-            return '∞ (безлимит)' if is_limit else '0 ГБ'
+            return '∞（不限）' if is_limit else '0 GB'
         if gb >= 1024:
-            return f'{gb / 1024:.1f} ТБ'
-        return f'{gb:.0f} ГБ'
+            return f'{gb / 1024:.1f} TB'
+        return f'{gb:.0f} GB'
 
 
 def get_texts(language: str = DEFAULT_LANGUAGE) -> Texts:

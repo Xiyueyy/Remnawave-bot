@@ -17,57 +17,57 @@ def get_admin_main_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_USERS_SUBSCRIPTIONS', '👥 Юзеры/Подписки'),
+                    text=_t(texts, 'ADMIN_MAIN_USERS_SUBSCRIPTIONS', '👥用户/订阅'),
                     callback_data='admin_submenu_users',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_SERVERS', '🌐 Серверы'),
+                    text=_t(texts, 'ADMIN_MAIN_SERVERS', '🌐服务器'),
                     callback_data='admin_servers',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_TARIFFS', '📦 Тарифы'),
+                    text=_t(texts, 'ADMIN_MAIN_TARIFFS', '📦套餐'),
                     callback_data='admin_tariffs',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_PRICING', '💰 Цены'),
+                    text=_t(texts, 'ADMIN_MAIN_PRICING', '💰价格'),
                     callback_data='admin_pricing',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_PROMO_STATS', '💰 Промокоды/Статистика'),
+                    text=_t(texts, 'ADMIN_MAIN_PROMO_STATS', '💰优惠码/统计'),
                     callback_data='admin_submenu_promo',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_SUPPORT', '🛟 Поддержка'),
+                    text=_t(texts, 'ADMIN_MAIN_SUPPORT', '🛟支持'),
                     callback_data='admin_submenu_support',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_MESSAGES', '📨 Сообщения'),
+                    text=_t(texts, 'ADMIN_MAIN_MESSAGES', '📨消息'),
                     callback_data='admin_submenu_communications',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_SETTINGS', '⚙️ Настройки'),
+                    text=_t(texts, 'ADMIN_MAIN_SETTINGS', '⚙️设置'),
                     callback_data='admin_submenu_settings',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_SYSTEM', '🛠️ Система'),
+                    text=_t(texts, 'ADMIN_MAIN_SYSTEM', '🛠️系统'),
                     callback_data='admin_submenu_system',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_TRIALS', '🧪 Триалы'),
+                    text=_t(texts, 'ADMIN_MAIN_TRIALS', '🧪试用'),
                     callback_data='admin_trials',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAIN_PAYMENTS', '💳 Пополнения'),
+                    text=_t(texts, 'ADMIN_MAIN_PAYMENTS', '💳充值'),
                     callback_data='admin_payments',
                 ),
             ],
@@ -103,7 +103,7 @@ def get_admin_promo_submenu_keyboard(language: str = 'ru') -> InlineKeyboardMark
             [InlineKeyboardButton(text=texts.ADMIN_CAMPAIGNS, callback_data='admin_campaigns')],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTESTS', '🏆 Конкурсы'),
+                    text=_t(texts, 'ADMIN_CONTESTS', '🏆 竞赛'),
                     callback_data='admin_contests',
                 )
             ],
@@ -121,23 +121,23 @@ def get_admin_communications_submenu_keyboard(language: str = 'ru') -> InlineKey
             [InlineKeyboardButton(text=texts.ADMIN_MESSAGES, callback_data='admin_messages')],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_COMMUNICATIONS_POLLS', '🗳️ Опросы'),
+                    text=_t(texts, 'ADMIN_COMMUNICATIONS_POLLS', '🗳️民意调查'),
                     callback_data='admin_polls',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_COMMUNICATIONS_PROMO_OFFERS', '🎯 Промо-предложения'),
+                    text=_t(texts, 'ADMIN_COMMUNICATIONS_PROMO_OFFERS', '🎯促销优惠'),
                     callback_data='admin_promo_offers',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_COMMUNICATIONS_WELCOME_TEXT', '👋 Приветственный текст'),
+                    text=_t(texts, 'ADMIN_COMMUNICATIONS_WELCOME_TEXT', '👋欢迎文本'),
                     callback_data='welcome_text_panel',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_COMMUNICATIONS_MENU_MESSAGES', '📢 Сообщения в меню'),
+                    text=_t(texts, 'ADMIN_COMMUNICATIONS_MENU_MESSAGES', '📢菜单消息'),
                     callback_data='user_messages_panel',
                 ),
             ],
@@ -153,17 +153,17 @@ def get_admin_support_submenu_keyboard(language: str = 'ru') -> InlineKeyboardMa
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SUPPORT_TICKETS', '🎫 Тикеты поддержки'), callback_data='admin_tickets'
+                    text=_t(texts, 'ADMIN_SUPPORT_TICKETS', '🎫支持工单'), callback_data='admin_tickets'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SUPPORT_AUDIT', '🧾 Аудит модераторов'), callback_data='admin_support_audit'
+                    text=_t(texts, 'ADMIN_SUPPORT_AUDIT', '🧾版主审计'), callback_data='admin_support_audit'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SUPPORT_SETTINGS', '🛟 Настройки поддержки'),
+                    text=_t(texts, 'ADMIN_SUPPORT_SETTINGS', '🛟支持设置'),
                     callback_data='admin_support_settings',
                 )
             ],
@@ -183,49 +183,49 @@ def get_admin_settings_submenu_keyboard(language: str = 'ru') -> InlineKeyboardM
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SETTINGS_BOT_CONFIG', '🧩 Конфигурация бота'),
+                    text=_t(texts, 'ADMIN_SETTINGS_BOT_CONFIG', '🧩机器人配置'),
                     callback_data='admin_bot_config',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=texts.t('ADMIN_MONITORING_SETTINGS', '⚙️ Настройки мониторинга'),
+                    text=texts.t('ADMIN_MONITORING_SETTINGS', '⚙️监控设置'),
                     callback_data='admin_mon_settings',
                 )
             ],
             [
                 InlineKeyboardButton(text=texts.ADMIN_RULES, callback_data='admin_rules'),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SETTINGS_MAINTENANCE', '🔧 Техработы'), callback_data='maintenance_panel'
+                    text=_t(texts, 'ADMIN_SETTINGS_MAINTENANCE', '🔧维护'), callback_data='maintenance_panel'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SETTINGS_PRIVACY_POLICY', '🛡️ Политика конф.'),
+                    text=_t(texts, 'ADMIN_SETTINGS_PRIVACY_POLICY', '🛡️隐私政策'),
                     callback_data='admin_privacy_policy',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SETTINGS_PUBLIC_OFFER', '📄 Публичная оферта'),
+                    text=_t(texts, 'ADMIN_SETTINGS_PUBLIC_OFFER', '📄公开服务条款'),
                     callback_data='admin_public_offer',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SETTINGS_FAQ', '❓ FAQ'),
+                    text=_t(texts, 'ADMIN_SETTINGS_FAQ', '❓常见问题'),
                     callback_data='admin_faq',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SETTINGS_REQUIRED_CHANNELS', '📢 Обязательные каналы'),
+                    text=_t(texts, 'ADMIN_SETTINGS_REQUIRED_CHANNELS', '📢必订频道'),
                     callback_data='reqch:list',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SETTINGS_APP_CONFIG', '📱 Конфиг приложений'),
+                    text=_t(texts, 'ADMIN_SETTINGS_APP_CONFIG', '📱 应用配置'),
                     callback_data='admin_remna_config',
                 )
             ],
@@ -241,12 +241,12 @@ def get_admin_system_submenu_keyboard(language: str = 'ru') -> InlineKeyboardMar
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SYSTEM_UPDATES', '📄 Обновления'), callback_data='admin_updates'
+                    text=_t(texts, 'ADMIN_SYSTEM_UPDATES', '📄更新'), callback_data='admin_updates'
                 ),
-                InlineKeyboardButton(text=_t(texts, 'ADMIN_SYSTEM_BACKUPS', '🗄️ Бекапы'), callback_data='backup_panel'),
+                InlineKeyboardButton(text=_t(texts, 'ADMIN_SYSTEM_BACKUPS', '🗄️备份'), callback_data='backup_panel'),
             ],
-            [InlineKeyboardButton(text=_t(texts, 'ADMIN_SYSTEM_LOGS', '🧾 Логи'), callback_data='admin_system_logs')],
-            [InlineKeyboardButton(text=texts.t('ADMIN_REPORTS', '📊 Отчеты'), callback_data='admin_reports')],
+            [InlineKeyboardButton(text=_t(texts, 'ADMIN_SYSTEM_LOGS', '🧾日志'), callback_data='admin_system_logs')],
+            [InlineKeyboardButton(text=texts.t('ADMIN_REPORTS', '📊报告'), callback_data='admin_reports')],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_panel')],
         ]
     )
@@ -259,7 +259,7 @@ def get_admin_trials_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_TRIALS_RESET_BUTTON', '♻️ Сбросить все триалы'),
+                    text=_t(texts, 'ADMIN_TRIALS_RESET_BUTTON', '♻️ 重置所有试用'),
                     callback_data='admin_trials_reset',
                 )
             ],
@@ -275,17 +275,17 @@ def get_admin_reports_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_REPORTS_PREVIOUS_DAY', '📆 За вчера'), callback_data='admin_reports_daily'
+                    text=_t(texts, 'ADMIN_REPORTS_PREVIOUS_DAY', '📆昨天'), callback_data='admin_reports_daily'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_REPORTS_LAST_WEEK', '🗓️ За неделю'), callback_data='admin_reports_weekly'
+                    text=_t(texts, 'ADMIN_REPORTS_LAST_WEEK', '🗓️本周'), callback_data='admin_reports_weekly'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_REPORTS_LAST_MONTH', '📅 За месяц'), callback_data='admin_reports_monthly'
+                    text=_t(texts, 'ADMIN_REPORTS_LAST_MONTH', '📅本月'), callback_data='admin_reports_monthly'
                 )
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_panel')],
@@ -298,7 +298,7 @@ def get_admin_report_result_keyboard(language: str = 'ru') -> InlineKeyboardMark
 
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=texts.t('REPORT_CLOSE', '❌ Закрыть'), callback_data='admin_close_report')]
+            [InlineKeyboardButton(text=texts.t('REPORT_CLOSE', '❌关闭'), callback_data='admin_close_report')]
         ]
     )
 
@@ -310,37 +310,37 @@ def get_admin_users_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_ALL', '👥 Все пользователи'), callback_data='admin_users_list'
+                    text=_t(texts, 'ADMIN_USERS_ALL', '👥所有用户'), callback_data='admin_users_list'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_SEARCH', '🔍 Поиск'), callback_data='admin_users_search'
+                    text=_t(texts, 'ADMIN_USERS_SEARCH', '🔍搜索'), callback_data='admin_users_search'
                 ),
             ],
             [
                 InlineKeyboardButton(text=texts.ADMIN_STATISTICS, callback_data='admin_users_stats'),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_INACTIVE', '🗑️ Неактивные'), callback_data='admin_users_inactive'
+                    text=_t(texts, 'ADMIN_USERS_INACTIVE', '🗑️不活跃'), callback_data='admin_users_inactive'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_FILTERS', '⚙️ Фильтры'), callback_data='admin_users_filters'
+                    text=_t(texts, 'ADMIN_USERS_FILTERS', '⚙️筛选器'), callback_data='admin_users_filters'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_BLACKLIST', '🔐 Черный список'),
+                    text=_t(texts, 'ADMIN_USERS_BLACKLIST', '🔐 黑名单'),
                     callback_data='admin_blacklist_settings',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_BULK_BAN', '🛑 Массовый бан'), callback_data='admin_bulk_ban_start'
+                    text=_t(texts, 'ADMIN_USERS_BULK_BAN', '🛑 批量封禁'), callback_data='admin_bulk_ban_start'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_BLOCKED_CHECK', '🔒 Заблокировавшие бота'),
+                    text=_t(texts, 'ADMIN_USERS_BLOCKED_CHECK', '🔒 已屏蔽机器人的用户'),
                     callback_data='admin_blocked_users',
                 )
             ],
@@ -356,25 +356,25 @@ def get_admin_users_filters_keyboard(language: str = 'ru') -> InlineKeyboardMark
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_FILTER_BALANCE', '💰 По балансу'),
+                    text=_t(texts, 'ADMIN_USERS_FILTER_BALANCE', '💰按余额'),
                     callback_data='admin_users_balance_filter',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_FILTER_RENEW_READY', '♻️ Готовы к продлению'),
+                    text=_t(texts, 'ADMIN_USERS_FILTER_RENEW_READY', '♻️准备续费'),
                     callback_data='admin_users_ready_to_renew_filter',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_FILTER_POTENTIAL_CUSTOMERS', '💰 Потенциальные клиенты'),
+                    text=_t(texts, 'ADMIN_USERS_FILTER_POTENTIAL_CUSTOMERS', '💰 潜在客户'),
                     callback_data='admin_users_potential_customers_filter',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USERS_FILTER_CAMPAIGN', '📢 По кампании'),
+                    text=_t(texts, 'ADMIN_USERS_FILTER_CAMPAIGN', '📢按活动'),
                     callback_data='admin_users_campaign_filter',
                 )
             ],
@@ -390,15 +390,15 @@ def get_admin_subscriptions_keyboard(language: str = 'ru') -> InlineKeyboardMark
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SUBSCRIPTIONS_ALL', '📱 Все подписки'), callback_data='admin_subs_list'
+                    text=_t(texts, 'ADMIN_SUBSCRIPTIONS_ALL', '📱所有订阅'), callback_data='admin_subs_list'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SUBSCRIPTIONS_EXPIRING', '⏰ Истекающие'), callback_data='admin_subs_expiring'
+                    text=_t(texts, 'ADMIN_SUBSCRIPTIONS_EXPIRING', '⏰即将过期'), callback_data='admin_subs_expiring'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SUBSCRIPTIONS_COUNTRIES', '🌍 Управление странами'),
+                    text=_t(texts, 'ADMIN_SUBSCRIPTIONS_COUNTRIES', '🌍国家管理'),
                     callback_data='admin_subs_countries',
                 )
             ],
@@ -415,15 +415,15 @@ def get_admin_promocodes_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODES_ALL', '🎫 Все промокоды'), callback_data='admin_promo_list'
+                    text=_t(texts, 'ADMIN_PROMOCODES_ALL', '🎫所有优惠码'), callback_data='admin_promo_list'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODES_CREATE', '➕ Создать'), callback_data='admin_promo_create'
+                    text=_t(texts, 'ADMIN_PROMOCODES_CREATE', '➕创建'), callback_data='admin_promo_create'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODES_GENERAL_STATS', '📊 Общая статистика'),
+                    text=_t(texts, 'ADMIN_PROMOCODES_GENERAL_STATS', '📊总体统计'),
                     callback_data='admin_promo_general_stats',
                 )
             ],
@@ -439,15 +439,15 @@ def get_admin_campaigns_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGNS_LIST', '📋 Список кампаний'), callback_data='admin_campaigns_list'
+                    text=_t(texts, 'ADMIN_CAMPAIGNS_LIST', '📋活动列表'), callback_data='admin_campaigns_list'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGNS_CREATE', '➕ Создать'), callback_data='admin_campaigns_create'
+                    text=_t(texts, 'ADMIN_CAMPAIGNS_CREATE', '➕创建'), callback_data='admin_campaigns_create'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGNS_GENERAL_STATS', '📊 Общая статистика'),
+                    text=_t(texts, 'ADMIN_CAMPAIGNS_GENERAL_STATS', '📊总体统计'),
                     callback_data='admin_campaigns_stats',
                 )
             ],
@@ -463,13 +463,13 @@ def get_admin_contests_root_keyboard(language: str = 'ru') -> InlineKeyboardMark
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTESTS_REFERRAL', '🤝 Реферальные конкурсы'),
+                    text=_t(texts, 'ADMIN_CONTESTS_REFERRAL', '🤝 邀请竞赛'),
                     callback_data='admin_contests_referral',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTESTS_DAILY', '📆 Ежедневные конкурсы'),
+                    text=_t(texts, 'ADMIN_CONTESTS_DAILY', '📆 每日竞赛'),
                     callback_data='admin_contests_daily',
                 )
             ],
@@ -487,11 +487,11 @@ def get_admin_contests_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTESTS_LIST', '📋 Текущие конкурсы'),
+                    text=_t(texts, 'ADMIN_CONTESTS_LIST', '📋 当前竞赛'),
                     callback_data='admin_contests_list',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTESTS_CREATE', '➕ Новый конкурс'),
+                    text=_t(texts, 'ADMIN_CONTESTS_CREATE', '➕ 新建竞赛'),
                     callback_data='admin_contests_create',
                 ),
             ],
@@ -512,13 +512,13 @@ def get_contest_mode_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTEST_MODE_PAID', '💳 Реферал с покупкой'),
+                    text=_t(texts, 'ADMIN_CONTEST_MODE_PAID', '💳 邀请用户购买'),
                     callback_data='admin_contest_mode_paid',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTEST_MODE_REGISTERED', '🧑‍🤝‍🧑 Просто реферал'),
+                    text=_t(texts, 'ADMIN_CONTEST_MODE_REGISTERED', '🧑\u200d🤝\u200d🧑 仅注册即可'),
                     callback_data='admin_contest_mode_registered',
                 )
             ],
@@ -534,74 +534,74 @@ def get_daily_contest_manage_keyboard(
 ) -> InlineKeyboardMarkup:
     texts = get_texts(language)
     toggle_text = (
-        _t(texts, 'ADMIN_CONTEST_DISABLE', '⏸️ Остановить')
+        _t(texts, 'ADMIN_CONTEST_DISABLE', '⏸️ 暂停')
         if is_enabled
-        else _t(texts, 'ADMIN_CONTEST_ENABLE', '▶️ Запустить')
+        else _t(texts, 'ADMIN_CONTEST_ENABLE', '▶️ 开始')
     )
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(text=toggle_text, callback_data=f'admin_daily_toggle_{template_id}'),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTEST_START_NOW', '🚀 Запустить раунд'),
+                    text=_t(texts, 'ADMIN_CONTEST_START_NOW', '立即开始回合'),
                     callback_data=f'admin_daily_start_{template_id}',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTEST_START_MANUAL', '🧪 Ручной старт'),
+                    text=_t(texts, 'ADMIN_CONTEST_START_MANUAL', '🧪 手动启动'),
                     callback_data=f'admin_daily_manual_{template_id}',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_EDIT_PRIZE_TYPE', '🏅 Тип приза'),
+                    text=_t(texts, 'ADMIN_EDIT_PRIZE_TYPE', '🏅 奖品类型'),
                     callback_data=f'admin_daily_edit_{template_id}_prize_type',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_EDIT_PRIZE_VALUE', '💰 Значение приза'),
+                    text=_t(texts, 'ADMIN_EDIT_PRIZE_VALUE', '💰 奖品数值'),
                     callback_data=f'admin_daily_edit_{template_id}_prize_value',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_EDIT_MAX_WINNERS', '👥 Победителей'),
+                    text=_t(texts, 'ADMIN_EDIT_MAX_WINNERS', '👥 获胜者数量'),
                     callback_data=f'admin_daily_edit_{template_id}_max_winners',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_EDIT_ATTEMPTS', '🔁 Попытки'),
+                    text=_t(texts, 'ADMIN_EDIT_ATTEMPTS', '🔁 尝试次数'),
                     callback_data=f'admin_daily_edit_{template_id}_attempts_per_user',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_EDIT_TIMES', '⏰ Раундов/день'),
+                    text=_t(texts, 'ADMIN_EDIT_TIMES', '⏰ 每日回合数'),
                     callback_data=f'admin_daily_edit_{template_id}_times_per_day',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_EDIT_SCHEDULE', '🕒 Расписание'),
+                    text=_t(texts, 'ADMIN_EDIT_SCHEDULE', '🕒 日程'),
                     callback_data=f'admin_daily_edit_{template_id}_schedule_times',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_EDIT_COOLDOWN', '⌛ Длительность'),
+                    text=_t(texts, 'ADMIN_EDIT_COOLDOWN', '⌛ 持续时间'),
                     callback_data=f'admin_daily_edit_{template_id}_cooldown_hours',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_EDIT_PAYLOAD', '🧩 Payload'),
+                    text=_t(texts, 'ADMIN_EDIT_PAYLOAD', '🧩 附加数据'),
                     callback_data=f'admin_daily_payload_{template_id}',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_RESET_ATTEMPTS', '🔄 Сбросить попытки'),
+                    text=_t(texts, 'ADMIN_RESET_ATTEMPTS', '🔄 重置尝试次数'),
                     callback_data=f'admin_daily_reset_attempts_{template_id}',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CLOSE_ROUND', '❌ Закрыть раунд'),
+                    text=_t(texts, 'ADMIN_CLOSE_ROUND', '❌ 结束回合'),
                     callback_data=f'admin_daily_close_{template_id}',
                 ),
             ],
@@ -621,15 +621,15 @@ def get_referral_contest_manage_keyboard(
 ) -> InlineKeyboardMarkup:
     texts = get_texts(language)
     toggle_text = (
-        _t(texts, 'ADMIN_CONTEST_DISABLE', '⏸️ Остановить')
+        _t(texts, 'ADMIN_CONTEST_DISABLE', '⏸️ 暂停')
         if is_active
-        else _t(texts, 'ADMIN_CONTEST_ENABLE', '▶️ Запустить')
+        else _t(texts, 'ADMIN_CONTEST_ENABLE', '▶️ 开始')
     )
 
     rows = [
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_CONTEST_LEADERBOARD', '📊 Лидеры'),
+                text=_t(texts, 'ADMIN_CONTEST_LEADERBOARD', '📊 排行榜'),
                 callback_data=f'admin_contest_leaderboard_{contest_id}',
             ),
             InlineKeyboardButton(
@@ -639,29 +639,29 @@ def get_referral_contest_manage_keyboard(
         ],
         [
             InlineKeyboardButton(
-                text='📈 Детальная статистика',
+                text='📈 详细统计',
                 callback_data=f'admin_contest_detailed_stats_{contest_id}',
             ),
         ],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_CONTEST_EDIT_SUMMARY_TIMES', '🕒 Итоги в день'),
+                text=_t(texts, 'ADMIN_CONTEST_EDIT_SUMMARY_TIMES', '🕒 每日汇总时间'),
                 callback_data=f'admin_contest_edit_times_{contest_id}',
             ),
         ],
         [
             InlineKeyboardButton(
-                text='👻 Виртуальные',
+                text='👻 虚拟用户',
                 callback_data=f'admin_contest_vp_{contest_id}',
             ),
         ],
         [
             InlineKeyboardButton(
-                text='🔄 Синхронизация',
+                text='🔄 同步',
                 callback_data=f'admin_contest_sync_{contest_id}',
             ),
             InlineKeyboardButton(
-                text='🔍 Отладка',
+                text='🔍 调试',
                 callback_data=f'admin_contest_debug_{contest_id}',
             ),
         ],
@@ -671,7 +671,7 @@ def get_referral_contest_manage_keyboard(
         rows.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CONTEST_DELETE', '🗑 Удалить'),
+                    text=_t(texts, 'ADMIN_CONTEST_DELETE', '🗑 删除'),
                     callback_data=f'admin_contest_delete_{contest_id}',
                 )
             ]
@@ -680,7 +680,7 @@ def get_referral_contest_manage_keyboard(
     rows.append(
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_BACK_TO_LIST', '⬅️ К списку'),
+                text=_t(texts, 'ADMIN_BACK_TO_LIST', '⬅️返回列表'),
                 callback_data='admin_contests_list',
             )
         ]
@@ -692,16 +692,16 @@ def get_referral_contest_manage_keyboard(
 def get_campaign_management_keyboard(campaign_id: int, is_active: bool, language: str = 'ru') -> InlineKeyboardMarkup:
     texts = get_texts(language)
     status_text = (
-        _t(texts, 'ADMIN_CAMPAIGN_DISABLE', '🔴 Выключить')
+        _t(texts, 'ADMIN_CAMPAIGN_DISABLE', '🔴禁用')
         if is_active
-        else _t(texts, 'ADMIN_CAMPAIGN_ENABLE', '🟢 Включить')
+        else _t(texts, 'ADMIN_CAMPAIGN_ENABLE', '🟢启用')
     )
 
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGN_STATS', '📊 Статистика'),
+                    text=_t(texts, 'ADMIN_CAMPAIGN_STATS', '📊统计'),
                     callback_data=f'admin_campaign_stats_{campaign_id}',
                 ),
                 InlineKeyboardButton(
@@ -711,19 +711,19 @@ def get_campaign_management_keyboard(campaign_id: int, is_active: bool, language
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGN_EDIT', '✏️ Редактировать'),
+                    text=_t(texts, 'ADMIN_CAMPAIGN_EDIT', '✏️编辑'),
                     callback_data=f'admin_campaign_edit_{campaign_id}',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGN_DELETE', '🗑️ Удалить'),
+                    text=_t(texts, 'ADMIN_CAMPAIGN_DELETE', '🗑️删除'),
                     callback_data=f'admin_campaign_delete_{campaign_id}',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BACK_TO_LIST', '⬅️ К списку'), callback_data='admin_campaigns_list'
+                    text=_t(texts, 'ADMIN_BACK_TO_LIST', '⬅️返回列表'), callback_data='admin_campaigns_list'
                 )
             ],
         ]
@@ -746,11 +746,11 @@ def get_campaign_edit_keyboard(
     keyboard: list[list[InlineKeyboardButton]] = [
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_CAMPAIGN_EDIT_NAME', '✏️ Название'),
+                text=_t(texts, 'ADMIN_CAMPAIGN_EDIT_NAME', '✏️名称'),
                 callback_data=f'admin_campaign_edit_name_{campaign_id}',
             ),
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_CAMPAIGN_EDIT_START', '🔗 Параметр'),
+                text=_t(texts, 'ADMIN_CAMPAIGN_EDIT_START', '🔗参数'),
                 callback_data=f'admin_campaign_edit_start_{campaign_id}',
             ),
         ]
@@ -760,7 +760,7 @@ def get_campaign_edit_keyboard(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_BALANCE', '💰 Бонус на баланс'),
+                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_BALANCE', '💰余额奖励'),
                     callback_data=f'admin_campaign_edit_balance_{campaign_id}',
                 )
             ]
@@ -770,21 +770,21 @@ def get_campaign_edit_keyboard(
             [
                 [
                     InlineKeyboardButton(
-                        text=_t(texts, 'ADMIN_CAMPAIGN_DURATION', '📅 Длительность'),
+                        text=_t(texts, 'ADMIN_CAMPAIGN_DURATION', '📅持续时间'),
                         callback_data=f'admin_campaign_edit_sub_days_{campaign_id}',
                     ),
                     InlineKeyboardButton(
-                        text=_t(texts, 'ADMIN_CAMPAIGN_TRAFFIC', '🌐 Трафик'),
+                        text=_t(texts, 'ADMIN_CAMPAIGN_TRAFFIC', '🌐流量'),
                         callback_data=f'admin_campaign_edit_sub_traffic_{campaign_id}',
                     ),
                 ],
                 [
                     InlineKeyboardButton(
-                        text=_t(texts, 'ADMIN_CAMPAIGN_DEVICES', '📱 Устройства'),
+                        text=_t(texts, 'ADMIN_CAMPAIGN_DEVICES', '📱设备'),
                         callback_data=f'admin_campaign_edit_sub_devices_{campaign_id}',
                     ),
                     InlineKeyboardButton(
-                        text=_t(texts, 'ADMIN_CAMPAIGN_SERVERS', '🌍 Серверы'),
+                        text=_t(texts, 'ADMIN_CAMPAIGN_SERVERS', '🌍服务器'),
                         callback_data=f'admin_campaign_edit_sub_servers_{campaign_id}',
                     ),
                 ],
@@ -795,11 +795,11 @@ def get_campaign_edit_keyboard(
             [
                 [
                     InlineKeyboardButton(
-                        text=_t(texts, 'ADMIN_CAMPAIGN_TARIFF', '🎁 Тариф'),
+                        text=_t(texts, 'ADMIN_CAMPAIGN_TARIFF', '🎁 套餐'),
                         callback_data=f'admin_campaign_edit_tariff_{campaign_id}',
                     ),
                     InlineKeyboardButton(
-                        text=_t(texts, 'ADMIN_CAMPAIGN_DURATION', '📅 Длительность'),
+                        text=_t(texts, 'ADMIN_CAMPAIGN_DURATION', '📅持续时间'),
                         callback_data=f'admin_campaign_edit_tariff_days_{campaign_id}',
                     ),
                 ],
@@ -819,20 +819,20 @@ def get_campaign_bonus_type_keyboard(language: str = 'ru') -> InlineKeyboardMark
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_BALANCE', '💰 Бонус на баланс'),
+                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_BALANCE', '💰余额奖励'),
                     callback_data='campaign_bonus_balance',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_SUBSCRIPTION', '📱 Пробная подписка'),
+                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_SUBSCRIPTION', '📱订阅奖励'),
                     callback_data='campaign_bonus_subscription',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_TARIFF', '🎁 Тариф'), callback_data='campaign_bonus_tariff'
+                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_TARIFF', '🎁 套餐'), callback_data='campaign_bonus_tariff'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_NONE', '🔗 Только ссылка'), callback_data='campaign_bonus_none'
+                    text=_t(texts, 'ADMIN_CAMPAIGN_BONUS_NONE', '🔗 仅链接'), callback_data='campaign_bonus_none'
                 ),
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_campaigns')],
@@ -847,23 +847,23 @@ def get_promocode_management_keyboard(promo_id: int, language: str = 'ru') -> In
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODE_EDIT', '✏️ Редактировать'), callback_data=f'promo_edit_{promo_id}'
+                    text=_t(texts, 'ADMIN_PROMOCODE_EDIT', '✏️编辑'), callback_data=f'promo_edit_{promo_id}'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODE_TOGGLE', '🔄 Статус'), callback_data=f'promo_toggle_{promo_id}'
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODE_STATS', '📊 Статистика'), callback_data=f'promo_stats_{promo_id}'
-                ),
-                InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODE_DELETE', '🗑️ Удалить'), callback_data=f'promo_delete_{promo_id}'
+                    text=_t(texts, 'ADMIN_PROMOCODE_TOGGLE', '🔄状态'), callback_data=f'promo_toggle_{promo_id}'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BACK_TO_LIST', '⬅️ К списку'), callback_data='admin_promo_list'
+                    text=_t(texts, 'ADMIN_PROMOCODE_STATS', '📊统计'), callback_data=f'promo_stats_{promo_id}'
+                ),
+                InlineKeyboardButton(
+                    text=_t(texts, 'ADMIN_PROMOCODE_DELETE', '🗑️删除'), callback_data=f'promo_delete_{promo_id}'
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=_t(texts, 'ADMIN_BACK_TO_LIST', '⬅️返回列表'), callback_data='admin_promo_list'
                 )
             ],
         ]
@@ -877,24 +877,24 @@ def get_admin_messages_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MESSAGES_ALL_USERS', '📨 Всем пользователям'), callback_data='admin_msg_all'
+                    text=_t(texts, 'ADMIN_MESSAGES_ALL_USERS', '📨所有用户'), callback_data='admin_msg_all'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MESSAGES_BY_SUBSCRIPTIONS', '🎯 По подпискам'),
+                    text=_t(texts, 'ADMIN_MESSAGES_BY_SUBSCRIPTIONS', '🎯按订阅'),
                     callback_data='admin_msg_by_sub',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MESSAGES_BY_CRITERIA', '🔍 По критериям'), callback_data='admin_msg_custom'
+                    text=_t(texts, 'ADMIN_MESSAGES_BY_CRITERIA', '🔍按条件'), callback_data='admin_msg_custom'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MESSAGES_HISTORY', '📋 История'), callback_data='admin_msg_history'
+                    text=_t(texts, 'ADMIN_MESSAGES_HISTORY', '📋历史记录'), callback_data='admin_msg_history'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PINNED_MESSAGE', '📌 Закрепленное сообщение'),
+                    text=_t(texts, 'ADMIN_PINNED_MESSAGE', '📌置顶消息'),
                     callback_data='admin_pinned_message',
                 )
             ],
@@ -911,16 +911,16 @@ def get_pinned_message_keyboard(
     texts = get_texts(language)
 
     position_label = (
-        _t(texts, 'ADMIN_PINNED_POSITION_BEFORE', '⬆️ Показать перед меню')
+        _t(texts, 'ADMIN_PINNED_POSITION_BEFORE', '⬆️菜单前发送')
         if send_before_menu
-        else _t(texts, 'ADMIN_PINNED_POSITION_AFTER', '⬇️ Показать после меню')
+        else _t(texts, 'ADMIN_PINNED_POSITION_AFTER', '⬇️菜单后发送')
     )
     toggle_callback = 'admin_pinned_message_position'
 
     start_mode_label = (
-        _t(texts, 'ADMIN_PINNED_START_EVERY_TIME', '🔁 Показать при каждом /start')
+        _t(texts, 'ADMIN_PINNED_START_EVERY_TIME', '🔁 每次 启动命令 时发送')
         if send_on_every_start
-        else _t(texts, 'ADMIN_PINNED_START_ONCE', '🚫 Показывать только один раз')
+        else _t(texts, 'ADMIN_PINNED_START_ONCE', '🚫 仅发送一次')
     )
     start_mode_callback = 'admin_pinned_message_start_mode'
 
@@ -928,7 +928,7 @@ def get_pinned_message_keyboard(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PINNED_MESSAGE_UPDATE', '✏️ Обновить'),
+                    text=_t(texts, 'ADMIN_PINNED_MESSAGE_UPDATE', '✏️更新'),
                     callback_data='admin_pinned_message_edit',
                 )
             ],
@@ -946,7 +946,7 @@ def get_pinned_message_keyboard(
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PINNED_MESSAGE_DELETE', '🗑️ Удалить и отключить'),
+                    text=_t(texts, 'ADMIN_PINNED_MESSAGE_DELETE', '🗑️删除并停用'),
                     callback_data='admin_pinned_message_delete',
                 )
             ],
@@ -966,13 +966,13 @@ def get_pinned_broadcast_confirm_keyboard(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PINNED_BROADCAST_NOW', '📨 Разослать сейчас всем'),
+                    text=_t(texts, 'ADMIN_PINNED_BROADCAST_NOW', '📨 立即广播给所有人'),
                     callback_data=f'admin_pinned_broadcast_now:{pinned_message_id}',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PINNED_BROADCAST_ON_START', '⏳ Только при /start'),
+                    text=_t(texts, 'ADMIN_PINNED_BROADCAST_ON_START', '⏳ 仅在 启动命令 时'),
                     callback_data=f'admin_pinned_broadcast_skip:{pinned_message_id}',
                 )
             ],
@@ -987,23 +987,23 @@ def get_admin_monitoring_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_START', '▶️ Запустить'), callback_data='admin_mon_start'
+                    text=_t(texts, 'ADMIN_MONITORING_START', '▶️开始'), callback_data='admin_mon_start'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_STOP', '⏸️ Остановить'), callback_data='admin_mon_stop'
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_STATUS', '📊 Статус'), callback_data='admin_mon_status'
-                ),
-                InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_LOGS', '📋 Логи'), callback_data='admin_mon_logs'
+                    text=_t(texts, 'ADMIN_MONITORING_STOP', '⏸️暂停'), callback_data='admin_mon_stop'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_SETTINGS_BUTTON', '⚙️ Настройки'),
+                    text=_t(texts, 'ADMIN_MONITORING_STATUS', '📊状态'), callback_data='admin_mon_status'
+                ),
+                InlineKeyboardButton(
+                    text=_t(texts, 'ADMIN_MONITORING_LOGS', '📋日志'), callback_data='admin_mon_logs'
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=_t(texts, 'ADMIN_MONITORING_SETTINGS_BUTTON', '⚙️设置'),
                     callback_data='admin_mon_settings',
                 )
             ],
@@ -1019,31 +1019,31 @@ def get_admin_remnawave_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_REMNAWAVE_SYSTEM_STATS', '📊 Системная статистика'),
+                    text=_t(texts, 'ADMIN_REMNAWAVE_SYSTEM_STATS', '📊系统统计'),
                     callback_data='admin_rw_system',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_REMNAWAVE_MANAGE_NODES', '🖥️ Управление нодами'),
+                    text=_t(texts, 'ADMIN_REMNAWAVE_MANAGE_NODES', '🖥️节点管理'),
                     callback_data='admin_rw_nodes',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_REMNAWAVE_SYNC', '🔄 Синхронизация'), callback_data='admin_rw_sync'
+                    text=_t(texts, 'ADMIN_REMNAWAVE_SYNC', '🔄同步'), callback_data='admin_rw_sync'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_REMNAWAVE_MANAGE_SQUADS', '🌐 Управление сквадами'),
+                    text=_t(texts, 'ADMIN_REMNAWAVE_MANAGE_SQUADS', '🌐节点组管理'),
                     callback_data='admin_rw_squads',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_REMNAWAVE_MIGRATION', '🚚 Переезд'), callback_data='admin_rw_migration'
+                    text=_t(texts, 'ADMIN_REMNAWAVE_MIGRATION', '🚚迁移'), callback_data='admin_rw_migration'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_REMNAWAVE_TRAFFIC', '📈 Трафик'), callback_data='admin_rw_traffic'
+                    text=_t(texts, 'ADMIN_REMNAWAVE_TRAFFIC', '📈流量'), callback_data='admin_rw_traffic'
                 )
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_submenu_settings')],
@@ -1058,23 +1058,23 @@ def get_admin_statistics_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_STATS_USERS', '👥 Пользователи'), callback_data='admin_stats_users'
+                    text=_t(texts, 'ADMIN_STATS_USERS', '👥用户'), callback_data='admin_stats_users'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_STATS_SUBSCRIPTIONS', '📱 Подписки'), callback_data='admin_stats_subs'
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_STATS_REVENUE', '💰 Доходы'), callback_data='admin_stats_revenue'
-                ),
-                InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_STATS_REFERRALS', '🤝 Партнерка'), callback_data='admin_stats_referrals'
+                    text=_t(texts, 'ADMIN_STATS_SUBSCRIPTIONS', '📱订阅'), callback_data='admin_stats_subs'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_STATS_SUMMARY', '📊 Общая сводка'), callback_data='admin_stats_summary'
+                    text=_t(texts, 'ADMIN_STATS_REVENUE', '💰收入'), callback_data='admin_stats_revenue'
+                ),
+                InlineKeyboardButton(
+                    text=_t(texts, 'ADMIN_STATS_REFERRALS', '🤝推荐计划'), callback_data='admin_stats_referrals'
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=_t(texts, 'ADMIN_STATS_SUMMARY', '📊总体概览'), callback_data='admin_stats_summary'
                 )
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_submenu_promo')],
@@ -1090,10 +1090,10 @@ def get_user_management_keyboard(
     keyboard = [
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_USER_BALANCE', '💰 Баланс'), callback_data=f'admin_user_balance_{user_id}'
+                text=_t(texts, 'ADMIN_USER_BALANCE', '💰余额'), callback_data=f'admin_user_balance_{user_id}'
             ),
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_USER_SUBSCRIPTION_SETTINGS', '📱 Подписка и настройки'),
+                text=_t(texts, 'ADMIN_USER_SUBSCRIPTION_SETTINGS', '📱订阅和设置'),
                 callback_data=f'admin_user_subscription_{user_id}',
             ),
         ],
@@ -1104,19 +1104,19 @@ def get_user_management_keyboard(
         ],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_USER_REFERRALS_BUTTON', '🤝 Рефералы'),
+                text=_t(texts, 'ADMIN_USER_REFERRALS_BUTTON', '🤝推荐'),
                 callback_data=f'admin_user_referrals_{user_id}',
             )
         ],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_USER_STATISTICS', '📊 Статистика'),
+                text=_t(texts, 'ADMIN_USER_STATISTICS', '📊统计'),
                 callback_data=f'admin_user_statistics_{user_id}',
             )
         ],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_USER_TRANSACTIONS', '📋 Транзакции'),
+                text=_t(texts, 'ADMIN_USER_TRANSACTIONS', '📋交易'),
                 callback_data=f'admin_user_transactions_{user_id}',
             )
         ],
@@ -1125,7 +1125,7 @@ def get_user_management_keyboard(
     keyboard.append(
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_USER_SEND_MESSAGE', '✉️ Отправить сообщение'),
+                text=_t(texts, 'ADMIN_USER_SEND_MESSAGE', '✉️发送消息'),
                 callback_data=f'admin_user_send_message_{user_id}',
             )
         ]
@@ -1135,7 +1135,7 @@ def get_user_management_keyboard(
     keyboard.append(
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_USER_RESTRICTIONS', '⚠️ Ограничить'),
+                text=_t(texts, 'ADMIN_USER_RESTRICTIONS', '⚠️ 限制'),
                 callback_data=f'admin_user_restrictions_{user_id}',
             )
         ]
@@ -1145,10 +1145,10 @@ def get_user_management_keyboard(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USER_BLOCK', '🚫 Заблокировать'), callback_data=f'admin_user_block_{user_id}'
+                    text=_t(texts, 'ADMIN_USER_BLOCK', '🚫封锁'), callback_data=f'admin_user_block_{user_id}'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USER_DELETE', '🗑️ Удалить'), callback_data=f'admin_user_delete_{user_id}'
+                    text=_t(texts, 'ADMIN_USER_DELETE', '🗑️删除'), callback_data=f'admin_user_delete_{user_id}'
                 ),
             ]
         )
@@ -1156,11 +1156,11 @@ def get_user_management_keyboard(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USER_UNBLOCK', '✅ Разблокировать'),
+                    text=_t(texts, 'ADMIN_USER_UNBLOCK', '✅解除封锁'),
                     callback_data=f'admin_user_unblock_{user_id}',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USER_DELETE', '🗑️ Удалить'), callback_data=f'admin_user_delete_{user_id}'
+                    text=_t(texts, 'ADMIN_USER_DELETE', '🗑️删除'), callback_data=f'admin_user_delete_{user_id}'
                 ),
             ]
         )
@@ -1168,7 +1168,7 @@ def get_user_management_keyboard(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_USER_ALREADY_DELETED', '❌ Пользователь удален'), callback_data='noop'
+                    text=_t(texts, 'ADMIN_USER_ALREADY_DELETED', '❌用户已删除'), callback_data='noop'
                 )
             ]
         )
@@ -1188,19 +1188,19 @@ def get_user_restrictions_keyboard(
 
     # Toggle для ограничения пополнения
     topup_emoji = '🚫' if restriction_topup else '✅'
-    topup_text = f'{topup_emoji} Пополнение'
+    topup_text = f'{topup_emoji} 充值'
     keyboard.append(
         [InlineKeyboardButton(text=topup_text, callback_data=f'admin_user_restriction_toggle_topup_{user_id}')]
     )
 
     # Toggle для ограничения подписки
     sub_emoji = '🚫' if restriction_subscription else '✅'
-    sub_text = f'{sub_emoji} Продление/покупка'
+    sub_text = f'{sub_emoji} 续费/购买'
     keyboard.append([InlineKeyboardButton(text=sub_text, callback_data=f'admin_user_restriction_toggle_sub_{user_id}')])
 
     # Кнопка изменения причины
     keyboard.append(
-        [InlineKeyboardButton(text='📝 Изменить причину', callback_data=f'admin_user_restriction_reason_{user_id}')]
+        [InlineKeyboardButton(text='📝 修改原因', callback_data=f'admin_user_restriction_reason_{user_id}')]
     )
 
     # Кнопка снятия всех ограничений (если есть хотя бы одно)
@@ -1208,7 +1208,7 @@ def get_user_restrictions_keyboard(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text='🔓 Снять все ограничения', callback_data=f'admin_user_restriction_clear_{user_id}'
+                    text='🔓 清除全部限制', callback_data=f'admin_user_restriction_clear_{user_id}'
                 )
             ]
         )
@@ -1278,24 +1278,24 @@ def get_promocode_type_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_BALANCE', '💰 Баланс'), callback_data='promo_type_balance'
+                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_BALANCE', '💰余额'), callback_data='promo_type_balance'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_DAYS', '📅 Дни подписки'), callback_data='promo_type_days'
+                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_DAYS', '📅订阅天数'), callback_data='promo_type_days'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_TRIAL', '🎁 Триал'), callback_data='promo_type_trial'
+                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_TRIAL', '🎁试用'), callback_data='promo_type_trial'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_PROMO_GROUP', '🏷️ Промогруппа'),
+                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_PROMO_GROUP', '🏷️促销组'),
                     callback_data='promo_type_group',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_DISCOUNT', '💸 Одноразовая скидка'),
+                    text=_t(texts, 'ADMIN_PROMOCODE_TYPE_DISCOUNT', '💸一次性折扣'),
                     callback_data='promo_type_discount',
                 )
             ],
@@ -1339,7 +1339,7 @@ def get_promocode_list_keyboard(
         [
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PROMOCODES_CREATE', '➕ Создать'), callback_data='admin_promo_create'
+                    text=_t(texts, 'ADMIN_PROMOCODES_CREATE', '➕创建'), callback_data='admin_promo_create'
                 )
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_promocodes')],
@@ -1356,42 +1356,42 @@ def get_broadcast_target_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_ALL', '👥 Всем'), callback_data='broadcast_all'
+                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_ALL', '👥所有用户'), callback_data='broadcast_all'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_ACTIVE', '📱 С подпиской'), callback_data='broadcast_active'
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_TRIAL', '🎁 Триал'), callback_data='broadcast_trial'
-                ),
-                InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_NO_SUB', '❌ Без подписки'), callback_data='broadcast_no_sub'
+                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_ACTIVE', '📱拥有订阅'), callback_data='broadcast_active'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_EXPIRING', '⏰ Истекающие'),
+                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_TRIAL', '🎁试用'), callback_data='broadcast_trial'
+                ),
+                InlineKeyboardButton(
+                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_NO_SUB', '❌未订阅'), callback_data='broadcast_no_sub'
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_EXPIRING', '⏰即将过期'),
                     callback_data='broadcast_expiring',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_EXPIRED', '🔚 Истекшие'), callback_data='broadcast_expired'
+                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_EXPIRED', '🔚已过期'), callback_data='broadcast_expired'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_ACTIVE_ZERO', '🧊 Активна 0 ГБ'),
+                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_ACTIVE_ZERO', '🧊活跃0GB'),
                     callback_data='broadcast_active_zero',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_TRIAL_ZERO', '🥶 Триал 0 ГБ'),
+                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_TRIAL_ZERO', '🥶试用0GB'),
                     callback_data='broadcast_trial_zero',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_BY_TARIFF', '📦 По тарифу'),
+                    text=_t(texts, 'ADMIN_BROADCAST_TARGET_BY_TARIFF', '📦 按套餐'),
                     callback_data='broadcast_by_tariff',
                 )
             ],
@@ -1407,43 +1407,43 @@ def get_custom_criteria_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CRITERIA_TODAY', '📅 Сегодня'), callback_data='criteria_today'
+                    text=_t(texts, 'ADMIN_CRITERIA_TODAY', '📅今天'), callback_data='criteria_today'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CRITERIA_WEEK', '📅 За неделю'), callback_data='criteria_week'
+                    text=_t(texts, 'ADMIN_CRITERIA_WEEK', '📅本周'), callback_data='criteria_week'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CRITERIA_MONTH', '📅 За месяц'), callback_data='criteria_month'
+                    text=_t(texts, 'ADMIN_CRITERIA_MONTH', '📅本月'), callback_data='criteria_month'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CRITERIA_ACTIVE_TODAY', '⚡ Активные сегодня'),
+                    text=_t(texts, 'ADMIN_CRITERIA_ACTIVE_TODAY', '⚡今日活跃'),
                     callback_data='criteria_active_today',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CRITERIA_INACTIVE_WEEK', '💤 Неактивные 7+ дней'),
+                    text=_t(texts, 'ADMIN_CRITERIA_INACTIVE_WEEK', '💤7天以上未活跃'),
                     callback_data='criteria_inactive_week',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CRITERIA_INACTIVE_MONTH', '💤 Неактивные 30+ дней'),
+                    text=_t(texts, 'ADMIN_CRITERIA_INACTIVE_MONTH', '💤30天以上未活跃'),
                     callback_data='criteria_inactive_month',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CRITERIA_REFERRALS', '🤝 Через рефералов'), callback_data='criteria_referrals'
+                    text=_t(texts, 'ADMIN_CRITERIA_REFERRALS', '🤝通过推荐'), callback_data='criteria_referrals'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CRITERIA_PROMOCODES', '🎫 Использовали промокоды'),
+                    text=_t(texts, 'ADMIN_CRITERIA_PROMOCODES', '🎫已使用优惠码'),
                     callback_data='criteria_promocodes',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_CRITERIA_DIRECT', '🎯 Прямая регистрация'), callback_data='criteria_direct'
+                    text=_t(texts, 'ADMIN_CRITERIA_DIRECT', '🎯直接注册'), callback_data='criteria_direct'
                 )
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_messages')],
@@ -1472,7 +1472,7 @@ def get_broadcast_history_keyboard(page: int, total_pages: int, language: str = 
         [
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_HISTORY_REFRESH', '🔄 Обновить'), callback_data='admin_msg_history'
+                    text=_t(texts, 'ADMIN_HISTORY_REFRESH', '🔄刷新'), callback_data='admin_msg_history'
                 )
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_messages')],
@@ -1487,31 +1487,31 @@ def get_sync_options_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
     keyboard = [
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_SYNC_FULL', '🔄 Полная синхронизация'), callback_data='sync_all_users'
+                text=_t(texts, 'ADMIN_SYNC_FULL', '🔄完全同步'), callback_data='sync_all_users'
             )
         ],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_SYNC_TO_PANEL', '⬆️ Синхронизация в панель'), callback_data='sync_to_panel'
+                text=_t(texts, 'ADMIN_SYNC_TO_PANEL', '⬆️ 同步到面板'), callback_data='sync_to_panel'
             )
         ],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_SYNC_ONLY_NEW', '🆕 Только новые'), callback_data='sync_new_users'
+                text=_t(texts, 'ADMIN_SYNC_ONLY_NEW', '🆕仅限新的'), callback_data='sync_new_users'
             )
         ],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_SYNC_UPDATE', '📈 Обновить данные'), callback_data='sync_update_data'
+                text=_t(texts, 'ADMIN_SYNC_UPDATE', '📈更新数据'), callback_data='sync_update_data'
             )
         ],
         [
-            InlineKeyboardButton(text=_t(texts, 'ADMIN_SYNC_VALIDATE', '🔍 Валидация'), callback_data='sync_validate'),
-            InlineKeyboardButton(text=_t(texts, 'ADMIN_SYNC_CLEANUP', '🧹 Очистка'), callback_data='sync_cleanup'),
+            InlineKeyboardButton(text=_t(texts, 'ADMIN_SYNC_VALIDATE', '🔍验证'), callback_data='sync_validate'),
+            InlineKeyboardButton(text=_t(texts, 'ADMIN_SYNC_CLEANUP', '🧹清理'), callback_data='sync_cleanup'),
         ],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_SYNC_RECOMMENDATIONS', '💡 Рекомендации'), callback_data='sync_recommendations'
+                text=_t(texts, 'ADMIN_SYNC_RECOMMENDATIONS', '💡建议'), callback_data='sync_recommendations'
             )
         ],
         [InlineKeyboardButton(text=texts.BACK, callback_data='admin_remnawave')],
@@ -1525,10 +1525,10 @@ def get_sync_confirmation_keyboard(sync_type: str, language: str = 'ru') -> Inli
     keyboard = [
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_SYNC_CONFIRM', '✅ Подтвердить'), callback_data=f'confirm_{sync_type}'
+                text=_t(texts, 'ADMIN_SYNC_CONFIRM', '✅确认'), callback_data=f'confirm_{sync_type}'
             )
         ],
-        [InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌ Отмена'), callback_data='admin_rw_sync')],
+        [InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌取消'), callback_data='admin_rw_sync')],
     ]
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
@@ -1542,7 +1542,7 @@ def get_sync_result_keyboard(sync_type: str, has_errors: bool = False, language:
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SYNC_RETRY', '🔄 Повторить'), callback_data=f'sync_{sync_type}'
+                    text=_t(texts, 'ADMIN_SYNC_RETRY', '🔄重试'), callback_data=f'sync_{sync_type}'
                 )
             ]
         )
@@ -1551,7 +1551,7 @@ def get_sync_result_keyboard(sync_type: str, has_errors: bool = False, language:
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SYNC_FULL', '🔄 Полная синхронизация'), callback_data='sync_all_users'
+                    text=_t(texts, 'ADMIN_SYNC_FULL', '🔄完全同步'), callback_data='sync_all_users'
                 )
             ]
         )
@@ -1560,20 +1560,20 @@ def get_sync_result_keyboard(sync_type: str, has_errors: bool = False, language:
         [
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_STATS_BUTTON', '📊 Статистика'), callback_data='admin_rw_system'
+                    text=_t(texts, 'ADMIN_STATS_BUTTON', '📊统计'), callback_data='admin_rw_system'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SYNC_VALIDATE', '🔍 Валидация'), callback_data='sync_validate'
+                    text=_t(texts, 'ADMIN_SYNC_VALIDATE', '🔍验证'), callback_data='sync_validate'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SYNC_BACK', '⬅️ К синхронизации'), callback_data='admin_rw_sync'
+                    text=_t(texts, 'ADMIN_SYNC_BACK', '⬅️返回同步'), callback_data='admin_rw_sync'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BACK_TO_MAIN', '🏠 В главное меню'), callback_data='admin_remnawave'
+                    text=_t(texts, 'ADMIN_BACK_TO_MAIN', '🏠返回主菜单'), callback_data='admin_remnawave'
                 )
             ],
         ]
@@ -1588,16 +1588,16 @@ def get_period_selection_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text=_t(texts, 'ADMIN_PERIOD_TODAY', '📅 Сегодня'), callback_data='period_today'),
+                InlineKeyboardButton(text=_t(texts, 'ADMIN_PERIOD_TODAY', '📅今天'), callback_data='period_today'),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_PERIOD_YESTERDAY', '📅 Вчера'), callback_data='period_yesterday'
+                    text=_t(texts, 'ADMIN_PERIOD_YESTERDAY', '📅昨天'), callback_data='period_yesterday'
                 ),
             ],
             [
-                InlineKeyboardButton(text=_t(texts, 'ADMIN_PERIOD_WEEK', '📅 Неделя'), callback_data='period_week'),
-                InlineKeyboardButton(text=_t(texts, 'ADMIN_PERIOD_MONTH', '📅 Месяц'), callback_data='period_month'),
+                InlineKeyboardButton(text=_t(texts, 'ADMIN_PERIOD_WEEK', '📅本周'), callback_data='period_week'),
+                InlineKeyboardButton(text=_t(texts, 'ADMIN_PERIOD_MONTH', '📅本月'), callback_data='period_month'),
             ],
-            [InlineKeyboardButton(text=_t(texts, 'ADMIN_PERIOD_ALL', '📅 Все время'), callback_data='period_all')],
+            [InlineKeyboardButton(text=_t(texts, 'ADMIN_PERIOD_ALL', '📅所有时间'), callback_data='period_all')],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_statistics')],
         ]
     )
@@ -1610,18 +1610,18 @@ def get_node_management_keyboard(node_uuid: str, language: str = 'ru') -> Inline
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_NODE_ENABLE', '▶️ Включить'), callback_data=f'node_enable_{node_uuid}'
+                    text=_t(texts, 'ADMIN_NODE_ENABLE', '▶️启用'), callback_data=f'node_enable_{node_uuid}'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_NODE_DISABLE', '⏸️ Отключить'), callback_data=f'node_disable_{node_uuid}'
+                    text=_t(texts, 'ADMIN_NODE_DISABLE', '⏸️禁用'), callback_data=f'node_disable_{node_uuid}'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_NODE_RESTART', '🔄 Перезагрузить'), callback_data=f'node_restart_{node_uuid}'
+                    text=_t(texts, 'ADMIN_NODE_RESTART', '🔄重启'), callback_data=f'node_restart_{node_uuid}'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_NODE_STATS', '📊 Статистика'), callback_data=f'node_stats_{node_uuid}'
+                    text=_t(texts, 'ADMIN_NODE_STATS', '📊统计'), callback_data=f'node_stats_{node_uuid}'
                 ),
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_rw_nodes')],
@@ -1636,22 +1636,22 @@ def get_squad_management_keyboard(squad_uuid: str, language: str = 'ru') -> Inli
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SQUAD_ADD_ALL', '👥 Добавить всех пользователей'),
+                    text=_t(texts, 'ADMIN_SQUAD_ADD_ALL', '👥添加所有用户'),
                     callback_data=f'squad_add_users_{squad_uuid}',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SQUAD_REMOVE_ALL', '❌ Удалить всех пользователей'),
+                    text=_t(texts, 'ADMIN_SQUAD_REMOVE_ALL', '❌删除所有用户'),
                     callback_data=f'squad_remove_users_{squad_uuid}',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SQUAD_EDIT', '✏️ Редактировать'), callback_data=f'squad_edit_{squad_uuid}'
+                    text=_t(texts, 'ADMIN_SQUAD_EDIT', '✏️编辑'), callback_data=f'squad_edit_{squad_uuid}'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SQUAD_DELETE', '🗑️ Удалить сквад'), callback_data=f'squad_delete_{squad_uuid}'
+                    text=_t(texts, 'ADMIN_SQUAD_DELETE', '🗑️删除squad'), callback_data=f'squad_delete_{squad_uuid}'
                 ),
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_rw_squads')],
@@ -1666,18 +1666,18 @@ def get_squad_edit_keyboard(squad_uuid: str, language: str = 'ru') -> InlineKeyb
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SQUAD_EDIT_INBOUNDS', '🔧 Изменить инбаунды'),
+                    text=_t(texts, 'ADMIN_SQUAD_EDIT_INBOUNDS', '🔧编辑入站'),
                     callback_data=f'squad_edit_inbounds_{squad_uuid}',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SQUAD_RENAME', '✏️ Переименовать'), callback_data=f'squad_rename_{squad_uuid}'
+                    text=_t(texts, 'ADMIN_SQUAD_RENAME', '✏️重命名'), callback_data=f'squad_rename_{squad_uuid}'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BACK_TO_SQUADS', '⬅️ Назад к сквадам'),
+                    text=_t(texts, 'ADMIN_BACK_TO_SQUADS', '⬅️返回节点组'),
                     callback_data=f'admin_squad_manage_{squad_uuid}',
                 )
             ],
@@ -1692,40 +1692,40 @@ def get_monitoring_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_START', '▶️ Запустить'), callback_data='admin_mon_start'
+                    text=_t(texts, 'ADMIN_MONITORING_START', '▶️开始'), callback_data='admin_mon_start'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_STOP_HARD', '⏹️ Остановить'), callback_data='admin_mon_stop'
+                    text=_t(texts, 'ADMIN_MONITORING_STOP_HARD', '⏹️停止'), callback_data='admin_mon_stop'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_FORCE_CHECK', '🔄 Проверка подписок'),
+                    text=_t(texts, 'ADMIN_MONITORING_FORCE_CHECK', '🔄强制检查'),
                     callback_data='admin_mon_force_check',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_TRAFFIC_CHECK', '📊 Проверка трафика'),
+                    text=_t(texts, 'ADMIN_MONITORING_TRAFFIC_CHECK', '📊 流量检查'),
                     callback_data='admin_mon_traffic_check',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_LOGS', '📋 Логи'), callback_data='admin_mon_logs'
+                    text=_t(texts, 'ADMIN_MONITORING_LOGS', '📋日志'), callback_data='admin_mon_logs'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_STATISTICS', '📈 Статистика'), callback_data='admin_mon_statistics'
+                    text=_t(texts, 'ADMIN_MONITORING_STATISTICS', '📊统计'), callback_data='admin_mon_statistics'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_TEST_NOTIFICATIONS', '🧪 Тест уведомлений'),
+                    text=_t(texts, 'ADMIN_MONITORING_TEST_NOTIFICATIONS', '🧪测试通知'),
                     callback_data='admin_mon_test_notifications',
                 ),
-                InlineKeyboardButton(text='⚙️ Настройки трафика', callback_data='admin_mon_traffic_settings'),
+                InlineKeyboardButton(text='⚙️ 流量设置', callback_data='admin_mon_traffic_settings'),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BACK_TO_ADMIN', '⬅️ Назад в админку'), callback_data='admin_panel'
+                    text=_t(texts, 'ADMIN_BACK_TO_ADMIN', '⬅️返回后台管理'), callback_data='admin_panel'
                 )
             ],
         ]
@@ -1739,10 +1739,10 @@ def get_monitoring_logs_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_HISTORY_REFRESH', '🔄 Обновить'), callback_data='admin_mon_logs'
+                    text=_t(texts, 'ADMIN_HISTORY_REFRESH', '🔄刷新'), callback_data='admin_mon_logs'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_CLEAR_OLD', '🗑️ Очистить старые'),
+                    text=_t(texts, 'ADMIN_MONITORING_CLEAR_OLD', '🗑️清理旧日志'),
                     callback_data='admin_mon_clear_logs',
                 ),
             ],
@@ -1773,7 +1773,7 @@ def get_monitoring_logs_navigation_keyboard(
     management_row = []
 
     refresh_button = InlineKeyboardButton(
-        text=_t(texts, 'ADMIN_HISTORY_REFRESH', '🔄 Обновить'), callback_data='admin_mon_logs'
+        text=_t(texts, 'ADMIN_HISTORY_REFRESH', '🔄刷新'), callback_data='admin_mon_logs'
     )
 
     if has_logs:
@@ -1781,7 +1781,7 @@ def get_monitoring_logs_navigation_keyboard(
             [
                 refresh_button,
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_CLEAR', '🗑️ Очистить'), callback_data='admin_mon_clear_logs'
+                    text=_t(texts, 'ADMIN_MONITORING_CLEAR', '🗑️清理'), callback_data='admin_mon_clear_logs'
                 ),
             ]
         )
@@ -1793,7 +1793,7 @@ def get_monitoring_logs_navigation_keyboard(
     keyboard.append(
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_BACK_TO_MONITORING', '⬅️ Назад к мониторингу'), callback_data='admin_monitoring'
+                text=_t(texts, 'ADMIN_BACK_TO_MONITORING', '⬅️返回监控页面'), callback_data='admin_monitoring'
             )
         ]
     )
@@ -1808,13 +1808,13 @@ def get_log_detail_keyboard(log_id: int, current_page: int = 1, language: str = 
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_DELETE_LOG', '🗑️ Удалить этот лог'),
+                    text=_t(texts, 'ADMIN_MONITORING_DELETE_LOG', '🗑️删除此日志'),
                     callback_data=f'admin_mon_delete_log_{log_id}',
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_BACK_TO_LOGS', '⬅️ К списку логов'),
+                    text=_t(texts, 'ADMIN_MONITORING_BACK_TO_LOGS', '⬅️返回日志列表'),
                     callback_data=f'admin_mon_logs_page_{current_page}',
                 )
             ],
@@ -1829,14 +1829,14 @@ def get_monitoring_clear_confirm_keyboard(language: str = 'ru') -> InlineKeyboar
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_CONFIRM_CLEAR', '✅ Да, очистить'),
+                    text=_t(texts, 'ADMIN_MONITORING_CONFIRM_CLEAR', '✅是，清理'),
                     callback_data='admin_mon_clear_logs_confirm',
                 ),
-                InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌ Отмена'), callback_data='admin_mon_logs'),
+                InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌取消'), callback_data='admin_mon_logs'),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_CLEAR_ALL', '🗑️ Очистить ВСЕ логи'),
+                    text=_t(texts, 'ADMIN_MONITORING_CLEAR_ALL', '🗑️清理所有日志'),
                     callback_data='admin_mon_clear_all_logs',
                 )
             ],
@@ -1855,17 +1855,17 @@ def get_monitoring_status_keyboard(
         control_row.extend(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_STOP_HARD', '⏹️ Остановить'), callback_data='admin_mon_stop'
+                    text=_t(texts, 'ADMIN_MONITORING_STOP_HARD', '⏹️停止'), callback_data='admin_mon_stop'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_RESTART', '🔄 Перезапустить'), callback_data='admin_mon_restart'
+                    text=_t(texts, 'ADMIN_MONITORING_RESTART', '🔄重启'), callback_data='admin_mon_restart'
                 ),
             ]
         )
     else:
         control_row.append(
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_MONITORING_START', '▶️ Запустить'), callback_data='admin_mon_start'
+                text=_t(texts, 'ADMIN_MONITORING_START', '▶️开始'), callback_data='admin_mon_start'
             )
         )
 
@@ -1876,14 +1876,14 @@ def get_monitoring_status_keyboard(
     if not is_running or last_check_ago_minutes > 10:
         monitoring_row.append(
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_MONITORING_FORCE_CHECK', '⚡ Срочная проверка'),
+                text=_t(texts, 'ADMIN_MONITORING_FORCE_CHECK', '🔄强制检查'),
                 callback_data='admin_mon_force_check',
             )
         )
     else:
         monitoring_row.append(
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_MONITORING_CHECK_NOW', '🔄 Проверить сейчас'),
+                text=_t(texts, 'ADMIN_MONITORING_CHECK_NOW', '🔄立即检查'),
                 callback_data='admin_mon_force_check',
             )
         )
@@ -1891,16 +1891,16 @@ def get_monitoring_status_keyboard(
     keyboard.append(monitoring_row)
 
     info_row = [
-        InlineKeyboardButton(text=_t(texts, 'ADMIN_MONITORING_LOGS', '📋 Логи'), callback_data='admin_mon_logs'),
+        InlineKeyboardButton(text=_t(texts, 'ADMIN_MONITORING_LOGS', '📋日志'), callback_data='admin_mon_logs'),
         InlineKeyboardButton(
-            text=_t(texts, 'ADMIN_MONITORING_STATISTICS', '📊 Статистика'), callback_data='admin_mon_statistics'
+            text=_t(texts, 'ADMIN_MONITORING_STATISTICS', '📊统计'), callback_data='admin_mon_statistics'
         ),
     ]
     keyboard.append(info_row)
 
     test_row = [
         InlineKeyboardButton(
-            text=_t(texts, 'ADMIN_MONITORING_TEST_NOTIFICATIONS', '🧪 Тест уведомлений'),
+            text=_t(texts, 'ADMIN_MONITORING_TEST_NOTIFICATIONS', '🧪测试通知'),
             callback_data='admin_mon_test_notifications',
         )
     ]
@@ -1918,27 +1918,27 @@ def get_monitoring_settings_keyboard(language: str = 'ru') -> InlineKeyboardMark
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_SET_INTERVAL', '⏱️ Интервал проверки'),
+                    text=_t(texts, 'ADMIN_MONITORING_SET_INTERVAL', '⏱️检查间隔'),
                     callback_data='admin_mon_set_interval',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_NOTIFICATIONS', '🔔 Уведомления'),
+                    text=_t(texts, 'ADMIN_MONITORING_NOTIFICATIONS', '🔔通知'),
                     callback_data='admin_mon_toggle_notifications',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_AUTOPAY_SETTINGS', '💳 Настройки автооплаты'),
+                    text=_t(texts, 'ADMIN_MONITORING_AUTOPAY_SETTINGS', '💳自动支付设置'),
                     callback_data='admin_mon_autopay_settings',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_AUTO_CLEANUP', '🧹 Автоочистка логов'),
+                    text=_t(texts, 'ADMIN_MONITORING_AUTO_CLEANUP', '🧹自动清理日志'),
                     callback_data='admin_mon_auto_cleanup',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BACK_TO_MONITORING', '⬅️ К мониторингу'), callback_data='admin_monitoring'
+                    text=_t(texts, 'ADMIN_BACK_TO_MONITORING', '⬅️返回监控页面'), callback_data='admin_monitoring'
                 )
             ],
         ]
@@ -1952,27 +1952,27 @@ def get_log_type_filter_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_FILTER_SUCCESS', '✅ Успешные'),
+                    text=_t(texts, 'ADMIN_MONITORING_FILTER_SUCCESS', '✅成功'),
                     callback_data='admin_mon_logs_filter_success',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_FILTER_ERRORS', '❌ Ошибки'),
+                    text=_t(texts, 'ADMIN_MONITORING_FILTER_ERRORS', '❌错误'),
                     callback_data='admin_mon_logs_filter_error',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_FILTER_CYCLES', '🔄 Циклы мониторинга'),
+                    text=_t(texts, 'ADMIN_MONITORING_FILTER_CYCLES', '🔄监控周期'),
                     callback_data='admin_mon_logs_filter_cycle',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_FILTER_AUTOPAY', '💳 Автооплаты'),
+                    text=_t(texts, 'ADMIN_MONITORING_FILTER_AUTOPAY', '💳自动支付'),
                     callback_data='admin_mon_logs_filter_autopay',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MONITORING_ALL_LOGS', '📋 Все логи'), callback_data='admin_mon_logs'
+                    text=_t(texts, 'ADMIN_MONITORING_ALL_LOGS', '📋所有日志'), callback_data='admin_mon_logs'
                 ),
                 InlineKeyboardButton(text=texts.BACK, callback_data='admin_monitoring'),
             ],
@@ -1987,18 +1987,18 @@ def get_admin_servers_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVERS_LIST', '📋 Список серверов'), callback_data='admin_servers_list'
+                    text=_t(texts, 'ADMIN_SERVERS_LIST', '📋服务器列表'), callback_data='admin_servers_list'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVERS_SYNC', '🔄 Синхронизация'), callback_data='admin_servers_sync'
+                    text=_t(texts, 'ADMIN_SERVERS_SYNC', '🔄同步'), callback_data='admin_servers_sync'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVERS_ADD', '➕ Добавить сервер'), callback_data='admin_servers_add'
+                    text=_t(texts, 'ADMIN_SERVERS_ADD', '➕添加服务器'), callback_data='admin_servers_add'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVERS_STATS', '📊 Статистика'), callback_data='admin_servers_stats'
+                    text=_t(texts, 'ADMIN_SERVERS_STATS', '📊统计'), callback_data='admin_servers_stats'
                 ),
             ],
             [InlineKeyboardButton(text=texts.BACK, callback_data='admin_subscriptions')],
@@ -2010,43 +2010,43 @@ def get_server_edit_keyboard(server_id: int, is_available: bool, language: str =
     texts = get_texts(language)
 
     toggle_text = (
-        _t(texts, 'ADMIN_SERVER_DISABLE', '❌ Отключить')
+        _t(texts, 'ADMIN_SERVER_DISABLE', '❌禁用')
         if is_available
-        else _t(texts, 'ADMIN_SERVER_ENABLE', '✅ Включить')
+        else _t(texts, 'ADMIN_SERVER_ENABLE', '✅启用')
     )
 
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVER_EDIT_NAME', '✏️ Название'),
+                    text=_t(texts, 'ADMIN_SERVER_EDIT_NAME', '✏️名称'),
                     callback_data=f'admin_server_edit_name_{server_id}',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVER_EDIT_PRICE', '💰 Цена'),
+                    text=_t(texts, 'ADMIN_SERVER_EDIT_PRICE', '💰价格'),
                     callback_data=f'admin_server_edit_price_{server_id}',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVER_EDIT_COUNTRY', '🌍 Страна'),
+                    text=_t(texts, 'ADMIN_SERVER_EDIT_COUNTRY', '🌍国家'),
                     callback_data=f'admin_server_edit_country_{server_id}',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVER_EDIT_LIMIT', '👥 Лимит'),
+                    text=_t(texts, 'ADMIN_SERVER_EDIT_LIMIT', '👥限制'),
                     callback_data=f'admin_server_edit_limit_{server_id}',
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVER_EDIT_DESCRIPTION', '📝 Описание'),
+                    text=_t(texts, 'ADMIN_SERVER_EDIT_DESCRIPTION', '📝描述'),
                     callback_data=f'admin_server_edit_desc_{server_id}',
                 )
             ],
             [InlineKeyboardButton(text=toggle_text, callback_data=f'admin_server_toggle_{server_id}')],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_SERVER_DELETE', '🗑️ Удалить'), callback_data=f'admin_server_delete_{server_id}'
+                    text=_t(texts, 'ADMIN_SERVER_DELETE', '🗑️删除'), callback_data=f'admin_server_delete_{server_id}'
                 ),
                 InlineKeyboardButton(text=texts.BACK, callback_data='admin_servers_list'),
             ],
@@ -2088,7 +2088,7 @@ def get_maintenance_keyboard(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAINTENANCE_DISABLE', '🟢 Выключить техработы'),
+                    text=_t(texts, 'ADMIN_MAINTENANCE_DISABLE', '🟢关闭维护'),
                     callback_data='maintenance_toggle',
                 )
             ]
@@ -2097,7 +2097,7 @@ def get_maintenance_keyboard(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAINTENANCE_ENABLE', '🔧 Включить техработы'),
+                    text=_t(texts, 'ADMIN_MAINTENANCE_ENABLE', '🔧开启维护'),
                     callback_data='maintenance_toggle',
                 )
             ]
@@ -2107,7 +2107,7 @@ def get_maintenance_keyboard(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAINTENANCE_STOP_MONITORING', '⏹️ Остановить мониторинг'),
+                    text=_t(texts, 'ADMIN_MAINTENANCE_STOP_MONITORING', '⏹️停止监控'),
                     callback_data='maintenance_monitoring',
                 )
             ]
@@ -2116,7 +2116,7 @@ def get_maintenance_keyboard(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_MAINTENANCE_START_MONITORING', '▶️ Запустить мониторинг'),
+                    text=_t(texts, 'ADMIN_MAINTENANCE_START_MONITORING', '▶️开始监控'),
                     callback_data='maintenance_monitoring',
                 )
             ]
@@ -2125,10 +2125,10 @@ def get_maintenance_keyboard(
     keyboard.append(
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_MAINTENANCE_CHECK_API', '🔍 Проверить API'), callback_data='maintenance_check_api'
+                text=_t(texts, 'ADMIN_MAINTENANCE_CHECK_API', '🔍检查接口'), callback_data='maintenance_check_api'
             ),
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_MAINTENANCE_PANEL_STATUS', '🌐 Статус панели')
+                text=_t(texts, 'ADMIN_MAINTENANCE_PANEL_STATUS', '🌐面板状态')
                 + ('⚠️' if panel_has_issues else ''),
                 callback_data='maintenance_check_panel',
             ),
@@ -2138,7 +2138,7 @@ def get_maintenance_keyboard(
     keyboard.append(
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_MAINTENANCE_SEND_NOTIFICATION', '📢 Отправить уведомление'),
+                text=_t(texts, 'ADMIN_MAINTENANCE_SEND_NOTIFICATION', '📢发送通知'),
                 callback_data='maintenance_manual_notify',
             )
         ]
@@ -2146,7 +2146,7 @@ def get_maintenance_keyboard(
 
     keyboard.append(
         [
-            InlineKeyboardButton(text=_t(texts, 'ADMIN_REFRESH', '🔄 Обновить'), callback_data='maintenance_panel'),
+            InlineKeyboardButton(text=_t(texts, 'ADMIN_REFRESH', '🔄刷新'), callback_data='maintenance_panel'),
             InlineKeyboardButton(text=texts.BACK, callback_data='admin_submenu_settings'),
         ]
     )
@@ -2159,7 +2159,7 @@ def get_sync_simplified_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
     keyboard = [
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_SYNC_FULL', '🔄 Полная синхронизация'), callback_data='sync_all_users'
+                text=_t(texts, 'ADMIN_SYNC_FULL', '🔄完全同步'), callback_data='sync_all_users'
             )
         ],
         [InlineKeyboardButton(text=texts.BACK, callback_data='admin_remnawave')],
@@ -2171,9 +2171,9 @@ def get_sync_simplified_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
 def get_welcome_text_keyboard(language: str = 'ru', is_enabled: bool = True) -> InlineKeyboardMarkup:
     texts = get_texts(language)
     toggle_text = (
-        _t(texts, 'ADMIN_WELCOME_DISABLE', '🔴 Отключить')
+        _t(texts, 'ADMIN_WELCOME_DISABLE', '🔴禁用')
         if is_enabled
-        else _t(texts, 'ADMIN_WELCOME_ENABLE', '🟢 Включить')
+        else _t(texts, 'ADMIN_WELCOME_ENABLE', '🟢启用')
     )
     toggle_callback = 'toggle_welcome_text'
 
@@ -2181,26 +2181,26 @@ def get_welcome_text_keyboard(language: str = 'ru', is_enabled: bool = True) -> 
         [InlineKeyboardButton(text=toggle_text, callback_data=toggle_callback)],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_WELCOME_EDIT', '📝 Изменить текст'), callback_data='edit_welcome_text'
+                text=_t(texts, 'ADMIN_WELCOME_EDIT', '📝编辑文本'), callback_data='edit_welcome_text'
             ),
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_WELCOME_SHOW', '👁️ Показать текущий'), callback_data='show_welcome_text'
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_WELCOME_PREVIEW', '👁️ Предпросмотр'), callback_data='preview_welcome_text'
-            ),
-            InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_WELCOME_RESET', '🔄 Сбросить'), callback_data='reset_welcome_text'
+                text=_t(texts, 'ADMIN_WELCOME_SHOW', '👁️显示当前'), callback_data='show_welcome_text'
             ),
         ],
         [
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_WELCOME_HTML', '🏷️ HTML форматирование'), callback_data='show_formatting_help'
+                text=_t(texts, 'ADMIN_WELCOME_PREVIEW', '👁️预览'), callback_data='preview_welcome_text'
             ),
             InlineKeyboardButton(
-                text=_t(texts, 'ADMIN_WELCOME_PLACEHOLDERS', '💡 Плейсхолдеры'), callback_data='show_placeholders_help'
+                text=_t(texts, 'ADMIN_WELCOME_RESET', '🔄重置'), callback_data='reset_welcome_text'
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text=_t(texts, 'ADMIN_WELCOME_HTML', '🏷️标记格式'), callback_data='show_formatting_help'
+            ),
+            InlineKeyboardButton(
+                text=_t(texts, 'ADMIN_WELCOME_PLACEHOLDERS', '💡占位符'), callback_data='show_placeholders_help'
             ),
         ],
         [InlineKeyboardButton(text=texts.BACK, callback_data='admin_submenu_communications')],
@@ -2213,37 +2213,37 @@ DEFAULT_BROADCAST_BUTTONS = ('home',)
 
 BROADCAST_BUTTONS = {
     'balance': {
-        'default_text': '💰 Пополнить баланс',
+        'default_text': '💰 充值余额',
         'text_key': 'ADMIN_BROADCAST_BUTTON_BALANCE',
         'callback': 'balance_topup',
     },
     'referrals': {
-        'default_text': '🤝 Партнерка',
+        'default_text': '🤝 邀请返利',
         'text_key': 'ADMIN_BROADCAST_BUTTON_REFERRALS',
         'callback': 'menu_referrals',
     },
     'promocode': {
-        'default_text': '🎫 Промокод',
+        'default_text': '🎫 优惠码',
         'text_key': 'ADMIN_BROADCAST_BUTTON_PROMOCODE',
         'callback': 'menu_promocode',
     },
     'connect': {
-        'default_text': '🔗 Подключиться',
+        'default_text': '🔗 连接',
         'text_key': 'ADMIN_BROADCAST_BUTTON_CONNECT',
         'callback': 'subscription_connect',
     },
     'subscription': {
-        'default_text': '📱 Подписка',
+        'default_text': '📱 订阅',
         'text_key': 'ADMIN_BROADCAST_BUTTON_SUBSCRIPTION',
         'callback': 'menu_subscription',
     },
     'support': {
-        'default_text': '🛠️ Техподдержка',
+        'default_text': '🛠️ 技术支持',
         'text_key': 'ADMIN_BROADCAST_BUTTON_SUPPORT',
         'callback': 'menu_support',
     },
     'home': {
-        'default_text': '🏠 На главную',
+        'default_text': '🏠 返回首页',
         'text_key': 'ADMIN_BROADCAST_BUTTON_HOME',
         'callback': 'back_to_menu',
     },
@@ -2282,22 +2282,22 @@ def get_broadcast_media_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_ADD_PHOTO', '📷 Добавить фото'), callback_data='add_media_photo'
+                    text=_t(texts, 'ADMIN_BROADCAST_ADD_PHOTO', '📷添加照片'), callback_data='add_media_photo'
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_ADD_VIDEO', '🎥 Добавить видео'), callback_data='add_media_video'
+                    text=_t(texts, 'ADMIN_BROADCAST_ADD_VIDEO', '🎥添加视频'), callback_data='add_media_video'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_ADD_DOCUMENT', '📄 Добавить документ'),
+                    text=_t(texts, 'ADMIN_BROADCAST_ADD_DOCUMENT', '📄添加文档'),
                     callback_data='add_media_document',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_SKIP_MEDIA', '⏭️ Пропустить медиа'), callback_data='skip_media'
+                    text=_t(texts, 'ADMIN_BROADCAST_SKIP_MEDIA', '⏭️跳过媒体'), callback_data='skip_media'
                 ),
             ],
-            [InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌ Отмена'), callback_data='admin_messages')],
+            [InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌取消'), callback_data='admin_messages')],
         ]
     )
 
@@ -2308,18 +2308,18 @@ def get_media_confirm_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_USE_MEDIA', '✅ Использовать это медиа'),
+                    text=_t(texts, 'ADMIN_BROADCAST_USE_MEDIA', '✅使用此媒体'),
                     callback_data='confirm_media',
                 ),
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_REPLACE_MEDIA', '🔄 Заменить медиа'), callback_data='replace_media'
+                    text=_t(texts, 'ADMIN_BROADCAST_REPLACE_MEDIA', '🔄替换媒体'), callback_data='replace_media'
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_NO_MEDIA', '⏭️ Без медиа'), callback_data='skip_media'
+                    text=_t(texts, 'ADMIN_BROADCAST_NO_MEDIA', '⏭️不含媒体'), callback_data='skip_media'
                 ),
-                InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌ Отмена'), callback_data='admin_messages'),
+                InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌取消'), callback_data='admin_messages'),
             ],
         ]
     )
@@ -2354,15 +2354,15 @@ def get_updated_message_buttons_selector_keyboard_with_media(
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    text=_t(texts, 'ADMIN_BROADCAST_CHANGE_MEDIA', '🖼️ Изменить медиа'), callback_data='change_media'
+                    text=_t(texts, 'ADMIN_BROADCAST_CHANGE_MEDIA', '🖼️更改媒体'), callback_data='change_media'
                 )
             ]
         )
 
     keyboard.extend(
         [
-            [InlineKeyboardButton(text=_t(texts, 'ADMIN_CONTINUE', '✅ Продолжить'), callback_data='buttons_confirm')],
-            [InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌ Отмена'), callback_data='admin_messages')],
+            [InlineKeyboardButton(text=_t(texts, 'ADMIN_CONTINUE', '✅继续'), callback_data='buttons_confirm')],
+            [InlineKeyboardButton(text=_t(texts, 'ADMIN_CANCEL', '❌取消'), callback_data='admin_messages')],
         ]
     )
 

@@ -1,4 +1,4 @@
-import html
+﻿import html
 
 import structlog
 from aiogram import Dispatcher, F, types
@@ -34,54 +34,52 @@ async def show_maintenance_panel(callback: types.CallbackQuery, db_user: User, d
         rw_service = RemnaWaveService()
         panel_status = await rw_service.get_panel_status_summary()
     except Exception as e:
-        logger.error('Ошибка получения статуса панели', error=e)
-        panel_status = {'description': '❓ Не удалось проверить', 'has_issues': True}
+        logger.error('获取面板状态时出错', error=e)
+        panel_status = {'description': '❓ 检查失败', 'has_issues': True}
 
     status_emoji = '🔧' if status_info['is_active'] else '✅'
-    status_text = 'Включен' if status_info['is_active'] else 'Выключен'
+    status_text = '已开启' if status_info['is_active'] else '已关闭'
 
     api_emoji = '✅' if status_info['api_status'] else '❌'
-    api_text = 'Доступно' if status_info['api_status'] else 'Недоступно'
+    api_text = '可用' if status_info['api_status'] else '不可用'
 
     monitoring_emoji = '🔄' if status_info['monitoring_active'] else '⏹️'
-    monitoring_text = 'Запущен' if status_info['monitoring_active'] else 'Остановлен'
+    monitoring_text = '运行中' if status_info['monitoring_active'] else '已停止'
 
     enabled_info = ''
     if status_info['is_active'] and status_info['enabled_at']:
         enabled_time = status_info['enabled_at'].strftime('%d.%m.%Y %H:%M:%S')
-        enabled_info = f'\n📅 <b>Включен:</b> {enabled_time}'
+        enabled_info = f'\n📅 <b>开启时间：</b> {enabled_time}'
         if status_info['reason']:
-            enabled_info += f'\n📝 <b>Причина:</b> {status_info["reason"]}'
+            enabled_info += f'\n📝 <b>原因：</b> {status_info["reason"]}'
 
     last_check_info = ''
     if status_info['last_check']:
         last_check_time = status_info['last_check'].strftime('%H:%M:%S')
-        last_check_info = f'\n🕐 <b>Последняя проверка:</b> {last_check_time}'
+        last_check_info = f'\n🕐 <b>上次检查：</b> {last_check_time}'
 
     failures_info = ''
     if status_info['consecutive_failures'] > 0:
-        failures_info = f'\n⚠️ <b>Неудачных проверок подряд:</b> {status_info["consecutive_failures"]}'
+        failures_info = f'\n⚠️ <b>连续检查失败次数：</b> {status_info["consecutive_failures"]}'
 
-    panel_info = f'\n🌐 <b>Панель Remnawave:</b> {panel_status["description"]}'
+    panel_info = f'\n🌐 <b>Remnawave 面板：</b> {panel_status["description"]}'
     if panel_status.get('response_time'):
-        panel_info += f'\n⚡ <b>Время отклика:</b> {panel_status["response_time"]}с'
+        panel_info += f'\n⚡ <b>响应时间：</b> {panel_status["response_time"]}秒'
 
-    message_text = f"""
-🔧 <b>Управление техническими работами</b>
-
-{status_emoji} <b>Режим техработ:</b> {status_text}
-{api_emoji} <b>API Remnawave:</b> {api_text}
-{monitoring_emoji} <b>Мониторинг:</b> {monitoring_text}
-🛠️ <b>Автозапуск мониторинга:</b> {'Включен' if status_info['monitoring_configured'] else 'Отключен'}
-⏱️ <b>Интервал проверки:</b> {status_info['check_interval']}с
-🤖 <b>Автовключение:</b> {'Включено' if status_info['auto_enable_configured'] else 'Отключено'}
-{panel_info}
-{enabled_info}
-{last_check_info}
-{failures_info}
-
-ℹ️ <i>В режиме техработ обычные пользователи не могут использовать бота. Администраторы имеют полный доступ.</i>
-"""
+    message_text = (
+        f'🔧 <b>技术工作管理</b>\n\n'
+        f'{status_emoji} <b>维护模式：</b> {status_text}\n'
+        f'{api_emoji} <b>API Remnawave：</b> {api_text}\n'
+        f'{monitoring_emoji} <b>监控：</b> {monitoring_text}\n'
+        f'🛠️ <b>监控自动启动：</b> {status_info["auto_start_monitoring"]}\n'
+        f'⏱️ <b>检查间隔：</b> {status_info["monitoring_check_interval"]}秒\n'
+        f'🤖 <b>自动开启：</b> {status_info["auto_enable"]}\n'
+        f'{enabled_info}\n'
+        f'{last_check_info}\n'
+        f'{failures_info}\n'
+        f'{panel_info}\n\n'
+        f'ℹ️ <i>在维护模式下，普通用户无法使用机器人。管理员拥有完全访问权限。</i>'
+    )
 
     await callback.message.edit_text(
         message_text,
@@ -103,15 +101,15 @@ async def toggle_maintenance_mode(callback: types.CallbackQuery, db_user: User, 
     if is_active:
         success = await maintenance_service.disable_maintenance()
         if success:
-            await callback.answer('Режим техработ выключен', show_alert=True)
+            await callback.answer('维护模式已禁用', show_alert=True)
         else:
-            await callback.answer('Ошибка выключения режима техработ', show_alert=True)
+            await callback.answer('关闭维护模式时出错', show_alert=True)
     else:
         await state.set_state(MaintenanceStates.waiting_for_reason)
         await callback.message.edit_text(
-            '🔧 <b>Включение режима техработ</b>\n\nВведите причину включения техработ или отправьте /skip для пропуска:',
+            '🔧 <b>启用维护模式</b>\n\n输入包含技术工作的原因或发送 /skip 跳过：',
             reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=[[types.InlineKeyboardButton(text='❌ Отмена', callback_data='maintenance_panel')]]
+                inline_keyboard=[[types.InlineKeyboardButton(text='❌ 取消', callback_data='maintenance_panel')]]
             ),
         )
 
@@ -133,20 +131,20 @@ async def process_maintenance_reason(message: types.Message, db_user: User, db: 
     success = await maintenance_service.enable_maintenance(reason=reason, auto=False)
 
     if success:
-        response_text = 'Режим техработ включен'
+        response_text = 'Режим техраб起 已启用'
         if reason:
             response_text += f'\nПричина: {html.escape(reason)}'
     else:
-        response_text = 'Ошибка включения режима техработ'
+        response_text = 'Ошибка 已启用ия режима техработ'
 
     await message.answer(response_text)
     await state.clear()
 
     maintenance_service.get_status_info()
     await message.answer(
-        'Вернуться к панели управления техработами:',
+        '返回维护控制面板：',
         reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=[[types.InlineKeyboardButton(text='🔧 Панель техработ', callback_data='maintenance_panel')]]
+            inline_keyboard=[[types.InlineKeyboardButton(text='🔧 维护面板', callback_data='maintenance_panel')]]
         ),
     )
 
@@ -171,15 +169,15 @@ async def toggle_monitoring(callback: types.CallbackQuery, db_user: User, db: As
 @admin_required
 @error_handler
 async def force_api_check(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
-    await callback.answer('Проверка API...', show_alert=False)
+    await callback.answer('API检查...', show_alert=False)
 
     check_result = await maintenance_service.force_api_check()
 
     if check_result['success']:
         status_text = 'доступно' if check_result['api_available'] else 'недоступно'
-        message = f'API {status_text}\nВремя ответа: {check_result["response_time"]}с'
+        message = f"API {status_text}\n响应时间：{check_result['response_time']}s"
     else:
-        message = f'Ошибка проверки: {check_result.get("error", "Неизвестная ошибка")}'
+        message = f"验证错误：{check_result.get('error', 'Неизвестная ошибка')}"
 
     await callback.message.answer(message)
 
@@ -189,7 +187,7 @@ async def force_api_check(callback: types.CallbackQuery, db_user: User, db: Asyn
 @admin_required
 @error_handler
 async def check_panel_status(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
-    await callback.answer('Проверка статуса панели...', show_alert=False)
+    await callback.answer('检查面板状态...', show_alert=False)
 
     try:
         from app.services.remnawave_service import RemnaWaveService
@@ -214,17 +212,17 @@ async def check_panel_status(callback: types.CallbackQuery, db_user: User, db: A
 
         attempts_used = status_data.get('attempts_used')
         if attempts_used:
-            message_parts.append(f'🔁 Попыток проверки: {attempts_used}')
+            message_parts.append(f'🔁 验证尝试：{attempts_used}')
 
         if status_data.get('api_error'):
-            message_parts.append(f'❌ Ошибка: {status_data["api_error"][:100]}')
+            message_parts.append(f"❌ 错误：{status_data['api_error'][:100]}")
 
         message = '\n'.join(message_parts)
 
         await callback.message.answer(message, parse_mode='HTML')
 
     except Exception as e:
-        await callback.message.answer(f'❌ Ошибка проверки статуса: {e!s}')
+        await callback.message.answer(f'❌ 状态检查错误：{e!s}')
 
 
 @admin_required
@@ -235,19 +233,19 @@ async def send_manual_notification(callback: types.CallbackQuery, db_user: User,
     keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                types.InlineKeyboardButton(text='🟢 Онлайн', callback_data='manual_notify_online'),
-                types.InlineKeyboardButton(text='🔴 Офлайн', callback_data='manual_notify_offline'),
+                types.InlineKeyboardButton(text='🟢 在线', callback_data='manual_notify_online'),
+                types.InlineKeyboardButton(text='🔴离线', callback_data='manual_notify_offline'),
             ],
             [
-                types.InlineKeyboardButton(text='🟡 Проблемы', callback_data='manual_notify_degraded'),
-                types.InlineKeyboardButton(text='🔧 Обслуживание', callback_data='manual_notify_maintenance'),
+                types.InlineKeyboardButton(text='🟡 问题', callback_data='manual_notify_degraded'),
+                types.InlineKeyboardButton(text='🔧服务', callback_data='manual_notify_maintenance'),
             ],
-            [types.InlineKeyboardButton(text='❌ Отмена', callback_data='maintenance_panel')],
+            [types.InlineKeyboardButton(text='❌ 取消', callback_data='maintenance_panel')],
         ]
     )
 
     await callback.message.edit_text(
-        '📢 <b>Ручная отправка уведомления</b>\n\nВыберите статус для уведомления:', reply_markup=keyboard
+        '📢 <b>手动发送通知</b>\n\n选择通知状态：', reply_markup=keyboard
     )
 
 
@@ -263,7 +261,7 @@ async def handle_manual_notification(callback: types.CallbackQuery, db_user: Use
 
     status = status_map.get(callback.data)
     if not status:
-        await callback.answer('Неизвестный статус')
+        await callback.answer('状态未知')
         return
 
     await state.update_data(notification_status=status)
@@ -276,10 +274,9 @@ async def handle_manual_notification(callback: types.CallbackQuery, db_user: Use
     }
 
     await callback.message.edit_text(
-        f'📢 <b>Отправка уведомления: {status_names[status]}</b>\n\n'
-        f'Введите сообщение для уведомления или отправьте /skip для отправки без дополнительного текста:',
+        f'📢 <b>发送通知：{status_names[status]}</b>\n\n输入通知消息或发送 /skip 发送，无需附加文本：',
         reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=[[types.InlineKeyboardButton(text='❌ Отмена', callback_data='maintenance_panel')]]
+            inline_keyboard=[[types.InlineKeyboardButton(text='❌ 取消', callback_data='maintenance_panel')]]
         ),
     )
 
@@ -296,7 +293,7 @@ async def process_notification_message(message: types.Message, db_user: User, db
     status = data.get('notification_status')
 
     if not status:
-        await message.answer('Ошибка: статус не выбран')
+        await message.answer('错误：未选择状态')
         await state.clear()
         return
 
@@ -312,20 +309,20 @@ async def process_notification_message(message: types.Message, db_user: User, db
         success = await rw_service.send_manual_status_notification(message.bot, status, notification_message)
 
         if success:
-            await message.answer('✅ Уведомление отправлено')
+            await message.answer('✅ 已发送通知')
         else:
-            await message.answer('❌ Ошибка отправки уведомления')
+            await message.answer('❌ 发送通知时出错')
 
     except Exception as e:
-        logger.error('Ошибка отправки ручного уведомления', error=e)
-        await message.answer(f'❌ Ошибка: {e!s}')
+        logger.error('发送手动通知时出错', error=e)
+        await message.answer(f'❌ 错误：{e!s}')
 
     await state.clear()
 
     await message.answer(
-        'Вернуться к панели техработ:',
+        '返回技术工作小组：',
         reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=[[types.InlineKeyboardButton(text='🔧 Панель техработ', callback_data='maintenance_panel')]]
+            inline_keyboard=[[types.InlineKeyboardButton(text='🔧 维护面板', callback_data='maintenance_panel')]]
         ),
     )
 
@@ -359,3 +356,5 @@ def register_handlers(dp: Dispatcher):
     dp.message.register(process_maintenance_reason, MaintenanceStates.waiting_for_reason)
 
     dp.message.register(process_notification_message, MaintenanceStates.waiting_for_notification_message)
+
+

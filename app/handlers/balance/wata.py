@@ -33,27 +33,24 @@ async def start_wata_payment(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await callback.message.edit_text(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
         await callback.answer()
         return
 
     if not settings.is_wata_enabled():
-        await callback.answer('❌ Оплата через WATA временно недоступна', show_alert=True)
+        await callback.answer('❌暂时无法通过WATA付款', show_alert=True)
         return
 
     message_text = texts.t(
         'WATA_TOPUP_PROMPT',
         (
-            '💳 <b>Оплата через WATA</b>\n\n'
-            'Введите сумму пополнения. Минимальная сумма — {min_amount}, максимальная — {max_amount}.\n'
-            'Оплата происходит через защищенную форму WATA.'
+            '💳<b>通过WATA付款</b>\n\n请输入充值金额。最低金额—{min_amount}，最高—{max_amount}。\n付款通过WATA安全表单进行。'
         ),
     ).format(
         min_amount=settings.format_price(settings.WATA_MIN_AMOUNT_KOPEKS),
@@ -93,12 +90,11 @@ async def process_wata_payment_amount(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await message.answer(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
             parse_mode='HTML',
         )
@@ -106,14 +102,14 @@ async def process_wata_payment_amount(
         return
 
     if not settings.is_wata_enabled():
-        await message.answer('❌ Оплата через WATA временно недоступна')
+        await message.answer('❌暂时无法通过WATA付款')
         return
 
     if amount_kopeks < settings.WATA_MIN_AMOUNT_KOPEKS:
         await message.answer(
             texts.t(
                 'WATA_AMOUNT_TOO_LOW',
-                'Минимальная сумма пополнения: {amount}',
+                '最低充值金额：{amount}',
             ).format(amount=settings.format_price(settings.WATA_MIN_AMOUNT_KOPEKS)),
             reply_markup=get_back_keyboard(db_user.language),
         )
@@ -123,7 +119,7 @@ async def process_wata_payment_amount(
         await message.answer(
             texts.t(
                 'WATA_AMOUNT_TOO_HIGH',
-                'Максимальная сумма пополнения: {amount}',
+                '最高充值金额：{amount}',
             ).format(amount=settings.format_price(settings.WATA_MAX_AMOUNT_KOPEKS)),
             reply_markup=get_back_keyboard(db_user.language),
         )
@@ -147,7 +143,7 @@ async def process_wata_payment_amount(
         await message.answer(
             texts.t(
                 'WATA_PAYMENT_ERROR',
-                '❌ Ошибка создания платежа WATA. Попробуйте позже или обратитесь в поддержку.',
+                '❌创建WATA付款失败。请稍后再试或联系支持。',
             )
         )
         await state.clear()
@@ -161,13 +157,13 @@ async def process_wata_payment_amount(
         inline_keyboard=[
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('WATA_PAY_BUTTON', '💳 Оплатить через WATA'),
+                    text=texts.t('WATA_PAY_BUTTON', '💳通过WATA付款'),
                     url=payment_url,
                 )
             ],
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('CHECK_STATUS_BUTTON', '📊 Проверить статус'),
+                    text=texts.t('CHECK_STATUS_BUTTON', '📊检查状态'),
                     callback_data=f'check_wata_{local_payment_id}',
                 )
             ],
@@ -178,15 +174,7 @@ async def process_wata_payment_amount(
     message_template = texts.t(
         'WATA_PAYMENT_INSTRUCTIONS',
         (
-            '💳 <b>Оплата через WATA</b>\n\n'
-            '💰 Сумма: {amount}\n'
-            '🆔 ID платежа: {payment_id}\n\n'
-            '📱 <b>Инструкция:</b>\n'
-            "1. Нажмите кнопку 'Оплатить через WATA'\n"
-            '2. Следуйте подсказкам платежной системы\n'
-            '3. Подтвердите перевод\n'
-            '4. Средства зачислятся автоматически\n\n'
-            '❓ Если возникнут проблемы, обратитесь в {support}'
+            '💳<b>通过WATA付款</b>\n\n💰金额：{amount}\n🆔付款ID：{payment_id}\n\n📱<b>说明：</b>\n1.点击“通过WATA付款”按钮\n2.按照支付系统提示操作\n3.确认转账\n4.资金将自动到账\n\n❓如果遇到问题，请联系{support}'
         ),
     )
 
@@ -259,14 +247,14 @@ async def check_wata_payment_status(
     try:
         local_payment_id = int(callback.data.split('_')[-1])
     except (ValueError, IndexError):
-        await callback.answer('❌ Некорректный идентификатор платежа', show_alert=True)
+        await callback.answer('❌ 付款 ID 错误', show_alert=True)
         return
 
     payment_service = PaymentService(callback.bot)
     status_info = await payment_service.get_wata_payment_status(db, local_payment_id)
 
     if not status_info:
-        await callback.answer('❌ Платеж не найден', show_alert=True)
+        await callback.answer('❌ 未找到付款', show_alert=True)
         return
 
     payment = status_info['payment']
@@ -282,18 +270,18 @@ async def check_wata_payment_status(
     texts = get_texts(user_language)
 
     status_labels: dict[str, dict[str, str]] = {
-        'Opened': {'emoji': '⏳', 'label': texts.t('WATA_STATUS_OPENED', 'Ожидает оплаты')},
-        'Closed': {'emoji': '⌛', 'label': texts.t('WATA_STATUS_CLOSED', 'Обрабатывается')},
-        'Paid': {'emoji': '✅', 'label': texts.t('WATA_STATUS_PAID', 'Оплачен')},
-        'Declined': {'emoji': '❌', 'label': texts.t('WATA_STATUS_DECLINED', 'Отклонен')},
+        'Opened': {'emoji': '⏳', 'label': texts.t('WATA_STATUS_OPENED', '等待付款')},
+        'Closed': {'emoji': '⌛', 'label': texts.t('WATA_STATUS_CLOSED', '处理中')},
+        'Paid': {'emoji': '✅', 'label': texts.t('WATA_STATUS_PAID', '已支付')},
+        'Declined': {'emoji': '❌', 'label': texts.t('WATA_STATUS_DECLINED', '已拒绝')},
     }
 
     label_info = status_labels.get(
-        payment.status, {'emoji': '❓', 'label': texts.t('WATA_STATUS_UNKNOWN', 'Неизвестно')}
+        payment.status, {'emoji': '❓', 'label': texts.t('WATA_STATUS_UNKNOWN', '未知')}
     )
 
     message_lines = [
-        texts.t('WATA_STATUS_TITLE', '💳 <b>Статус платежа WATA</b>'),
+        texts.t('WATA_STATUS_TITLE', '💳<b>WATA付款状态</b>'),
         '',
         f'🆔 ID: {payment.payment_link_id}',
         f'💰 Сумма: {settings.format_price(payment.amount_kopeks)}',

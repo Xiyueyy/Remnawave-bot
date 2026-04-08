@@ -23,7 +23,7 @@ class FaqService:
 
     @staticmethod
     def _normalize_language(language: str) -> str:
-        base_language = language or settings.DEFAULT_LANGUAGE or 'ru'
+        base_language = language or settings.DEFAULT_LANGUAGE or 'zh'
         return base_language.split('-')[0].lower()
 
     @staticmethod

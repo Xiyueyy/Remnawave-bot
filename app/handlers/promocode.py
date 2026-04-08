@@ -1,4 +1,4 @@
-import structlog
+﻿import structlog
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
@@ -65,7 +65,7 @@ async def activate_promocode_for_registration(
     if result['success']:
         logger.info('✅ Пользователь активировал промокод при регистрации', user_id=user_id, code=code)
 
-        # Отправляем уведомление админу, если бот доступен
+        # Отправляем уведомление админу, если б起 доступен
         if bot:
             try:
                 from app.database.crud.user import get_user_by_id
@@ -93,7 +93,7 @@ _NO_SAVED_STATE = object()
 
 
 async def _restore_previous_state(state: FSMContext) -> None:
-    """Восстанавливает FSM-состояние, которое было до входа в промокод-флоу."""
+    """Восстанавливает FSM-состояние, которое было 到 входа в промокод-флоу."""
     data = await state.get_data()
     prev_state = data.get('_prev_state', _NO_SAVED_STATE)
     prev_data = data.get('_prev_data') or {}
@@ -116,7 +116,7 @@ async def process_promocode(message: types.Message, db_user: User, state: FSMCon
         await message.answer(
             texts.t(
                 'PROMOCODE_EMPTY_INPUT',
-                '❌ Введите корректный промокод',
+                '❌请输入有效的优惠码',
             ),
             reply_markup=get_back_keyboard(db_user.language),
         )
@@ -135,7 +135,7 @@ async def process_promocode(message: types.Message, db_user: User, state: FSMCon
         await message.answer(
             texts.t(
                 'PROMO_RATE_LIMITED',
-                '⏳ Слишком много попыток. Попробуйте через {cooldown} сек.',
+                '⏳ 尝试次数过多，请在 {cooldown} 秒后重试。',
             ).format(cooldown=cooldown),
             reply_markup=get_back_keyboard(db_user.language),
         )
@@ -147,7 +147,7 @@ async def process_promocode(message: types.Message, db_user: User, state: FSMCon
         await message.answer(
             texts.t(
                 'PROMO_DAILY_LIMIT',
-                '❌ Достигнут лимит активаций промокодов на сегодня. Попробуйте завтра.',
+                '❌ 今日优惠码激活次数已达上限，请明天再试。',
             ),
             reply_markup=get_back_keyboard(db_user.language),
         )
@@ -174,16 +174,16 @@ async def process_promocode(message: types.Message, db_user: User, state: FSMCon
             buttons.append(
                 [
                     types.InlineKeyboardButton(
-                        text=f'{name} ({days} дн.)',
+                        text=f'{name} ({days} 天)',
                         callback_data=f'promo_sub:{sub["id"]}:{promo_code}',
                     )
                 ]
             )
-        buttons.append([types.InlineKeyboardButton(text='❌ Отмена', callback_data='back_to_menu')])
+        buttons.append([types.InlineKeyboardButton(text='❌ 取消', callback_data='back_to_menu')])
         await message.answer(
             texts.t(
                 'PROMOCODE_SELECT_SUBSCRIPTION',
-                '🎟️ К какой подписке применить промокод?',
+                '🎟️ 要将优惠码应用到哪个订阅？',
             ),
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=buttons),
         )
@@ -200,19 +200,19 @@ async def process_promocode(message: types.Message, db_user: User, state: FSMCon
             'used': texts.PROMOCODE_USED,
             'already_used_by_user': texts.PROMOCODE_USED,
             'not_first_purchase': texts.t(
-                'PROMOCODE_NOT_FIRST_PURCHASE', '❌ Этот промокод доступен только для первой покупки'
+                'PROMOCODE_NOT_FIRST_PURCHASE', '❌ 此优惠码仅限首次购买使用'
             ),
             'active_discount_exists': texts.t(
                 'PROMOCODE_ACTIVE_DISCOUNT_EXISTS',
-                '❌ У вас уже есть активная скидка. Используйте её перед активацией новой.',
+                '❌您已有活动折扣。请先使用后再激活新折扣。',
             ),
             'no_subscription_for_days': texts.t(
                 'PROMOCODE_NO_SUBSCRIPTION',
-                '❌ Для активации этого промокода необходима подписка (активная или просроченная).',
+                '❌ 激活此优惠码需要有订阅（有效或已过期均可）。',
             ),
             'daily_limit': texts.t(
                 'PROMO_DAILY_LIMIT',
-                '❌ Достигнут лимит активаций промокодов на сегодня. Попробуйте завтра.',
+                '❌ 今日优惠码激活次数已达上限，请明天再试。',
             ),
             'server_error': texts.ERROR,
         }
@@ -228,14 +228,14 @@ async def handle_promo_subscription_select(
     """Handle subscription selection for promocode with days in multi-tariff."""
     parts = (callback.data or '').split(':')
     if len(parts) < 3:
-        await callback.answer('Неверный формат', show_alert=True)
+        await callback.answer('格式错误', show_alert=True)
         return
 
     try:
         sub_id = int(parts[1])
         code = ':'.join(parts[2:])  # code may contain colons
     except (ValueError, IndexError):
-        await callback.answer('Ошибка', show_alert=True)
+        await callback.answer('错误', show_alert=True)
         return
 
     texts = get_texts(db_user.language)
@@ -253,7 +253,7 @@ async def handle_promo_subscription_select(
     else:
         error_text = texts.PROMOCODE_INVALID
         if result.get('error') == 'subscription_not_found':
-            error_text = texts.t('PROMOCODE_SUBSCRIPTION_NOT_FOUND', '❌ Подписка не найдена')
+            error_text = texts.t('PROMOCODE_SUBSCRIPTION_NOT_FOUND', '❌ 未找到订阅')
         if callback.message:
             await callback.message.edit_text(error_text, reply_markup=get_back_keyboard(db_user.language))
     await callback.answer()
@@ -264,3 +264,4 @@ def register_handlers(dp: Dispatcher):
     dp.callback_query.register(handle_promo_subscription_select, F.data.startswith('promo_sub:'))
 
     dp.message.register(process_promocode, PromoCodeStates.waiting_for_code)
+

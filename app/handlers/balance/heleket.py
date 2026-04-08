@@ -33,28 +33,27 @@ async def start_heleket_payment(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await callback.message.edit_text(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
         await callback.answer()
         return
 
     if not settings.is_heleket_enabled():
-        await callback.answer('❌ Оплата через Heleket недоступна', show_alert=True)
+        await callback.answer('❌ 无法通过Heleket付款', show_alert=True)
         return
 
     markup = settings.get_heleket_markup_percent()
     markup_text: str | None
     if markup > 0:
-        label = texts.t('PAYMENT_HELEKET_MARKUP_LABEL', 'Наценка провайдера')
+        label = texts.t('PAYMENT_HELEKET_MARKUP_LABEL', '服务商加价')
         markup_text = f'{label}: {markup:.0f}%'
     elif markup < 0:
-        label = texts.t('PAYMENT_HELEKET_DISCOUNT_LABEL', 'Скидка провайдера')
+        label = texts.t('PAYMENT_HELEKET_DISCOUNT_LABEL', '服务商折扣')
         markup_text = f'{label}: {abs(markup):.0f}%'
     else:
         markup_text = None
@@ -104,12 +103,11 @@ async def process_heleket_payment_amount(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await message.answer(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
             parse_mode='HTML',
         )
@@ -117,18 +115,18 @@ async def process_heleket_payment_amount(
         return
 
     if not settings.is_heleket_enabled():
-        await message.answer('❌ Оплата через Heleket недоступна')
+        await message.answer('❌ 无法通过Heleket付款')
         return
 
     amount_rubles = amount_kopeks / 100
 
     if amount_rubles < 100:
-        await message.answer('Минимальная сумма пополнения: 100 ₽', reply_markup=get_back_keyboard(db_user.language))
+        await message.answer('最低充值金额：100₽', reply_markup=get_back_keyboard(db_user.language))
         return
 
     if amount_rubles > 100000:
         await message.answer(
-            'Максимальная сумма пополнения: 100,000 ₽', reply_markup=get_back_keyboard(db_user.language)
+            '最大充值金额：100,000 ₽', reply_markup=get_back_keyboard(db_user.language)
         )
         return
 
@@ -143,13 +141,13 @@ async def process_heleket_payment_amount(
     )
 
     if not result:
-        await message.answer('❌ Не удалось создать счёт в Heleket. Попробуйте позже или обратитесь в поддержку.')
+        await message.answer('❌ 在 Heleket 中创建帐户失败。请稍后重试或联系支持人员。')
         await state.clear()
         return
 
     payment_url = result.get('payment_url')
     if not payment_url:
-        await message.answer('❌ Не удалось получить ссылку для оплаты Heleket')
+        await message.answer('❌ 接收付款链接失败 Heleket')
         await state.clear()
         return
 
@@ -176,8 +174,8 @@ async def process_heleket_payment_amount(
             markup_percent = None
 
     if markup_percent:
-        label_markup = texts.t('PAYMENT_HELEKET_MARKUP_LABEL', 'Наценка провайдера')
-        label_discount = texts.t('PAYMENT_HELEKET_DISCOUNT_LABEL', 'Скидка провайдера')
+        label_markup = texts.t('PAYMENT_HELEKET_MARKUP_LABEL', '服务商加价')
+        label_discount = texts.t('PAYMENT_HELEKET_DISCOUNT_LABEL', '服务商折扣')
         absolute = abs(markup_percent)
         if markup_percent > 0:
             details.append(f'📈 {label_markup}: +{absolute}%')
@@ -206,10 +204,10 @@ async def process_heleket_payment_amount(
 
     keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[
-            [types.InlineKeyboardButton(text=texts.t('PAY_WITH_COINS_BUTTON', '🪙 Оплатить'), url=payment_url)],
+            [types.InlineKeyboardButton(text=texts.t('PAY_WITH_COINS_BUTTON', '🪙支付'), url=payment_url)],
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('CHECK_STATUS_BUTTON', '📊 Проверить статус'),
+                    text=texts.t('CHECK_STATUS_BUTTON', '📊检查状态'),
                     callback_data=f'check_heleket_{result["local_payment_id"]}',
                 )
             ],
@@ -269,21 +267,21 @@ async def check_heleket_payment_status(
     try:
         local_payment_id = int(callback.data.split('_')[-1])
     except (ValueError, IndexError):
-        await callback.answer('Некорректный идентификатор платежа', show_alert=True)
+        await callback.answer('付款 ID 无效', show_alert=True)
         return
 
     from app.database.crud.heleket import get_heleket_payment_by_id
 
     payment = await get_heleket_payment_by_id(db, local_payment_id)
     if not payment:
-        await callback.answer('Платёж не найден', show_alert=True)
+        await callback.answer('未找到付款', show_alert=True)
         return
 
     language = getattr(payment.user, 'language', None) or settings.DEFAULT_LANGUAGE
     texts = get_texts(language)
 
     if payment.is_paid:
-        message = texts.t('HELEKET_PAYMENT_ALREADY_PAID', '✅ Платёж уже зачислен')
+        message = texts.t('HELEKET_PAYMENT_ALREADY_PAID', '✅付款已到账')
         await callback.answer(message, show_alert=True)
         return
 
@@ -297,38 +295,38 @@ async def check_heleket_payment_status(
         payment = updated_payment
 
     if payment.is_paid:
-        message = texts.t('HELEKET_PAYMENT_SUCCESS', '✅ Платёж зачислен на баланс')
+        message = texts.t('HELEKET_PAYMENT_SUCCESS', '✅付款已存入余额')
         await callback.answer(message, show_alert=True)
         return
 
     status_normalized = (payment.status or '').lower()
     status_messages = {
-        'check': texts.t('HELEKET_STATUS_CHECK', '⏳ Ожидание оплаты'),
-        'process': texts.t('HELEKET_STATUS_PROCESS', '⚙️ Платёж обрабатывается'),
-        'confirm_check': texts.t('HELEKET_STATUS_CONFIRM_CHECK', '⛓ Ожидание подтверждений сети'),
-        'wrong_amount': texts.t('HELEKET_STATUS_WRONG_AMOUNT', '❗️ Оплачена неверная сумма'),
+        'check': texts.t('HELEKET_STATUS_CHECK', '⏳等待付款'),
+        'process': texts.t('HELEKET_STATUS_PROCESS', '⚙️付款处理中'),
+        'confirm_check': texts.t('HELEKET_STATUS_CONFIRM_CHECK', '⛓等待网络确认'),
+        'wrong_amount': texts.t('HELEKET_STATUS_WRONG_AMOUNT', '❗️支付金额错误'),
         'wrong_amount_waiting': texts.t(
             'HELEKET_STATUS_WRONG_AMOUNT_WAITING',
-            '❗️ Недостаточная сумма, ожидаем доплату',
+            '❗️金额不足，等待补足',
         ),
-        'paid_over': texts.t('HELEKET_STATUS_PAID_OVER', '✅ Платёж зачислен (с переплатой)'),
-        'paid': texts.t('HELEKET_STATUS_PAID', '✅ Платёж зачислен'),
-        'cancel': texts.t('HELEKET_STATUS_CANCEL', '🚫 Платёж отменён'),
-        'fail': texts.t('HELEKET_STATUS_FAIL', '❌ Ошибка при оплате'),
-        'system_fail': texts.t('HELEKET_STATUS_SYSTEM_FAIL', '❌ Системная ошибка Heleket'),
-        'refund_process': texts.t('HELEKET_STATUS_REFUND_PROCESS', '↩️ Возврат обрабатывается'),
-        'refund_fail': texts.t('HELEKET_STATUS_REFUND_FAIL', '⚠️ Ошибка возврата'),
-        'refund_paid': texts.t('HELEKET_STATUS_REFUND_PAID', '✅ Возврат выполнен'),
-        'locked': texts.t('HELEKET_STATUS_LOCKED', '🔒 Средства заблокированы'),
+        'paid_over': texts.t('HELEKET_STATUS_PAID_OVER', '✅付款已到账(超额支付)'),
+        'paid': texts.t('HELEKET_STATUS_PAID', '✅付款已到账'),
+        'cancel': texts.t('HELEKET_STATUS_CANCEL', '🚫付款已取消'),
+        'fail': texts.t('HELEKET_STATUS_FAIL', '❌付款失败'),
+        'system_fail': texts.t('HELEKET_STATUS_SYSTEM_FAIL', '❌Heleket系统错误'),
+        'refund_process': texts.t('HELEKET_STATUS_REFUND_PROCESS', '↩️退款处理中'),
+        'refund_fail': texts.t('HELEKET_STATUS_REFUND_FAIL', '⚠️退款失败'),
+        'refund_paid': texts.t('HELEKET_STATUS_REFUND_PAID', '✅退款已完成'),
+        'locked': texts.t('HELEKET_STATUS_LOCKED', '🔒资金已冻结'),
     }
 
     message = status_messages.get(status_normalized)
     if message is None:
-        template = texts.t('HELEKET_STATUS_UNKNOWN', 'ℹ️ Статус платежа: {status}')
+        template = texts.t('HELEKET_STATUS_UNKNOWN', 'ℹ️付款状态：{status}')
         status_value = payment.status or status_normalized or '—'
         try:
             message = template.format(status=status_value)
         except Exception:  # pragma: no cover - defensive formatting
-            message = f'ℹ️ Статус платежа: {status_value}'
+            message = f'ℹ️付款状态：{status_value}'
 
     await callback.answer(message, show_alert=True)

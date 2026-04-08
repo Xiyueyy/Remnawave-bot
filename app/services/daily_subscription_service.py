@@ -299,7 +299,7 @@ class DailySubscriptionService:
 
     async def _notify_daily_charge(self, user, subscription, amount_kopeks: int):
         """Уведомляет пользователя о суточном списании."""
-        get_texts(getattr(user, 'language', 'ru'))
+        get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
         amount_rubles = amount_kopeks / 100
         balance_rubles = user.balance_kopeks / 100
 
@@ -329,7 +329,7 @@ class DailySubscriptionService:
         """Уведомляет пользователя о недостатке средств."""
         from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-        get_texts(getattr(user, 'language', 'ru'))
+        get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
         required_rubles = required_amount / 100
         balance_rubles = user.balance_kopeks / 100
 

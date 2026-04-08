@@ -48,14 +48,14 @@ MIGRATION_PAGE_SIZE = 8
 
 def _format_duration(seconds: float) -> str:
     if seconds < 1:
-        return 'менее 1с'
+        return '小于1秒'
 
     minutes, sec = divmod(int(seconds), 60)
     if minutes:
         if sec:
-            return f'{minutes} мин {sec} с'
-        return f'{minutes} мин'
-    return f'{sec} с'
+            return f'{minutes} 最小 {sec} 秒'
+        return f'{minutes} 分钟'
+    return f'{sec} 与'
 
 
 def _format_user_stats(stats: dict[str, Any] | None) -> str:
@@ -67,7 +67,7 @@ def _format_user_stats(stats: dict[str, Any] | None) -> str:
     deleted = stats.get('deleted', stats.get('deactivated', 0))
     errors = stats.get('errors', 0)
 
-    return f'• Создано: {created}\n• Обновлено: {updated}\n• Деактивировано: {deleted}\n• Ошибок: {errors}'
+    return f'• 创建者：{created}\n• 更新：{updated}\n• 停用：{deleted}\n• 错误：{errors}'
 
 
 def _format_server_stats(stats: dict[str, Any] | None) -> str:
@@ -79,7 +79,7 @@ def _format_server_stats(stats: dict[str, Any] | None) -> str:
     removed = stats.get('removed', 0)
     total = stats.get('total', 0)
 
-    return f'• Создано: {created}\n• Обновлено: {updated}\n• Удалено: {removed}\n• Всего в панели: {total}'
+    return f'• 创建者：{created}\n• 更新：{updated}\n• 删除：{removed}\n• 面板总计：{total}'
 
 
 def _build_auto_sync_view(status: RemnaWaveAutoSyncStatus) -> tuple[str, types.InlineKeyboardMarkup]:
@@ -118,28 +118,13 @@ def _build_auto_sync_view(status: RemnaWaveAutoSyncStatus) -> tuple[str, types.I
     running_text = '⏳ Выполняется сейчас' if status.is_running else 'Ожидание'
     toggle_text = '❌ Отключить' if status.enabled else '✅ Включить'
 
-    text = f"""🔄 <b>Автосинхронизация RemnaWave</b>
-
-⚙️ <b>Статус:</b> {'✅ Включена' if status.enabled else '❌ Отключена'}
-🕒 <b>Расписание:</b> {times_text}
-📅 <b>Следующий запуск:</b> {next_run_text if status.enabled else '—'}
-⏱️ <b>Состояние:</b> {running_text}
-
-📊 <b>Последний запуск:</b>
-{last_run_text}
-
-👥 <b>Пользователи:</b>
-{_format_user_stats(status.last_user_stats)}
-
-🌐 <b>Серверы:</b>
-{_format_server_stats(status.last_server_stats)}
-"""
+    text = f"🔄 <b>自动同步RemnaWave</b>\n\n⚙️ <b>状态：</b> {('✅ Включена' if status.enabled else '❌ Отключена')}\n🕒 <b>时间表：</b> {times_text}\n📅 <b>下次推出：</b> {(next_run_text if status.enabled else '—')}\n⏱️ <b>条件：</b> {running_text}\n\n📊 <b>上次发布：</b>\n{last_run_text}\n\n👥 <b>用户：</b>\n{_format_user_stats(status.last_user_stats)}\n\n🌐 <b>服务器：</b>\n{_format_server_stats(status.last_server_stats)}"
 
     keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 types.InlineKeyboardButton(
-                    text='🔁 Запустить сейчас',
+                    text='🔁 立即启动',
                     callback_data='remnawave_auto_sync_run',
                 )
             ],
@@ -151,13 +136,13 @@ def _build_auto_sync_view(status: RemnaWaveAutoSyncStatus) -> tuple[str, types.I
             ],
             [
                 types.InlineKeyboardButton(
-                    text='🕒 Изменить расписание',
+                    text='🕒 更改日程',
                     callback_data='remnawave_auto_sync_times',
                 )
             ],
             [
                 types.InlineKeyboardButton(
-                    text='⬅️ Назад',
+                    text='⬅️ 返回',
                     callback_data='admin_rw_sync',
                 )
             ],
@@ -169,13 +154,13 @@ def _build_auto_sync_view(status: RemnaWaveAutoSyncStatus) -> tuple[str, types.I
 
 def _format_migration_server_label(texts, server) -> str:
     status = (
-        texts.t('ADMIN_SQUAD_MIGRATION_STATUS_AVAILABLE', '✅ Доступен')
+        texts.t('ADMIN_SQUAD_MIGRATION_STATUS_AVAILABLE', '✅可用')
         if getattr(server, 'is_available', True)
-        else texts.t('ADMIN_SQUAD_MIGRATION_STATUS_UNAVAILABLE', '🚫 Недоступен')
+        else texts.t('ADMIN_SQUAD_MIGRATION_STATUS_UNAVAILABLE', '🚫不可用')
     )
     return texts.t(
         'ADMIN_SQUAD_MIGRATION_SERVER_LABEL',
-        '{name} — 👥 {users} ({status})',
+        '{name}—👥{users}({status})',
     ).format(name=html.escape(server.display_name), users=server.current_users, status=status)
 
 
@@ -194,7 +179,7 @@ def _build_migration_keyboard(
 
     button_template = texts.t(
         'ADMIN_SQUAD_MIGRATION_SQUAD_BUTTON',
-        '🌍 {name} — 👥 {users} ({status})',
+        '🌍{name}—👥{users}({status})',
     )
 
     for squad in squads:
@@ -233,7 +218,7 @@ def _build_migration_keyboard(
             types.InlineKeyboardButton(
                 text=texts.t(
                     'ADMIN_SQUAD_MIGRATION_PAGE',
-                    'Стр. {page}/{pages}',
+                    '第{page}/{pages}页',
                 ).format(page=page, pages=total_pages),
                 callback_data='admin_migration_page_info',
             )
@@ -305,18 +290,18 @@ async def show_squad_migration_menu(
     )
 
     message = (
-        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚 <b>Переезд сквадов</b>')
+        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚<b>节点组迁移</b>')
         + '\n\n'
         + texts.t(
             'ADMIN_SQUAD_MIGRATION_SELECT_SOURCE',
-            'Выберите сквад, из которого нужно переехать:',
+            '请选择要迁出的squad：',
         )
     )
 
     if not has_items:
         message += '\n\n' + texts.t(
             'ADMIN_SQUAD_MIGRATION_NO_OPTIONS',
-            'Нет доступных сквадов. Добавьте новые или отмените операцию.',
+            '没有可用的squads。请添加新的或取消操作。',
         )
 
     await state.set_state(SquadMigrationStates.selecting_source)
@@ -358,18 +343,18 @@ async def paginate_migration_source(
     )
 
     message = (
-        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚 <b>Переезд сквадов</b>')
+        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚<b>节点组迁移</b>')
         + '\n\n'
         + texts.t(
             'ADMIN_SQUAD_MIGRATION_SELECT_SOURCE',
-            'Выберите сквад, из которого нужно переехать:',
+            '请选择要迁出的squad：',
         )
     )
 
     if not has_items:
         message += '\n\n' + texts.t(
             'ADMIN_SQUAD_MIGRATION_NO_OPTIONS',
-            'Нет доступных сквадов. Добавьте новые или отмените операцию.',
+            '没有可用的squads。请添加新的或取消操作。',
         )
 
     await callback.message.edit_text(
@@ -405,7 +390,7 @@ async def handle_migration_source_selection(
         await callback.answer(
             texts.t(
                 'ADMIN_SQUAD_MIGRATION_SQUAD_NOT_FOUND',
-                'Сквад не найден или недоступен.',
+                '节点组未找到或不可用。',
             ),
             show_alert=True,
         )
@@ -427,23 +412,23 @@ async def handle_migration_source_selection(
     )
 
     message = (
-        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚 <b>Переезд сквадов</b>')
+        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚<b>节点组迁移</b>')
         + '\n\n'
         + texts.t(
             'ADMIN_SQUAD_MIGRATION_SELECTED_SOURCE',
-            'Источник: {source}',
+            '来源：{source}',
         ).format(source=_format_migration_server_label(texts, server))
         + '\n\n'
         + texts.t(
             'ADMIN_SQUAD_MIGRATION_SELECT_TARGET',
-            'Выберите сквад, в который нужно переехать:',
+            '请选择要迁入的squad：',
         )
     )
 
     if not has_items:
         message += '\n\n' + texts.t(
             'ADMIN_SQUAD_MIGRATION_TARGET_EMPTY',
-            'Нет других сквадов для переезда. Отмените операцию или создайте новые сквады.',
+            '没有其他可用于迁移的squads。请取消操作或创建新的squads。',
         )
 
     await state.set_state(SquadMigrationStates.selecting_target)
@@ -495,23 +480,23 @@ async def paginate_migration_target(
     source_display = data.get('source_display') or source_uuid
 
     message = (
-        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚 <b>Переезд сквадов</b>')
+        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚<b>节点组迁移</b>')
         + '\n\n'
         + texts.t(
             'ADMIN_SQUAD_MIGRATION_SELECTED_SOURCE',
-            'Источник: {source}',
+            '来源：{source}',
         ).format(source=source_display)
         + '\n\n'
         + texts.t(
             'ADMIN_SQUAD_MIGRATION_SELECT_TARGET',
-            'Выберите сквад, в который нужно переехать:',
+            '请选择要迁入的squad：',
         )
     )
 
     if not has_items:
         message += '\n\n' + texts.t(
             'ADMIN_SQUAD_MIGRATION_TARGET_EMPTY',
-            'Нет других сквадов для переезда. Отмените операцию или создайте новые сквады.',
+            '没有其他可用于迁移的squads。请取消操作或创建新的squads。',
         )
 
     await callback.message.edit_text(
@@ -554,7 +539,7 @@ async def handle_migration_target_selection(
         await callback.answer(
             texts.t(
                 'ADMIN_SQUAD_MIGRATION_SAME_SQUAD',
-                'Нельзя выбрать тот же сквад.',
+                '不能选择相同的squad。',
             ),
             show_alert=True,
         )
@@ -565,7 +550,7 @@ async def handle_migration_target_selection(
         await callback.answer(
             texts.t(
                 'ADMIN_SQUAD_MIGRATION_SQUAD_NOT_FOUND',
-                'Сквад не найден или недоступен.',
+                '节点组未找到或不可用。',
             ),
             show_alert=True,
         )
@@ -584,28 +569,28 @@ async def handle_migration_target_selection(
     await state.set_state(SquadMigrationStates.confirming)
 
     message_lines = [
-        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚 <b>Переезд сквадов</b>'),
+        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚<b>节点组迁移</b>'),
         '',
         texts.t(
             'ADMIN_SQUAD_MIGRATION_CONFIRM_DETAILS',
-            'Проверьте параметры переезда:',
+            '请检查迁移参数：',
         ),
         texts.t(
             'ADMIN_SQUAD_MIGRATION_CONFIRM_SOURCE',
-            '• Из: {source}',
+            '•来源：{source}',
         ).format(source=source_display),
         texts.t(
             'ADMIN_SQUAD_MIGRATION_CONFIRM_TARGET',
-            '• В: {target}',
+            '•目标：{target}',
         ).format(target=_format_migration_server_label(texts, target_server)),
         texts.t(
             'ADMIN_SQUAD_MIGRATION_CONFIRM_COUNT',
-            '• Пользователей к переносу: {count}',
+            '•要迁移的用户数：{count}',
         ).format(count=users_to_move),
         '',
         texts.t(
             'ADMIN_SQUAD_MIGRATION_CONFIRM_PROMPT',
-            'Подтвердите выполнение операции.',
+            '请确认执行操作。',
         ),
     ]
 
@@ -615,7 +600,7 @@ async def handle_migration_target_selection(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_SQUAD_MIGRATION_CONFIRM_BUTTON',
-                        '✅ Подтвердить',
+                        '✅确认',
                     ),
                     callback_data='admin_migration_confirm',
                 )
@@ -624,7 +609,7 @@ async def handle_migration_target_selection(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_SQUAD_MIGRATION_CHANGE_TARGET',
-                        '🔄 Изменить сервер назначения',
+                        '🔄更改目标服务器',
                     ),
                     callback_data='admin_migration_change_target',
                 )
@@ -677,23 +662,23 @@ async def change_migration_target(
     source_display = data.get('source_display') or source_uuid
 
     message = (
-        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚 <b>Переезд сквадов</b>')
+        texts.t('ADMIN_SQUAD_MIGRATION_TITLE', '🚚<b>节点组迁移</b>')
         + '\n\n'
         + texts.t(
             'ADMIN_SQUAD_MIGRATION_SELECTED_SOURCE',
-            'Источник: {source}',
+            '来源：{source}',
         ).format(source=source_display)
         + '\n\n'
         + texts.t(
             'ADMIN_SQUAD_MIGRATION_SELECT_TARGET',
-            'Выберите сквад, в который нужно переехать:',
+            '请选择要迁入的squad：',
         )
     )
 
     if not has_items:
         message += '\n\n' + texts.t(
             'ADMIN_SQUAD_MIGRATION_TARGET_EMPTY',
-            'Нет других сквадов для переезда. Отмените операцию или создайте новые сквады.',
+            '没有其他可用于迁移的squads。请取消操作或创建新的squads。',
         )
 
     await callback.message.edit_text(
@@ -728,7 +713,7 @@ async def confirm_squad_migration(
     texts = get_texts(db_user.language)
     remnawave_service = RemnaWaveService()
 
-    await callback.answer(texts.t('ADMIN_SQUAD_MIGRATION_IN_PROGRESS', 'Запускаю переезд...'))
+    await callback.answer(texts.t('ADMIN_SQUAD_MIGRATION_IN_PROGRESS', '正在开始迁移...'))
 
     try:
         result = await remnawave_service.migrate_squad_users(
@@ -739,7 +724,7 @@ async def confirm_squad_migration(
     except RemnaWaveConfigurationError as error:
         message = texts.t(
             'ADMIN_SQUAD_MIGRATION_API_ERROR',
-            '❌ RemnaWave API не настроен: {error}',
+            '❌Remnawave接口未配置：{error}',
         ).format(error=str(error))
         reply_markup = types.InlineKeyboardMarkup(
             inline_keyboard=[
@@ -747,7 +732,7 @@ async def confirm_squad_migration(
                     types.InlineKeyboardButton(
                         text=texts.t(
                             'ADMIN_SQUAD_MIGRATION_BACK_BUTTON',
-                            '⬅️ В Remnawave',
+                            '⬅️返回Remnawave',
                         ),
                         callback_data='admin_remnawave',
                     )
@@ -766,7 +751,7 @@ async def confirm_squad_migration(
         error_code = result.get('error') or 'unexpected'
         message = texts.t(
             'ADMIN_SQUAD_MIGRATION_ERROR',
-            '❌ Не удалось выполнить переезд (код: {code}). {details}',
+            '❌迁移失败（代码：{code}）。{details}',
         ).format(code=error_code, details=error_message)
         reply_markup = types.InlineKeyboardMarkup(
             inline_keyboard=[
@@ -774,7 +759,7 @@ async def confirm_squad_migration(
                     types.InlineKeyboardButton(
                         text=texts.t(
                             'ADMIN_SQUAD_MIGRATION_BACK_BUTTON',
-                            '⬅️ В Remnawave',
+                            '⬅️返回Remnawave',
                         ),
                         callback_data='admin_remnawave',
                     )
@@ -783,7 +768,7 @@ async def confirm_squad_migration(
                     types.InlineKeyboardButton(
                         text=texts.t(
                             'ADMIN_SQUAD_MIGRATION_NEW_BUTTON',
-                            '🔁 Новый переезд',
+                            '🔁新迁移',
                         ),
                         callback_data='admin_rw_migration',
                     )
@@ -795,18 +780,18 @@ async def confirm_squad_migration(
         return
 
     message_lines = [
-        texts.t('ADMIN_SQUAD_MIGRATION_SUCCESS_TITLE', '✅ Переезд завершен'),
+        texts.t('ADMIN_SQUAD_MIGRATION_SUCCESS_TITLE', '✅迁移完成'),
         '',
-        texts.t('ADMIN_SQUAD_MIGRATION_CONFIRM_SOURCE', '• Из: {source}').format(source=source_display),
-        texts.t('ADMIN_SQUAD_MIGRATION_CONFIRM_TARGET', '• В: {target}').format(target=target_display),
+        texts.t('ADMIN_SQUAD_MIGRATION_CONFIRM_SOURCE', '•来源：{source}').format(source=source_display),
+        texts.t('ADMIN_SQUAD_MIGRATION_CONFIRM_TARGET', '•目标：{target}').format(target=target_display),
         '',
         texts.t(
             'ADMIN_SQUAD_MIGRATION_RESULT_TOTAL',
-            'Найдено подписок: {count}',
+            '找到的订阅数：{count}',
         ).format(count=result.get('total', 0)),
         texts.t(
             'ADMIN_SQUAD_MIGRATION_RESULT_UPDATED',
-            'Перенесено: {count}',
+            '已迁移：{count}',
         ).format(count=result.get('updated', 0)),
     ]
 
@@ -817,14 +802,14 @@ async def confirm_squad_migration(
         message_lines.append(
             texts.t(
                 'ADMIN_SQUAD_MIGRATION_RESULT_PANEL_UPDATED',
-                'Обновлено в панели: {count}',
+                '在面板中已更新：{count}',
             ).format(count=panel_updated)
         )
     if panel_failed:
         message_lines.append(
             texts.t(
                 'ADMIN_SQUAD_MIGRATION_RESULT_PANEL_FAILED',
-                'Не удалось обновить в панели: {count}',
+                '在面板中更新失败：{count}',
             ).format(count=panel_failed)
         )
 
@@ -834,7 +819,7 @@ async def confirm_squad_migration(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_SQUAD_MIGRATION_NEW_BUTTON',
-                        '🔁 Новый переезд',
+                        '🔁新迁移',
                     ),
                     callback_data='admin_rw_migration',
                 )
@@ -843,7 +828,7 @@ async def confirm_squad_migration(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_SQUAD_MIGRATION_BACK_BUTTON',
-                        '⬅️ В Remnawave',
+                        '⬅️返回Remnawave',
                     ),
                     callback_data='admin_remnawave',
                 )
@@ -872,7 +857,7 @@ async def cancel_squad_migration(
 
     message = texts.t(
         'ADMIN_SQUAD_MIGRATION_CANCELLED',
-        '❌ Переезд отменен.',
+        '❌迁移已取消。',
     )
 
     reply_markup = types.InlineKeyboardMarkup(
@@ -881,7 +866,7 @@ async def cancel_squad_migration(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_SQUAD_MIGRATION_BACK_BUTTON',
-                        '⬅️ В Remnawave',
+                        '⬅️返回Remnawave',
                     ),
                     callback_data='admin_remnawave',
                 )
@@ -903,7 +888,7 @@ async def handle_migration_page_info(
 ):
     texts = get_texts(db_user.language)
     await callback.answer(
-        texts.t('ADMIN_SQUAD_MIGRATION_PAGE_HINT', 'Это текущая страница.'),
+        texts.t('ADMIN_SQUAD_MIGRATION_PAGE_HINT', '这是当前页。'),
         show_alert=False,
     )
 
@@ -924,14 +909,7 @@ async def show_remnawave_menu(callback: types.CallbackQuery, db_user: User, db: 
 
     api_url_display = settings.REMNAWAVE_API_URL or '—'
 
-    text = f"""
-🖥️ <b>Управление Remnawave</b>
-
-📡 <b>Соединение:</b> {status_emoji} {connection_test.get('message', 'Нет данных')}
-🌐 <b>URL:</b> <code>{api_url_display}</code>
-
-Выберите действие:
-"""
+    text = f"🖥️ <b>管理 Remnawave</b>\n\n📡 <b>连接：</b> {status_emoji} {connection_test.get('message', 'Нет данных')}\n🌐 <b>URL：</b> <code>{api_url_display}</code>\n\n选择动作："
 
     await callback.message.edit_text(text, reply_markup=get_admin_remnawave_keyboard(db_user.language))
     await callback.answer()
@@ -945,9 +923,9 @@ async def show_system_stats(callback: types.CallbackQuery, db_user: User, db: As
 
     if 'error' in stats:
         await callback.message.edit_text(
-            f'❌ Ошибка получения статистики: {stats["error"]}',
+            f"❌ 获取统计信息时出错：{stats['error']}",
             reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')]]
+                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')]]
             ),
         )
         await callback.answer()
@@ -991,67 +969,28 @@ async def show_system_stats(callback: types.CallbackQuery, db_user: User, db: As
             return f' (🔻 {difference_str[1:]})'
         return f' (🔺 {difference_str})'
 
-    text = f"""
-📊 <b>Детальная статистика Remnawave</b>
-
-🖥️ <b>Сервер:</b>
-- CPU: {server_info.get('cpu_cores', 0)} ядер
-- RAM: {format_bytes(server_info.get('memory_used', 0))} / {format_bytes(memory_total)} ({memory_used_percent:.1f}%)
-- Свободно: {format_bytes(server_info.get('memory_free', 0))}
-- Uptime: {uptime_str}
-
-👥 <b>Пользователи ({system.get('total_users', 0)} всего):</b>
-- 🟢 Онлайн сейчас: {system.get('users_online', 0)}
-- 📅 За сутки: {system.get('users_last_day', 0)}
-- 📊 За неделю: {system.get('users_last_week', 0)}
-- 💤 Никогда не заходили: {system.get('users_never_online', 0)}
-
-<b>Статусы пользователей:</b>
-{users_status_text}
-
-🌐 <b>Ноды ({system.get('nodes_online', 0)} онлайн):</b>"""
+    text = f"📊 <b>详细统计Remnawave</b>\n\n🖥️<b>服务器：</b>\n- CPU：{server_info.get('cpu_cores', 0)} 核心\n- 内存：{format_bytes(server_info.get('memory_used', 0))} / {format_bytes(memory_total)} ({memory_used_percent:.1f}%)\n- 可用：{format_bytes(server_info.get('memory_free', 0))}\n- 正常运行时间：{uptime_str}\n\n👥 <b>用户（共{system.get('total_users', 0)}）：</b>\n- 🟢 现已上线：{system.get('users_online', 0)}\n- 📅每天：{system.get('users_last_day', 0)}\n- 📊 一周：{system.get('users_last_week', 0)}\n- 💤 从未访问过：{system.get('users_never_online', 0)}\n\n<b>用户状态：</b>\n{users_status_text}\n\n🌐 <b>节点（{system.get('nodes_online', 0)}上线）：</b>"
 
     if realtime_nodes_text:
-        text += f"""
-<b>Реалтайм активность:</b>
-{realtime_nodes_text}"""
+        text += f'<b>实时活动：</b>\n{realtime_nodes_text}'
 
     if top_nodes_text:
-        text += f"""
-<b>Топ нод за неделю:</b>
-{top_nodes_text}"""
+        text += f'<b> 本周热门节点：</b>\n{top_nodes_text}'
 
-    text += f"""
-
-📈 <b>Общий трафик пользователей:</b> {format_bytes(system.get('total_user_traffic', 0))}
-
-📊 <b>Трафик по периодам:</b>
-- 2 дня: {format_bytes(traffic_periods.get('last_2_days', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('last_2_days', {}).get('difference', ''))}
-- 7 дней: {format_bytes(traffic_periods.get('last_7_days', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('last_7_days', {}).get('difference', ''))}
-- 30 дней: {format_bytes(traffic_periods.get('last_30_days', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('last_30_days', {}).get('difference', ''))}
-- Месяц: {format_bytes(traffic_periods.get('current_month', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('current_month', {}).get('difference', ''))}
-- Год: {format_bytes(traffic_periods.get('current_year', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('current_year', {}).get('difference', ''))}
-"""
+    text += f"📈 <b>总用户流量：</b> {format_bytes(system.get('total_user_traffic', 0))}\n\n📊 <b>各时段流量：</b>\n- 2 天：{format_bytes(traffic_periods.get('last_2_days', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('last_2_days', {}).get('difference', ''))}\n- 7 天：{format_bytes(traffic_periods.get('last_7_days', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('last_7_days', {}).get('difference', ''))}\n- 30 天：{format_bytes(traffic_periods.get('last_30_days', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('last_30_days', {}).get('difference', ''))}\n- 月份：{format_bytes(traffic_periods.get('current_month', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('current_month', {}).get('difference', ''))}\n- 年份：{format_bytes(traffic_periods.get('current_year', {}).get('current', 0))}{format_traffic_change(traffic_periods.get('current_year', {}).get('difference', ''))}"
 
     if bandwidth.get('realtime_total', 0) > 0:
-        text += f"""
-⚡ <b>Реалтайм трафик:</b>
-- Скачивание: {format_bytes(bandwidth.get('realtime_download', 0))}
-- Загрузка: {format_bytes(bandwidth.get('realtime_upload', 0))}
-- Итого: {format_bytes(bandwidth.get('realtime_total', 0))}
-"""
+        text += f"⚡ <b>实时路况：</b>\n- 下载：{format_bytes(bandwidth.get('realtime_download', 0))}\n- 加载：{format_bytes(bandwidth.get('realtime_upload', 0))}\n- 总计：{format_bytes(bandwidth.get('realtime_total', 0))}"
 
-    text += f"""
-🕒 <b>Обновлено:</b> {format_datetime(stats.get('last_updated', datetime.now(UTC)))}
-"""
+    text += f"🕒 <b>更新：</b> {format_datetime(stats.get('last_updated', datetime.now(UTC)))}"
 
     keyboard = [
-        [types.InlineKeyboardButton(text='🔄 Обновить', callback_data='admin_rw_system')],
+        [types.InlineKeyboardButton(text='🔄 刷新', callback_data='admin_rw_system')],
         [
-            types.InlineKeyboardButton(text='📈 Ноды', callback_data='admin_rw_nodes'),
-            types.InlineKeyboardButton(text='👥 Синхронизация', callback_data='admin_rw_sync'),
+            types.InlineKeyboardButton(text='📈 节点', callback_data='admin_rw_nodes'),
+            types.InlineKeyboardButton(text='👥 同步', callback_data='admin_rw_sync'),
         ],
-        [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')],
+        [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')],
     ]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard))
@@ -1073,9 +1012,9 @@ async def show_traffic_stats(callback: types.CallbackQuery, db_user: User, db: A
 
     except Exception as e:
         await callback.message.edit_text(
-            f'❌ Ошибка получения статистики трафика: {e!s}',
+            f'❌ 获取流量统计错误：{e!s}',
             reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')]]
+                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')]]
             ),
         )
         await callback.answer()
@@ -1105,52 +1044,17 @@ async def show_traffic_stats(callback: types.CallbackQuery, db_user: User, db: A
             return f' 🔻 {diff_str[1:]}'
         return f' 🔺 {diff_str}'
 
-    text = f"""
-📊 <b>Статистика трафика Remnawave</b>
-
-⚡ <b>Трафик по inbounds:</b>
-- Скачивание: {format_bytes(total_realtime_download)}
-- Загрузка: {format_bytes(total_realtime_upload)}
-- Общий трафик: {format_bytes(total_realtime)}
-- Пользователи онлайн: {total_users_online}
-
-📈 <b>Статистика по периодам:</b>
-
-<b>За 2 дня:</b>
-- Текущий: {format_bytes(parse_bandwidth(periods['last_2_days'].get('current', '0')))}
-- Предыдущий: {format_bytes(parse_bandwidth(periods['last_2_days'].get('previous', '0')))}
-- Изменение:{format_change(periods['last_2_days'].get('difference', ''))}
-
-<b>За 7 дней:</b>
-- Текущий: {format_bytes(parse_bandwidth(periods['last_7_days'].get('current', '0')))}
-- Предыдущий: {format_bytes(parse_bandwidth(periods['last_7_days'].get('previous', '0')))}
-- Изменение:{format_change(periods['last_7_days'].get('difference', ''))}
-
-<b>За 30 дней:</b>
-- Текущий: {format_bytes(parse_bandwidth(periods['last_30_days'].get('current', '0')))}
-- Предыдущий: {format_bytes(parse_bandwidth(periods['last_30_days'].get('previous', '0')))}
-- Изменение:{format_change(periods['last_30_days'].get('difference', ''))}
-
-<b>Текущий месяц:</b>
-- Текущий: {format_bytes(parse_bandwidth(periods['current_month'].get('current', '0')))}
-- Предыдущий: {format_bytes(parse_bandwidth(periods['current_month'].get('previous', '0')))}
-- Изменение:{format_change(periods['current_month'].get('difference', ''))}
-
-<b>Текущий год:</b>
-- Текущий: {format_bytes(parse_bandwidth(periods['current_year'].get('current', '0')))}
-- Предыдущий: {format_bytes(parse_bandwidth(periods['current_year'].get('previous', '0')))}
-- Изменение:{format_change(periods['current_year'].get('difference', ''))}
-"""
+    text = f"📊 <b>流量统计Remnawave</b>\n\n⚡ <b>入站流量：</b>\n- 下载：{format_bytes(total_realtime_download)}\n- 加载：{format_bytes(total_realtime_upload)}\n- 总流量：{format_bytes(total_realtime)}\n- 在线用户：{total_users_online}\n\n📈 <b> 按期间统计：</b>\n\n<b>2天内：</b>\n- 当前：{format_bytes(parse_bandwidth(periods['last_2_days'].get('current', '0')))}\n- 上一页：{format_bytes(parse_bandwidth(periods['last_2_days'].get('previous', '0')))}\n- 更改：{format_change(periods['last_2_days'].get('difference', ''))}\n\n<b>7天内：</b>\n- 当前：{format_bytes(parse_bandwidth(periods['last_7_days'].get('current', '0')))}\n- 上一页：{format_bytes(parse_bandwidth(periods['last_7_days'].get('previous', '0')))}\n- 更改：{format_change(periods['last_7_days'].get('difference', ''))}\n\n<b>30天内：</b>\n- 当前：{format_bytes(parse_bandwidth(periods['last_30_days'].get('current', '0')))}\n- 上一页：{format_bytes(parse_bandwidth(periods['last_30_days'].get('previous', '0')))}\n- 更改：{format_change(periods['last_30_days'].get('difference', ''))}\n\n<b>当前月份：</b>\n- 当前：{format_bytes(parse_bandwidth(periods['current_month'].get('current', '0')))}\n- 上一页：{format_bytes(parse_bandwidth(periods['current_month'].get('previous', '0')))}\n- 更改：{format_change(periods['current_month'].get('difference', ''))}\n\n<b>当前年份：</b>\n- 当前：{format_bytes(parse_bandwidth(periods['current_year'].get('current', '0')))}\n- 上一篇：{format_bytes(parse_bandwidth(periods['current_year'].get('previous', '0')))}\n- 更改：{format_change(periods['current_year'].get('difference', ''))}"
 
     if realtime_usage:
-        text += '\n🌐 <b>Трафик по нодам (реалтайм):</b>\n'
+        text += '🌐 <b> 节点流量（实时）：</b>'
         for node in sorted(realtime_usage, key=lambda x: x.get('totalBytes', 0), reverse=True):
             node_total = node.get('totalBytes', 0)
             if node_total > 0:
                 text += f'- {node.get("nodeName", "Unknown")}: {format_bytes(node_total)}\n'
 
     if nodes_stats.get('lastSevenDays'):
-        text += '\n📊 <b>Топ нод за 7 дней:</b>\n'
+        text += '📊 <b> 7 天顶级节点：</b>'
 
         nodes_weekly = {}
         for day_data in nodes_stats['lastSevenDays']:
@@ -1163,15 +1067,15 @@ async def show_traffic_stats(callback: types.CallbackQuery, db_user: User, db: A
         for i, (node_name, total_bytes) in enumerate(sorted_nodes[:5], 1):
             text += f'{i}. {node_name}: {format_bytes(total_bytes)}\n'
 
-    text += f'\n🕒 <b>Обновлено:</b> {format_datetime(datetime.now(UTC))}'
+    text += f'🕒 <b>更新：</b> {format_datetime(datetime.now(UTC))}'
 
     keyboard = [
-        [types.InlineKeyboardButton(text='🔄 Обновить', callback_data='admin_rw_traffic')],
+        [types.InlineKeyboardButton(text='🔄 刷新', callback_data='admin_rw_traffic')],
         [
-            types.InlineKeyboardButton(text='📈 Ноды', callback_data='admin_rw_nodes'),
-            types.InlineKeyboardButton(text='📊 Система', callback_data='admin_rw_system'),
+            types.InlineKeyboardButton(text='📈 节点', callback_data='admin_rw_nodes'),
+            types.InlineKeyboardButton(text='📊 系统', callback_data='admin_rw_system'),
         ],
-        [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')],
+        [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')],
     ]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard))
@@ -1186,15 +1090,15 @@ async def show_nodes_management(callback: types.CallbackQuery, db_user: User, db
 
     if not nodes:
         await callback.message.edit_text(
-            '🖥️ Ноды не найдены или ошибка подключения',
+            '🖥️ 找不到节点或连接错误',
             reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')]]
+                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')]]
             ),
         )
         await callback.answer()
         return
 
-    text = '🖥️ <b>Управление нодами</b>\n\n'
+    text = '🖥️ <b>节点管理</b>'
     keyboard = []
 
     for node in nodes:
@@ -1203,7 +1107,7 @@ async def show_nodes_management(callback: types.CallbackQuery, db_user: User, db
 
         text += f'{status_emoji} {connection_emoji} <b>{node["name"]}</b>\n'
         text += f'🌍 {node["country_code"]} • {node["address"]}\n'
-        text += f'👥 Онлайн: {node["users_online"] or 0}\n\n'
+        text += f"👥 在线：{node['users_online'] or 0}"
 
         keyboard.append(
             [types.InlineKeyboardButton(text=f'⚙️ {node["name"]}', callback_data=f'admin_node_manage_{node["uuid"]}')]
@@ -1211,8 +1115,8 @@ async def show_nodes_management(callback: types.CallbackQuery, db_user: User, db
 
     keyboard.extend(
         [
-            [types.InlineKeyboardButton(text='🔄 Перезагрузить все', callback_data='admin_restart_all_nodes')],
-            [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')],
+            [types.InlineKeyboardButton(text='🔄 重新加载所有内容', callback_data='admin_restart_all_nodes')],
+            [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')],
         ]
     )
 
@@ -1229,7 +1133,7 @@ async def show_node_details(callback: types.CallbackQuery, db_user: User, db: As
     node = await remnawave_service.get_node_details(node_uuid)
 
     if not node:
-        await callback.answer('❌ Нода не найдена', show_alert=True)
+        await callback.answer('❌ 未找到节点', show_alert=True)
         return
 
     status_emoji = '🟢' if node['is_node_online'] else '🔴'
@@ -1257,42 +1161,7 @@ async def show_node_details(callback: types.CallbackQuery, db_user: User, db: As
     else:
         xray_uptime_str = '—'
 
-    text = f"""
-🖥️ <b>Нода: {html.escape(node['name'])}</b>
-
-<b>Статус:</b>
-- Онлайн: {status_emoji} {'Да' if node['is_node_online'] else 'Нет'}
-- Xray: {xray_emoji} {'Запущен' if node['is_xray_running'] else 'Остановлен'}
-- Подключена: {'📡 Да' if node['is_connected'] else '📵 Нет'}
-- Отключена: {'❌ Да' if node['is_disabled'] else '✅ Нет'}
-- Изменение статуса: {status_change}
-- Сообщение: {html.escape(str(node.get('last_status_message') or '—'))}
-- Uptime Xray: {xray_uptime_str}
-
-<b>Версии:</b>
-- Xray: {xray_ver}
-- Node: {node_ver}
-
-<b>Информация:</b>
-- Адрес: {html.escape(node['address'])}
-- Страна: {html.escape(node['country_code'])}
-- Пользователей онлайн: {node['users_online']}
-- CPU: {cpu_info}
-- RAM: {total_ram}
-- Провайдер: {html.escape(str(node.get('provider_uuid') or '—'))}
-
-<b>Трафик:</b>
-- Использовано: {format_bytes(node['traffic_used_bytes'])}
-- Лимит: {format_bytes(node['traffic_limit_bytes']) if node['traffic_limit_bytes'] else 'Без лимита'}
-- Трекинг: {'✅ Активен' if node.get('is_traffic_tracking_active') else '❌ Отключен'}
-- День сброса: {node.get('traffic_reset_day') or '—'}
-- Уведомления: {notify_percent}
-- Множитель: {node.get('consumption_multiplier') or 1}
-
-<b>Метаданные:</b>
-- Создана: {created_at}
-- Обновлена: {updated_at}
-"""
+    text = f"🖥️ <b>节点：{html.escape(node['name'])}</b>\n\n<b>状态：</b>\n- 在线：{status_emoji} {('Да' if node['is_node_online'] else 'Нет')}\n- X射线：{xray_emoji} {('Запущен' if node['is_xray_running'] else 'Остановлен')}\n- 已连接：{('📡 Да' if node['is_connected'] else '📵 Нет')}\n- 禁用：{('❌ Да' if node['is_disabled'] else '✅ Нет')}\n- 状态变更：{status_change}\n- 消息：{html.escape(str(node.get('last_status_message') or '—'))}\n- 正常运行时间 X 射线：{xray_uptime_str}\n\n<b>版本：</b>\n- X射线：{xray_ver}\n- 节点：{node_ver}\n\n<b>信息：</b>\n- 地址：{html.escape(node['address'])}\n- 国家：{html.escape(node['country_code'])}\n- 在线用户：{node['users_online']}\n- CPU：{cpu_info}\n- 内存：{total_ram}\n- 提供商：{html.escape(str(node.get('provider_uuid') or '—'))}\n\n<b>流量：</b>\n- 二手：{format_bytes(node['traffic_used_bytes'])}\n- 限额：{(format_bytes(node['traffic_limit_bytes']) if node['traffic_limit_bytes'] else 'Без лимита')}\n- 追踪：{('✅ Активен' if node.get('is_traffic_tracking_active') else '❌ Отключен')}\n- 重置日：{node.get('traffic_reset_day') or '—'}\n- 通知：{notify_percent}\n- 乘数：{node.get('consumption_multiplier') or 1}\n\n<b>元数据：</b>\n- 创建者：{created_at}\n- 更新：{updated_at}"
 
     await callback.message.edit_text(text, reply_markup=get_node_management_keyboard(node_uuid, db_user.language))
     await callback.answer()
@@ -1308,9 +1177,9 @@ async def manage_node(callback: types.CallbackQuery, db_user: User, db: AsyncSes
 
     if success:
         action_text = {'enable': 'включена', 'disable': 'отключена', 'restart': 'перезагружена'}
-        await callback.answer(f'✅ Нода {action_text.get(action, "обработана")}')
+        await callback.answer(f"✅ 节点 {action_text.get(action, 'обработана')}")
     else:
-        await callback.answer('❌ Ошибка выполнения действия', show_alert=True)
+        await callback.answer('❌ 动作执行错误', show_alert=True)
 
     await show_node_details(callback, db_user, db)
 
@@ -1325,7 +1194,7 @@ async def show_node_statistics(callback: types.CallbackQuery, db_user: User, db:
     node = await remnawave_service.get_node_details(node_uuid)
 
     if not node:
-        await callback.answer('❌ Нода не найдена', show_alert=True)
+        await callback.answer('❌ 未找到节点', show_alert=True)
         return
 
     status_emoji = '🟢' if node['is_node_online'] else '🔴'
@@ -1370,62 +1239,27 @@ async def show_node_statistics(callback: types.CallbackQuery, db_user: User, db:
         xray_ver = html.escape(str(versions.get('xray') or '—'))
         node_ver = html.escape(str(versions.get('node') or '—'))
 
-        text = f"""
-📊 <b>Статистика ноды: {html.escape(node['name'])}</b>
-
-<b>Статус:</b>
-- Онлайн: {status_emoji} {'Да' if node['is_node_online'] else 'Нет'}
-- Xray: {xray_emoji} {'Запущен' if node['is_xray_running'] else 'Остановлен'} (v{xray_ver})
-- Node: v{node_ver}
-- Пользователей онлайн: {node['users_online']}
-- Изменение статуса: {status_change}
-- Сообщение: {html.escape(str(node.get('last_status_message') or '—'))}
-- Uptime Xray: {xray_uptime_str}
-
-<b>Ресурсы:</b>
-- CPU: {cpu_info}
-- RAM: {total_ram}
-- Load: {load_str}
-- Провайдер: {html.escape(str(node.get('provider_uuid') or '—'))}
-
-<b>Трафик:</b>
-- Использовано: {format_bytes(node['traffic_used_bytes'] or 0)}
-- Лимит: {format_bytes(node['traffic_limit_bytes']) if node['traffic_limit_bytes'] else 'Без лимита'}
-- Трекинг: {'✅ Активен' if node.get('is_traffic_tracking_active') else '❌ Отключен'}
-- День сброса: {node.get('traffic_reset_day') or '—'}
-- Уведомления: {notify_percent}
-- Множитель: {node.get('consumption_multiplier') or 1}
-
-<b>Метаданные:</b>
-- Создана: {created_at}
-- Обновлена: {updated_at}
-"""
+        text = f"📊 <b>节点统计：{html.escape(node['name'])}</b>\n\n<b>状态：</b>\n- 在线：{status_emoji} {('Да' if node['is_node_online'] else 'Нет')}\n- X射线：{xray_emoji} {('Запущен' if node['is_xray_running'] else 'Остановлен')} (v{xray_ver})\n- 节点：v{node_ver}\n- 在线用户：{node['users_online']}\n- 状态变更：{status_change}\n- 消息：{html.escape(str(node.get('last_status_message') or '—'))}\n- 正常运行时间 X 射线：{xray_uptime_str}\n\n<b>资源：</b>\n- CPU：{cpu_info}\n- 内存：{total_ram}\n- 负载：{load_str}\n- 提供商：{html.escape(str(node.get('provider_uuid') or '—'))}\n\n<b>流量：</b>\n- 二手：{format_bytes(node['traffic_used_bytes'] or 0)}\n- 极限：{(format_bytes(node['traffic_limit_bytes']) if node['traffic_limit_bytes'] else 'Без лимита')}\n- 追踪：{('✅ Активен' if node.get('is_traffic_tracking_active') else '❌ Отключен')}\n- 重置日：{node.get('traffic_reset_day') or '—'}\n- 通知：{notify_percent}\n- 乘数：{node.get('consumption_multiplier') or 1}\n\n<b>元数据：</b>\n- 创建者：{created_at}\n- 更新：{updated_at}"
 
         if node_realtime:
-            text += f"""
-<b>Трафик по inbounds:</b>
-- Скачано: {format_bytes(node_realtime.get('downloadBytes', 0))}
-- Загружено: {format_bytes(node_realtime.get('uploadBytes', 0))}
-- Общий трафик: {format_bytes(node_realtime.get('totalBytes', 0))}
-- Онлайн: {node_realtime.get('usersOnline', 0)}
-"""
+            text += f"<b>入站流量：</b>\n- 下载者：{format_bytes(node_realtime.get('downloadBytes', 0))}\n- 上传者: {format_bytes(node_realtime.get('uploadBytes', 0))}\n- 总流量：{format_bytes(node_realtime.get('totalBytes', 0))}\n- 在线：{node_realtime.get('usersOnline', 0)}"
 
         if node_usage:
-            text += '\n<b>Статистика за 7 дней:</b>\n'
+            text += '<b> 7天统计：</b>'
             total_usage = 0
             for usage in node_usage[-5:]:
                 daily_usage = usage.get('total', 0)
                 total_usage += daily_usage
                 text += f'- {usage.get("date", "N/A")}: {format_bytes(daily_usage)}\n'
 
-            text += f'\n<b>Общий трафик за 7 дней:</b> {format_bytes(total_usage)}'
+            text += f'<b> 7天总流量：</b> {format_bytes(total_usage)}'
         else:
-            text += '\n<b>Статистика за 7 дней:</b> Данные недоступны'
+            text += '<b> 7天统计：</b> 数据不可用'
 
         keyboard = types.InlineKeyboardMarkup(
             inline_keyboard=[
-                [types.InlineKeyboardButton(text='🔄 Обновить', callback_data=f'node_stats_{node_uuid}')],
-                [types.InlineKeyboardButton(text='⬅️ Назад', callback_data=f'admin_node_manage_{node_uuid}')],
+                [types.InlineKeyboardButton(text='🔄 刷新', callback_data=f'node_stats_{node_uuid}')],
+                [types.InlineKeyboardButton(text='⬅️ 返回', callback_data=f'admin_node_manage_{node_uuid}')],
             ]
         )
 
@@ -1433,40 +1267,14 @@ async def show_node_statistics(callback: types.CallbackQuery, db_user: User, db:
         await callback.answer()
 
     except Exception as e:
-        logger.error('Ошибка получения статистики ноды', node_uuid=node_uuid, error=e)
+        logger.error('获取节点统计信息时出错', node_uuid=node_uuid, error=e)
 
-        text = f"""
-📊 <b>Статистика ноды: {html.escape(node['name'])}</b>
-
-<b>Статус:</b>
-- Онлайн: {status_emoji} {'Да' if node['is_node_online'] else 'Нет'}
-- Xray: {xray_emoji} {'Запущен' if node['is_xray_running'] else 'Остановлен'}
-- Пользователей онлайн: {node['users_online']}
-- Изменение статуса: {format_datetime(node.get('last_status_change')) if node.get('last_status_change') else '—'}
-- Сообщение: {html.escape(str(node.get('last_status_message') or '—'))}
-- Uptime Xray: {xray_uptime_str}
-
-<b>Трафик:</b>
-- Использовано: {format_bytes(node['traffic_used_bytes'] or 0)}
-- Лимит: {format_bytes(node['traffic_limit_bytes']) if node['traffic_limit_bytes'] else 'Без лимита'}
-- Трекинг: {'✅ Активен' if node.get('is_traffic_tracking_active') else '❌ Отключен'}
-- День сброса: {node.get('traffic_reset_day') or '—'}
-- Уведомления: {node.get('notify_percent') or '—'}
-- Множитель: {node.get('consumption_multiplier') or 1}
-
-⚠️ <b>Детальная статистика временно недоступна</b>
-Возможные причины:
-• Проблемы с подключением к API
-• Нода недавно добавлена
-• Недостаточно данных для отображения
-
-<b>Обновлено:</b> {format_datetime('now')}
-"""
+        text = f"📊 <b>节点统计：{html.escape(node['name'])}</b>\n\n<b>状态：</b>\n- 在线：{status_emoji} {('Да' if node['is_node_online'] else 'Нет')}\n- X射线：{xray_emoji} {('Запущен' if node['is_xray_running'] else 'Остановлен')}\n- 在线用户：{node['users_online']}\n- 状态变更：{(format_datetime(node.get('last_status_change')) if node.get('last_status_change') else '—')}\n- 消息：{html.escape(str(node.get('last_status_message') or '—'))}\n- 正常运行时间 X 射线：{xray_uptime_str}\n\n<b>流量：</b>\n- 二手：{format_bytes(node['traffic_used_bytes'] or 0)}\n- 极限：{(format_bytes(node['traffic_limit_bytes']) if node['traffic_limit_bytes'] else 'Без лимита')}\n- 追踪：{('✅ Активен' if node.get('is_traffic_tracking_active') else '❌ Отключен')}\n- 重置日：{node.get('traffic_reset_day') or '—'}\n- 通知：{node.get('notify_percent') or '—'}\n- 乘数：{node.get('consumption_multiplier') or 1}\n\n⚠️<b>详细统计暂时无法获取</b>\n可能的原因：\n• 连接到 API 时出现问题\n• 最近添加的节点\n• 没有足够的数据来显示\n\n<b>更新：</b> {format_datetime('now')}"
 
         keyboard = types.InlineKeyboardMarkup(
             inline_keyboard=[
-                [types.InlineKeyboardButton(text='🔄 Попробовать снова', callback_data=f'node_stats_{node_uuid}')],
-                [types.InlineKeyboardButton(text='⬅️ Назад', callback_data=f'admin_node_manage_{node_uuid}')],
+                [types.InlineKeyboardButton(text='🔄再试一次', callback_data=f'node_stats_{node_uuid}')],
+                [types.InlineKeyboardButton(text='⬅️ 返回', callback_data=f'admin_node_manage_{node_uuid}')],
             ]
         )
 
@@ -1483,25 +1291,16 @@ async def show_squad_details(callback: types.CallbackQuery, db_user: User, db: A
     squad = await remnawave_service.get_squad_details(squad_uuid)
 
     if not squad:
-        await callback.answer('❌ Сквад не найден', show_alert=True)
+        await callback.answer('❌ 找不到小队', show_alert=True)
         return
 
-    text = f"""
-🌐 <b>Сквад: {squad['name']}</b>
-
-<b>Информация:</b>
-- UUID: <code>{squad['uuid']}</code>
-- Участников: {squad['members_count']}
-- Инбаундов: {squad['inbounds_count']}
-
-<b>Инбаунды:</b>
-"""
+    text = f"🌐 <b> 小队：{squad['name']}</b>\n\n<b>信息：</b>\n- UUID：<code>{squad['uuid']}</code>\n- 参与者：{squad['members_count']}\n- 界外球：{squad['inbounds_count']}\n\n<b>出界：</b>"
 
     if squad.get('inbounds'):
         for inbound in squad['inbounds']:
             text += f'- {inbound["tag"]} ({inbound["type"]})\n'
     else:
-        text += 'Нет активных инбаундов'
+        text += '无有效入站'
 
     await callback.message.edit_text(text, reply_markup=get_squad_management_keyboard(squad_uuid, db_user.language))
     await callback.answer()
@@ -1519,28 +1318,28 @@ async def manage_squad_action(callback: types.CallbackQuery, db_user: User, db: 
     if action == 'add_users':
         success = await remnawave_service.add_all_users_to_squad(squad_uuid)
         if success:
-            await callback.answer('✅ Задача добавления пользователей в очередь')
+            await callback.answer('✅ 将用户添加到队列的任务')
         else:
-            await callback.answer('❌ Ошибка добавления пользователей', show_alert=True)
+            await callback.answer('❌ 添加用户时出错', show_alert=True)
 
     elif action == 'remove_users':
         success = await remnawave_service.remove_all_users_from_squad(squad_uuid)
         if success:
-            await callback.answer('✅ Задача удаления пользователей в очередь')
+            await callback.answer('✅ 将用户从队列中移除的任务')
         else:
-            await callback.answer('❌ Ошибка удаления пользователей', show_alert=True)
+            await callback.answer('❌ 删除用户时出错', show_alert=True)
 
     elif action == 'delete':
         success = await remnawave_service.delete_squad(squad_uuid)
         if success:
             await callback.message.edit_text(
-                '✅ Сквад успешно удален',
+                '✅ 队伍已成功删除',
                 reply_markup=types.InlineKeyboardMarkup(
-                    inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ К сквадам', callback_data='admin_rw_squads')]]
+                    inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ 致各小队', callback_data='admin_rw_squads')]]
                 ),
             )
         else:
-            await callback.answer('❌ Ошибка удаления сквада', show_alert=True)
+            await callback.answer('❌ 删除小队时出错', show_alert=True)
         return
 
     refreshed_callback = callback.model_copy(update={'data': f'admin_squad_manage_{squad_uuid}'}).as_(callback.bot)
@@ -1557,22 +1356,18 @@ async def show_squad_edit_menu(callback: types.CallbackQuery, db_user: User, db:
     squad = await remnawave_service.get_squad_details(squad_uuid)
 
     if not squad:
-        await callback.answer('❌ Сквад не найден', show_alert=True)
+        await callback.answer('❌ 找不到小队', show_alert=True)
         return
 
-    text = f"""
-✏️ <b>Редактирование сквада: {squad['name']}</b>
-
-<b>Текущие инбаунды:</b>
-"""
+    text = f"✏️ <b>编辑小队：{squad['name']}</b>\n\n<b>当前入站：</b>"
 
     if squad.get('inbounds'):
         for inbound in squad['inbounds']:
             text += f'✅ {inbound["tag"]} ({inbound["type"]})\n'
     else:
-        text += 'Нет активных инбаундов\n'
+        text += '无有效入站'
 
-    text += '\n<b>Доступные действия:</b>'
+    text += '<b>可用操作：</b>'
 
     await callback.message.edit_text(text, reply_markup=get_squad_edit_keyboard(squad_uuid, db_user.language))
     await callback.answer()
@@ -1589,24 +1384,17 @@ async def show_squad_inbounds_selection(callback: types.CallbackQuery, db_user: 
     all_inbounds = await remnawave_service.get_all_inbounds()
 
     if not squad:
-        await callback.answer('❌ Сквад не найден', show_alert=True)
+        await callback.answer('❌ 找不到小队', show_alert=True)
         return
 
     if not all_inbounds:
-        await callback.answer('❌ Нет доступных инбаундов', show_alert=True)
+        await callback.answer('❌ 没有可用的入站', show_alert=True)
         return
 
     if squad_uuid not in squad_inbound_selections:
         squad_inbound_selections[squad_uuid] = {inbound['uuid'] for inbound in squad.get('inbounds', [])}
 
-    text = f"""
-🔧 <b>Изменение инбаундов</b>
-
-<b>Сквад:</b> {squad['name']}
-<b>Текущих инбаундов:</b> {len(squad_inbound_selections[squad_uuid])}
-
-<b>Доступные инбаунды:</b>
-"""
+    text = f"🔧 <b>改变界内</b>\n\n<b>小队：</b> {squad['name']}\n<b>当前入站：</b> {len(squad_inbound_selections[squad_uuid])}\n\n<b>Available inbounds:</b>"
 
     keyboard = []
 
@@ -1623,12 +1411,12 @@ async def show_squad_inbounds_selection(callback: types.CallbackQuery, db_user: 
         )
 
     if len(all_inbounds) > 15:
-        text += f'\n⚠️ Показано первые 15 из {len(all_inbounds)} инбаундов'
+        text += f'⚠️ 显示 {len(all_inbounds)} 的前 15 个入界'
 
     keyboard.extend(
         [
-            [types.InlineKeyboardButton(text='💾 Сохранить изменения', callback_data=f'sqd_save_{squad_uuid[:8]}')],
-            [types.InlineKeyboardButton(text='⬅️ Назад', callback_data=f'sqd_edit_{squad_uuid[:8]}')],
+            [types.InlineKeyboardButton(text='💾 保存更改', callback_data=f'sqd_save_{squad_uuid[:8]}')],
+            [types.InlineKeyboardButton(text='⬅️ 返回', callback_data=f'sqd_edit_{squad_uuid[:8]}')],
         ]
     )
 
@@ -1645,28 +1433,15 @@ async def show_squad_rename_form(callback: types.CallbackQuery, db_user: User, d
     squad = await remnawave_service.get_squad_details(squad_uuid)
 
     if not squad:
-        await callback.answer('❌ Сквад не найден', show_alert=True)
+        await callback.answer('❌ 找不到小队', show_alert=True)
         return
 
     await state.update_data(squad_uuid=squad_uuid, squad_name=squad['name'])
     await state.set_state(SquadRenameStates.waiting_for_new_name)
 
-    text = f"""
-✏️ <b>Переименование сквада</b>
+    text = f"✏️ <b>重命名小队</b>\n\n<b>现名：</b> {squad['name']}\n\n📝 <b>输入新的小队名称：</b>\n\n<i>姓名要求：</i>\n• 2 到20 个字符\n• 仅限字母、数字、连字符和下划线\n• 没有空格或特殊字符\n\n使用新名称发送消息或单击“取消”退出。"
 
-<b>Текущее название:</b> {squad['name']}
-
-📝 <b>Введите новое название сквада:</b>
-
-<i>Требования к названию:</i>
-• От 2 до 20 символов
-• Только буквы, цифры, дефисы и подчеркивания
-• Без пробелов и специальных символов
-
-Отправьте сообщение с новым названием или нажмите "Отмена" для выхода.
-"""
-
-    keyboard = [[types.InlineKeyboardButton(text='❌ Отмена', callback_data=f'cancel_rename_{squad_uuid}')]]
+    keyboard = [[types.InlineKeyboardButton(text='❌ 取消', callback_data=f'cancel_rename_{squad_uuid}')]]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard))
     await callback.answer()
@@ -1692,30 +1467,30 @@ async def process_squad_new_name(message: types.Message, db_user: User, db: Asyn
     old_name = data.get('squad_name')
 
     if not squad_uuid:
-        await message.answer('❌ Ошибка: сквад не найден')
+        await message.answer('❌ 错误：找不到小队')
         await state.clear()
         return
 
     new_name = message.text.strip()
 
     if not new_name:
-        await message.answer('❌ Название не может быть пустым. Попробуйте еще раз:')
+        await message.answer('❌ 标题不能为空。再试一次：')
         return
 
     if len(new_name) < 2 or len(new_name) > 20:
-        await message.answer('❌ Название должно быть от 2 до 20 символов. Попробуйте еще раз:')
+        await message.answer('❌ 名称必须为 2 至 20 个字符。再试一次：')
         return
 
     import re
 
     if not re.match(r'^[A-Za-z0-9_-]+$', new_name):
         await message.answer(
-            '❌ Название может содержать только буквы, цифры, дефисы и подчеркивания. Попробуйте еще раз:'
+            '❌ 名称只能包含字母、数字、连字符和下划线。再试一次：'
         )
         return
 
     if new_name == old_name:
-        await message.answer('❌ Новое название совпадает с текущим. Введите другое название:')
+        await message.answer('❌ 新名称与当前名称一致。输入另一个名字：')
         return
 
     remnawave_service = RemnaWaveService()
@@ -1723,32 +1498,25 @@ async def process_squad_new_name(message: types.Message, db_user: User, db: Asyn
 
     if success:
         await message.answer(
-            f'✅ <b>Сквад успешно переименован!</b>\n\n'
-            f'<b>Старое название:</b> {old_name}\n'
-            f'<b>Новое название:</b> {new_name}',
+            f'✅ <b>小队成功更名！</b>\n\n<b>旧名称：</b> {old_name}\n<b>新名称：</b> {new_name}',
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
                     [
                         types.InlineKeyboardButton(
-                            text='📋 Детали сквада', callback_data=f'admin_squad_manage_{squad_uuid}'
+                            text='📋 球队详情', callback_data=f'admin_squad_manage_{squad_uuid}'
                         )
                     ],
-                    [types.InlineKeyboardButton(text='⬅️ К сквадам', callback_data='admin_rw_squads')],
+                    [types.InlineKeyboardButton(text='⬅️ 致各小队', callback_data='admin_rw_squads')],
                 ]
             ),
         )
         await state.clear()
     else:
         await message.answer(
-            '❌ <b>Ошибка переименования сквада</b>\n\n'
-            'Возможные причины:\n'
-            '• Сквад с таким названием уже существует\n'
-            '• Проблемы с подключением к API\n'
-            '• Недостаточно прав\n\n'
-            'Попробуйте другое название:',
+            '❌ <b> 球队更名错误</b>\n\n可能的原因：\n• 已存在同名小队\n• 连接到 API 时出现问题\n• 权利不足\n\n尝试使用不同的名称：',
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
-                    [types.InlineKeyboardButton(text='❌ Отмена', callback_data=f'cancel_rename_{squad_uuid}')]
+                    [types.InlineKeyboardButton(text='❌ 取消', callback_data=f'cancel_rename_{squad_uuid}')]
                 ]
             ),
         )
@@ -1771,12 +1539,12 @@ async def toggle_squad_inbound(callback: types.CallbackQuery, db_user: User, db:
             break
 
     if not full_squad_uuid:
-        await callback.answer('❌ Сквад не найден', show_alert=True)
+        await callback.answer('❌ 找不到小队', show_alert=True)
         return
 
     all_inbounds = await remnawave_service.get_all_inbounds()
     if inbound_index >= len(all_inbounds):
-        await callback.answer('❌ Инбаунд не найден', show_alert=True)
+        await callback.answer('❌ 未找到入站', show_alert=True)
         return
 
     selected_inbound = all_inbounds[inbound_index]
@@ -1786,19 +1554,12 @@ async def toggle_squad_inbound(callback: types.CallbackQuery, db_user: User, db:
 
     if selected_inbound['uuid'] in squad_inbound_selections[full_squad_uuid]:
         squad_inbound_selections[full_squad_uuid].remove(selected_inbound['uuid'])
-        await callback.answer(f'➖ Убран: {selected_inbound["tag"]}')
+        await callback.answer(f"➖ 删除：{selected_inbound['tag']}")
     else:
         squad_inbound_selections[full_squad_uuid].add(selected_inbound['uuid'])
-        await callback.answer(f'➕ Добавлен: {selected_inbound["tag"]}')
+        await callback.answer(f"➕ 添加：{selected_inbound['tag']}")
 
-    text = f"""
-🔧 <b>Изменение инбаундов</b>
-
-<b>Сквад:</b> {squads[0]['name'] if squads else 'Неизвестно'}
-<b>Выбрано инбаундов:</b> {len(squad_inbound_selections[full_squad_uuid])}
-
-<b>Доступные инбаунды:</b>
-"""
+    text = f"🔧 <b>改变界内</b>\n\n<b>小队：</b> {(squads[0]['name'] if squads else 'Неизвестно')}\n<b>入界选择：</b> {len(squad_inbound_selections[full_squad_uuid])}\n\n<b>可用入界：</b>"
 
     keyboard = []
     for i, inbound in enumerate(all_inbounds[:15]):
@@ -1816,8 +1577,8 @@ async def toggle_squad_inbound(callback: types.CallbackQuery, db_user: User, db:
 
     keyboard.extend(
         [
-            [types.InlineKeyboardButton(text='💾 Сохранить изменения', callback_data=f'sqd_save_{short_squad_uuid}')],
-            [types.InlineKeyboardButton(text='⬅️ Назад', callback_data=f'sqd_edit_{short_squad_uuid}')],
+            [types.InlineKeyboardButton(text='💾 保存更改', callback_data=f'sqd_save_{short_squad_uuid}')],
+            [types.InlineKeyboardButton(text='⬅️ 返回', callback_data=f'sqd_edit_{short_squad_uuid}')],
         ]
     )
 
@@ -1841,7 +1602,7 @@ async def save_squad_inbounds(callback: types.CallbackQuery, db_user: User, db: 
             break
 
     if not full_squad_uuid:
-        await callback.answer('❌ Сквад не найден', show_alert=True)
+        await callback.answer('❌ 找不到小队', show_alert=True)
         return
 
     selected_inbounds = squad_inbound_selections.get(full_squad_uuid, set())
@@ -1853,27 +1614,25 @@ async def save_squad_inbounds(callback: types.CallbackQuery, db_user: User, db: 
             squad_inbound_selections.pop(full_squad_uuid, None)
 
             await callback.message.edit_text(
-                f'✅ <b>Инбаунды сквада обновлены</b>\n\n'
-                f'<b>Сквад:</b> {squad_name}\n'
-                f'<b>Количество инбаундов:</b> {len(selected_inbounds)}',
+                f'✅ <b> 球队入界更新</b>\n\n<b>小队：</b> {squad_name}\n<b> 入界次数：</b> {len(selected_inbounds)}',
                 reply_markup=types.InlineKeyboardMarkup(
                     inline_keyboard=[
-                        [types.InlineKeyboardButton(text='⬅️ К сквадам', callback_data='admin_rw_squads')],
+                        [types.InlineKeyboardButton(text='⬅️ 致各小队', callback_data='admin_rw_squads')],
                         [
                             types.InlineKeyboardButton(
-                                text='📋 Детали сквада', callback_data=f'admin_squad_manage_{full_squad_uuid}'
+                                text='📋 球队详情', callback_data=f'admin_squad_manage_{full_squad_uuid}'
                             )
                         ],
                     ]
                 ),
             )
-            await callback.answer('✅ Изменения сохранены!')
+            await callback.answer('✅ 更改已保存！')
         else:
-            await callback.answer('❌ Ошибка сохранения изменений', show_alert=True)
+            await callback.answer('❌ 保存更改时出错', show_alert=True)
 
     except Exception as e:
         logger.error('Error saving squad inbounds', error=e)
-        await callback.answer('❌ Ошибка при сохранении', show_alert=True)
+        await callback.answer('❌ 保存时出错', show_alert=True)
 
 
 @admin_required
@@ -1891,7 +1650,7 @@ async def show_squad_edit_menu_short(callback: types.CallbackQuery, db_user: Use
             break
 
     if not full_squad_uuid:
-        await callback.answer('❌ Сквад не найден', show_alert=True)
+        await callback.answer('❌ 找不到小队', show_alert=True)
         return
 
     refreshed_callback = callback.model_copy(update={'data': f'squad_edit_{full_squad_uuid}'}).as_(callback.bot)
@@ -1904,22 +1663,9 @@ async def show_squad_edit_menu_short(callback: types.CallbackQuery, db_user: Use
 async def start_squad_creation(callback: types.CallbackQuery, db_user: User, db: AsyncSession, state: FSMContext):
     await state.set_state(SquadCreateStates.waiting_for_name)
 
-    text = """
-➕ <b>Создание нового сквада</b>
+    text = '➕ <b>创建新小队</b>\n\n<b>第 1 步（共 2 步）：小队名称</b>\n\n📝 <b>输入新小队的名称：</b>\n\n<i>姓名要求：</i>\n• 2 到20 个字符\n• 仅限字母、数字、连字符和下划线\n• 没有空格或特殊字符\n\n发送包含该名称的消息或单击“取消”退出。'
 
-<b>Шаг 1 из 2: Название сквада</b>
-
-📝 <b>Введите название для нового сквада:</b>
-
-<i>Требования к названию:</i>
-• От 2 до 20 символов
-• Только буквы, цифры, дефисы и подчеркивания
-• Без пробелов и специальных символов
-
-Отправьте сообщение с названием или нажмите "Отмена" для выхода.
-"""
-
-    keyboard = [[types.InlineKeyboardButton(text='❌ Отмена', callback_data='cancel_squad_create')]]
+    keyboard = [[types.InlineKeyboardButton(text='❌ 取消', callback_data='cancel_squad_create')]]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard))
     await callback.answer()
@@ -1931,18 +1677,18 @@ async def process_squad_name(message: types.Message, db_user: User, db: AsyncSes
     squad_name = message.text.strip()
 
     if not squad_name:
-        await message.answer('❌ Название не может быть пустым. Попробуйте еще раз:')
+        await message.answer('❌ 标题不能为空。再试一次：')
         return
 
     if len(squad_name) < 2 or len(squad_name) > 20:
-        await message.answer('❌ Название должно быть от 2 до 20 символов. Попробуйте еще раз:')
+        await message.answer('❌ 名称必须为 2 至 20 个字符。再试一次：')
         return
 
     import re
 
     if not re.match(r'^[A-Za-z0-9_-]+$', squad_name):
         await message.answer(
-            '❌ Название может содержать только буквы, цифры, дефисы и подчеркивания. Попробуйте еще раз:'
+            '❌ 名称只能包含字母、数字、连字符和下划线。再试一次：'
         )
         return
 
@@ -1957,23 +1703,15 @@ async def process_squad_name(message: types.Message, db_user: User, db: AsyncSes
 
     if not all_inbounds:
         await message.answer(
-            '❌ <b>Нет доступных инбаундов</b>\n\nДля создания сквада необходимо иметь хотя бы один инбаунд.',
+            '❌ <b>无可用入界</b>\n\n要创建一支球队，您必须至少有一名入队球员。',
             reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ К сквадам', callback_data='admin_rw_squads')]]
+                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ 致各小队', callback_data='admin_rw_squads')]]
             ),
         )
         await state.clear()
         return
 
-    text = f"""
-➕ <b>Создание сквада: {squad_name}</b>
-
-<b>Шаг 2 из 2: Выбор инбаундов</b>
-
-<b>Выбрано инбаундов:</b> 0
-
-<b>Доступные инбаунды:</b>
-"""
+    text = f'➕ <b>创建小队：{squad_name}</b>\n\n<b>第 2 步（共 2 步）：选择入站</b>\n\n<b>入界选择：</b> 0\n\n<b>可用入界：</b>'
 
     keyboard = []
 
@@ -1987,12 +1725,12 @@ async def process_squad_name(message: types.Message, db_user: User, db: AsyncSes
         )
 
     if len(all_inbounds) > 15:
-        text += f'\n⚠️ Показано первые 15 из {len(all_inbounds)} инбаундов'
+        text += f'⚠️ 显示 {len(all_inbounds)} 的前 15 个入界'
 
     keyboard.extend(
         [
-            [types.InlineKeyboardButton(text='✅ Создать сквад', callback_data='create_squad_finish')],
-            [types.InlineKeyboardButton(text='❌ Отмена', callback_data='cancel_squad_create')],
+            [types.InlineKeyboardButton(text='✅ 创建小队', callback_data='create_squad_finish')],
+            [types.InlineKeyboardButton(text='❌ 取消', callback_data='cancel_squad_create')],
         ]
     )
 
@@ -2006,7 +1744,7 @@ async def toggle_create_inbound(callback: types.CallbackQuery, db_user: User, db
     user_id = callback.from_user.id
 
     if user_id not in squad_create_data:
-        await callback.answer('❌ Ошибка: данные сессии не найдены', show_alert=True)
+        await callback.answer('❌ 错误：找不到会话数据', show_alert=True)
         await state.clear()
         return
 
@@ -2014,7 +1752,7 @@ async def toggle_create_inbound(callback: types.CallbackQuery, db_user: User, db
     all_inbounds = await remnawave_service.get_all_inbounds()
 
     if inbound_index >= len(all_inbounds):
-        await callback.answer('❌ Инбаунд не найден', show_alert=True)
+        await callback.answer('❌ 未找到入站', show_alert=True)
         return
 
     selected_inbound = all_inbounds[inbound_index]
@@ -2022,22 +1760,14 @@ async def toggle_create_inbound(callback: types.CallbackQuery, db_user: User, db
 
     if selected_inbound['uuid'] in selected_inbounds:
         selected_inbounds.remove(selected_inbound['uuid'])
-        await callback.answer(f'➖ Убран: {selected_inbound["tag"]}')
+        await callback.answer(f"➖ 删除：{selected_inbound['tag']}")
     else:
         selected_inbounds.add(selected_inbound['uuid'])
-        await callback.answer(f'➕ Добавлен: {selected_inbound["tag"]}')
+        await callback.answer(f"➕ 添加：{selected_inbound['tag']}")
 
     squad_name = squad_create_data[user_id]['name']
 
-    text = f"""
-➕ <b>Создание сквада: {squad_name}</b>
-
-<b>Шаг 2 из 2: Выбор инбаундов</b>
-
-<b>Выбрано инбаундов:</b> {len(selected_inbounds)}
-
-<b>Доступные инбаунды:</b>
-"""
+    text = f'➕ <b>创建小队：{squad_name}</b>\n\n<b>第 2 步（共 2 步）：选择入站</b>\n\n<b>入界选择：</b> {len(selected_inbounds)}\n\n<b>可用入界：</b>'
 
     keyboard = []
 
@@ -2055,8 +1785,8 @@ async def toggle_create_inbound(callback: types.CallbackQuery, db_user: User, db
 
     keyboard.extend(
         [
-            [types.InlineKeyboardButton(text='✅ Создать сквад', callback_data='create_squad_finish')],
-            [types.InlineKeyboardButton(text='❌ Отмена', callback_data='cancel_squad_create')],
+            [types.InlineKeyboardButton(text='✅ 创建小队', callback_data='create_squad_finish')],
+            [types.InlineKeyboardButton(text='❌ 取消', callback_data='cancel_squad_create')],
         ]
     )
 
@@ -2069,7 +1799,7 @@ async def finish_squad_creation(callback: types.CallbackQuery, db_user: User, db
     user_id = callback.from_user.id
 
     if user_id not in squad_create_data:
-        await callback.answer('❌ Ошибка: данные сессии не найдены', show_alert=True)
+        await callback.answer('❌ 错误：找不到会话数据', show_alert=True)
         await state.clear()
         return
 
@@ -2077,7 +1807,7 @@ async def finish_squad_creation(callback: types.CallbackQuery, db_user: User, db
     selected_inbounds = list(squad_create_data[user_id]['selected_inbounds'])
 
     if not selected_inbounds:
-        await callback.answer('❌ Необходимо выбрать хотя бы один инбаунд', show_alert=True)
+        await callback.answer('❌ 您必须至少选择一项入境', show_alert=True)
         return
 
     remnawave_service = RemnaWaveService()
@@ -2088,35 +1818,26 @@ async def finish_squad_creation(callback: types.CallbackQuery, db_user: User, db
 
     if success:
         await callback.message.edit_text(
-            f'✅ <b>Сквад успешно создан!</b>\n\n'
-            f'<b>Название:</b> {squad_name}\n'
-            f'<b>Количество инбаундов:</b> {len(selected_inbounds)}\n\n'
-            f'Сквад готов к использованию!',
+            f'✅ <b>小队创建成功！</b>\n\n<b>名称：</b> {squad_name}\n<b> 入界次数：</b> {len(selected_inbounds)}\n\n小队已准备好使用！',
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
-                    [types.InlineKeyboardButton(text='📋 Список сквадов', callback_data='admin_rw_squads')],
-                    [types.InlineKeyboardButton(text='⬅️ К панели Remnawave', callback_data='admin_remnawave')],
+                    [types.InlineKeyboardButton(text='📋 阵容名单', callback_data='admin_rw_squads')],
+                    [types.InlineKeyboardButton(text='⬅️ 至面板Remnawave', callback_data='admin_remnawave')],
                 ]
             ),
         )
-        await callback.answer('✅ Сквад создан!')
+        await callback.answer('✅ 小队已创建！')
     else:
         await callback.message.edit_text(
-            f'❌ <b>Ошибка создания сквада</b>\n\n'
-            f'<b>Название:</b> {squad_name}\n\n'
-            f'Возможные причины:\n'
-            f'• Сквад с таким названием уже существует\n'
-            f'• Проблемы с подключением к API\n'
-            f'• Недостаточно прав\n'
-            f'• Некорректные инбаунды',
+            f'❌ <b> 创建小队时出错 </b>\n\n<b>名称：</b> {squad_name}\n\n可能的原因：\n• 已存在同名小队\n• 连接到 API 时出现问题\n• 权利不足\n• 错误的入界',
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
-                    [types.InlineKeyboardButton(text='🔄 Попробовать снова', callback_data='admin_squad_create')],
-                    [types.InlineKeyboardButton(text='⬅️ К сквадам', callback_data='admin_rw_squads')],
+                    [types.InlineKeyboardButton(text='🔄再试一次', callback_data='admin_squad_create')],
+                    [types.InlineKeyboardButton(text='⬅️ 致各小队', callback_data='admin_rw_squads')],
                 ]
             ),
         )
-        await callback.answer('❌ Ошибка создания сквада', show_alert=True)
+        await callback.answer('❌ 创建小队时出错', show_alert=True)
 
 
 @admin_required
@@ -2138,16 +1859,16 @@ async def restart_all_nodes(callback: types.CallbackQuery, db_user: User, db: As
 
     if success:
         await callback.message.edit_text(
-            '✅ Команда перезагрузки всех нод отправлена',
+            '✅ 重启所有节点的命令已发送',
             reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ К нодам', callback_data='admin_rw_nodes')]]
+                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ 到节点', callback_data='admin_rw_nodes')]]
             ),
         )
     else:
         await callback.message.edit_text(
-            '❌ Ошибка перезагрузки нод',
+            '❌ 重启节点时出错',
             reply_markup=types.InlineKeyboardMarkup(
-                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ К нодам', callback_data='admin_rw_nodes')]]
+                inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ 到节点', callback_data='admin_rw_nodes')]]
             ),
         )
 
@@ -2198,23 +1919,23 @@ async def show_sync_options(callback: types.CallbackQuery, db_user: User, db: As
     keyboard = [
         [
             types.InlineKeyboardButton(
-                text='🔄 Запустить полную синхронизацию',
+                text='🔄 开始完全同步',
                 callback_data='sync_all_users',
             )
         ],
         [
             types.InlineKeyboardButton(
-                text='⬆️ Синхронизация в панель',
+                text='⬆️ 同步到面板',
                 callback_data='sync_to_panel',
             )
         ],
         [
             types.InlineKeyboardButton(
-                text='⚙️ Настройки автосинхронизации',
+                text='⚙️ 自动同步设置',
                 callback_data='admin_rw_auto_sync',
             )
         ],
-        [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')],
+        [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')],
     ]
 
     await callback.message.edit_text(
@@ -2269,7 +1990,7 @@ async def toggle_auto_sync_setting(
         reply_markup=keyboard,
         parse_mode='HTML',
     )
-    await callback.answer(f'Автосинхронизация {"включена" if new_value else "отключена"}')
+    await callback.answer(f"自动同步 {('включена' if new_value else 'отключена')}")
 
 
 @admin_required
@@ -2304,7 +2025,7 @@ async def prompt_auto_sync_schedule(
             inline_keyboard=[
                 [
                     types.InlineKeyboardButton(
-                        text='❌ Отмена',
+                        text='❌ 取消',
                         callback_data='remnawave_auto_sync_cancel',
                     )
                 ]
@@ -2331,7 +2052,7 @@ async def cancel_auto_sync_schedule(
         reply_markup=keyboard,
         parse_mode='HTML',
     )
-    await callback.answer('Изменение расписания отменено')
+    await callback.answer('时间表更改已取消')
 
 
 @admin_required
@@ -2343,15 +2064,15 @@ async def run_auto_sync_now(
     state: FSMContext,
 ):
     if remnawave_sync_service.get_status().is_running:
-        await callback.answer('Синхронизация уже выполняется', show_alert=True)
+        await callback.answer('同步已在进行中', show_alert=True)
         return
 
     await state.clear()
     await callback.message.edit_text(
-        '🔄 Запуск автосинхронизации...\n\nПодождите, это может занять несколько минут.',
+        '🔄 开始自动同步...\n\n请稍候，这可能需要几分钟。',
         parse_mode='HTML',
     )
-    await callback.answer('Автосинхронизация запущена')
+    await callback.answer('自动同步已开始')
 
     result = await remnawave_sync_service.run_sync_now(reason='manual')
     status = remnawave_sync_service.get_status()
@@ -2421,14 +2142,14 @@ async def save_auto_sync_schedule(
                 reply_markup=keyboard,
                 parse_mode='HTML',
             )
-        await message.answer('Настройка расписания отменена')
+        await message.answer('时间表设置已取消')
         return
 
     parsed_times = settings.parse_daily_time_list(text)
 
     if not parsed_times:
         await message.answer(
-            '❌ Не удалось распознать время. Используйте формат HH:MM, например 03:00 или 18:45.',
+            '❌ 无法识别时间。使用 HH:MM 格式，例如 03:00 或 18:45。',
         )
         return
 
@@ -2461,7 +2182,7 @@ async def save_auto_sync_schedule(
         )
 
     await state.clear()
-    await message.answer('✅ Расписание автосинхронизации обновлено')
+    await message.answer('✅ 自动同步时间表已更新')
 
 
 @admin_required
@@ -2491,61 +2212,36 @@ async def sync_all_users(callback: types.CallbackQuery, db_user: User, db: Async
 
     if stats['errors'] == 0:
         status_emoji = '✅'
-        status_text = 'успешно завершена'
+        status_text = '成功完成'
     elif stats['errors'] < total_operations:
         status_emoji = '⚠️'
-        status_text = 'завершена с предупреждениями'
+        status_text = '已完成但有警告'
     else:
         status_emoji = '❌'
-        status_text = 'завершена с ошибками'
+        status_text = '完成但有错误'
 
-    text = f"""
-{status_emoji} <b>Полная синхронизация {status_text}</b>
-
-📊 <b>Результат:</b>
-• 🆕 Создано: {stats['created']}
-• 🔄 Обновлено: {stats['updated']}
-• 🗑️ Деактивировано: {stats.get('deleted', 0)}
-• ❌ Ошибок: {stats['errors']}
-"""
+    text = f"{status_emoji} <b>全同步 {status_text}</b>\n\n📊 <b> 结果：</b>\n• 🆕 创建者：{stats['created']}\n• 🔄 更新：{stats['updated']}\n• 🗑️ 已停用：{stats.get('deleted', 0)}\n• ❌ 错误：{stats['errors']}"
 
     if stats.get('deleted', 0) > 0:
-        text += """
-
-🗑️ <b>Деактивированные подписки:</b>
-Деактивированы подписки пользователей, которые
-отсутствуют в панели Remnawave.
-💰 Балансы пользователей сохранены.
-"""
+        text += '🗑️ <b>已停用订阅：</b>\n用户的订阅量\nRemnawave 面板中缺失。\n💰 用户余额被保存。'
 
     if stats['errors'] > 0:
-        text += """
+        text += '⚠️<b>注意：</b>\n某些操作完成时出现错误。\n检查日志以获取详细信息。'
 
-⚠️ <b>Внимание:</b>
-Некоторые операции завершились с ошибками.
-Проверьте логи для получения подробной информации.
-"""
-
-    text += """
-
-💡 <b>Рекомендации:</b>
-• Полная синхронизация выполнена
-• Рекомендуется запускать раз в день
-• Все пользователи из панели синхронизированы
-"""
+    text += '💡 <b>推荐：</b>\n• 完全同步完成\n• 建议每天运行一次\n• 面板中的所有用户均已同步'
 
     keyboard = []
 
     if stats['errors'] > 0:
-        keyboard.append([types.InlineKeyboardButton(text='🔄 Повторить синхронизацию', callback_data='sync_all_users')])
+        keyboard.append([types.InlineKeyboardButton(text='🔄 重新同步', callback_data='sync_all_users')])
 
     keyboard.extend(
         [
             [
-                types.InlineKeyboardButton(text='📊 Статистика системы', callback_data='admin_rw_system'),
-                types.InlineKeyboardButton(text='🌐 Ноды', callback_data='admin_rw_nodes'),
+                types.InlineKeyboardButton(text='📊 系统统计', callback_data='admin_rw_system'),
+                types.InlineKeyboardButton(text='🌐 节点', callback_data='admin_rw_nodes'),
             ],
-            [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')],
+            [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')],
         ]
     )
 
@@ -2561,7 +2257,7 @@ async def sync_users_to_panel(
     db: AsyncSession,
 ):
     await callback.message.edit_text(
-        '⬆️ Выполняется синхронизация данных бота в панель Remnawave...\n\nЭто может занять несколько минут.',
+        '⬆️ 机器人数据正在同步到 Remnawave 面板中...\n\n这可能需要几分钟。',
         reply_markup=None,
     )
 
@@ -2570,23 +2266,19 @@ async def sync_users_to_panel(
 
     if stats['errors'] == 0:
         status_emoji = '✅'
-        status_text = 'успешно завершена'
+        status_text = '成功完成'
     else:
         status_emoji = '⚠️' if (stats['created'] + stats['updated']) > 0 else '❌'
         status_text = 'завершена с предупреждениями' if status_emoji == '⚠️' else 'завершена с ошибками'
 
     text = (
-        f'{status_emoji} <b>Синхронизация в панель {status_text}</b>\n\n'
-        '📊 <b>Результаты:</b>\n'
-        f'• 🆕 Создано: {stats["created"]}\n'
-        f'• 🔄 Обновлено: {stats["updated"]}\n'
-        f'• ❌ Ошибок: {stats["errors"]}'
+        f"{status_emoji} <b>同步至面板 {status_text}</b>\n\n📊 <b>结果：</b>\n• 🆕 创建者：{stats['created']}\n• 🔄 更新：{stats['updated']}\n• ❌ 错误：{stats['errors']}"
     )
 
     keyboard = [
-        [types.InlineKeyboardButton(text='🔄 Повторить', callback_data='sync_to_panel')],
-        [types.InlineKeyboardButton(text='🔄 Полная синхронизация', callback_data='sync_all_users')],
-        [types.InlineKeyboardButton(text='⬅️ К синхронизации', callback_data='admin_rw_sync')],
+        [types.InlineKeyboardButton(text='🔄 重试', callback_data='sync_to_panel')],
+        [types.InlineKeyboardButton(text='🔄 完全同步', callback_data='sync_all_users')],
+        [types.InlineKeyboardButton(text='⬅️ 同步', callback_data='admin_rw_sync')],
     ]
 
     await callback.message.edit_text(
@@ -2599,32 +2291,25 @@ async def sync_users_to_panel(
 @admin_required
 @error_handler
 async def show_sync_recommendations(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
-    await callback.message.edit_text('🔍 Анализируем состояние синхронизации...', reply_markup=None)
+    await callback.message.edit_text('🔍 正在分析同步状态...', reply_markup=None)
 
     remnawave_service = RemnaWaveService()
     recommendations = await remnawave_service.get_sync_recommendations(db)
 
     priority_emoji = {'low': '🟢', 'medium': '🟡', 'high': '🔴'}
 
-    text = f"""
-💡 <b>Рекомендации по синхронизации</b>
-
-{priority_emoji.get(recommendations['priority'], '🟢')} <b>Приоритет:</b> {recommendations['priority'].upper()}
-⏱️ <b>Время выполнения:</b> {recommendations['estimated_time']}
-
-<b>Рекомендуемое действие:</b>
-"""
+    text = f"💡 <b>同步建议</b>\n\n{priority_emoji.get(recommendations['priority'], '🟢')} <b>优先级：</b> {recommendations['priority'].upper()}\n⏱️ <b> 运行时间：</b> {recommendations['estimated_time']}\n\n<b> 推荐操作：</b>"
 
     if recommendations['sync_type'] == 'all':
-        text += '🔄 Полная синхронизация'
+        text += '🔄 完全同步'
     elif recommendations['sync_type'] == 'update_only':
-        text += '📈 Обновление данных'
+        text += '📈 数据更新'
     elif recommendations['sync_type'] == 'new_only':
-        text += '🆕 Синхронизация новых'
+        text += '🆕 新内容同步'
     else:
-        text += '✅ Синхронизация не требуется'
+        text += '✅ 无需同步'
 
-    text += '\n\n<b>Причины:</b>\n'
+    text += '<b> 原因：</b>'
     for reason in recommendations['reasons']:
         text += f'• {reason}\n'
 
@@ -2634,7 +2319,7 @@ async def show_sync_recommendations(callback: types.CallbackQuery, db_user: User
         keyboard.append(
             [
                 types.InlineKeyboardButton(
-                    text='✅ Выполнить рекомендацию',
+                    text='✅ 遵循建议',
                     callback_data=f'sync_{recommendations["sync_type"]}_users'
                     if recommendations['sync_type'] != 'update_only'
                     else 'sync_update_data',
@@ -2644,8 +2329,8 @@ async def show_sync_recommendations(callback: types.CallbackQuery, db_user: User
 
     keyboard.extend(
         [
-            [types.InlineKeyboardButton(text='🔄 Другие опции', callback_data='admin_rw_sync')],
-            [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')],
+            [types.InlineKeyboardButton(text='🔄 其他选择', callback_data='admin_rw_sync')],
+            [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')],
         ]
     )
 
@@ -2657,7 +2342,7 @@ async def show_sync_recommendations(callback: types.CallbackQuery, db_user: User
 @error_handler
 async def validate_subscriptions(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
     await callback.message.edit_text(
-        '🔍 Выполняется валидация подписок...\n\nПроверяем данные, может занять несколько минут.', reply_markup=None
+        '🔍 订阅正在验证中...\n\n我们检查数据，可能需要几分钟。', reply_markup=None
     )
 
     remnawave_service = RemnaWaveService()
@@ -2665,35 +2350,27 @@ async def validate_subscriptions(callback: types.CallbackQuery, db_user: User, d
 
     if stats['errors'] == 0:
         status_emoji = '✅'
-        status_text = 'успешно завершена'
+        status_text = '成功完成'
     else:
         status_emoji = '⚠️'
-        status_text = 'завершена с ошибками'
+        status_text = '完成但有错误'
 
-    text = f"""
-{status_emoji} <b>Валидация {status_text}</b>
-
-📊 <b>Результаты:</b>
-• 🔍 Проверено подписок: {stats['checked']}
-• 🔧 Исправлено подписок: {stats['fixed']}
-• ⚠️ Найдено проблем: {stats['issues_found']}
-• ❌ Ошибок: {stats['errors']}
-"""
+    text = f"{status_emoji} <b>验证 {status_text}</b>\n\n📊 <b>结果：</b>\n• 🔍 已验证订阅：{stats['checked']}\n• 🔧 固定订阅：{stats['fixed']}\n•⚠️发现问题：{stats['issues_found']}\n• ❌ 错误：{stats['errors']}"
 
     if stats['fixed'] > 0:
-        text += '\n✅ <b>Исправленные проблемы:</b>\n'
-        text += '• Статусы просроченных подписок\n'
-        text += '• Отсутствующие данные Remnawave\n'
-        text += '• Некорректные лимиты трафика\n'
-        text += '• Настройки устройств\n'
+        text += '✅ <b> 已修复问题：</b>'
+        text += '• 过期订阅的状态'
+        text += '• 缺失数据Remnawave'
+        text += '• 不正确的流量限制'
+        text += '• 设备设置'
 
     if stats['errors'] > 0:
-        text += '\n⚠️ Обнаружены ошибки при обработке.\nПроверьте логи для подробной информации.'
+        text += '⚠️ 处理过程中检测到错误。\n检查日志以获取详细信息。'
 
     keyboard = [
-        [types.InlineKeyboardButton(text='🔄 Повторить валидацию', callback_data='sync_validate')],
-        [types.InlineKeyboardButton(text='🔄 Полная синхронизация', callback_data='sync_all_users')],
-        [types.InlineKeyboardButton(text='⬅️ К синхронизации', callback_data='admin_rw_sync')],
+        [types.InlineKeyboardButton(text='🔄重复验证', callback_data='sync_validate')],
+        [types.InlineKeyboardButton(text='🔄 完全同步', callback_data='sync_all_users')],
+        [types.InlineKeyboardButton(text='⬅️ 同步', callback_data='admin_rw_sync')],
     ]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard))
@@ -2704,7 +2381,7 @@ async def validate_subscriptions(callback: types.CallbackQuery, db_user: User, d
 @error_handler
 async def cleanup_subscriptions(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
     await callback.message.edit_text(
-        '🧹 Выполняется очистка неактуальных подписок...\n\nУдаляем подписки пользователей, отсутствующих в панели.',
+        '🧹 不相关订阅正在清除中...\n\n我们删除不在面板中的用户的订阅。',
         reply_markup=None,
     )
 
@@ -2713,34 +2390,27 @@ async def cleanup_subscriptions(callback: types.CallbackQuery, db_user: User, db
 
     if stats['errors'] == 0:
         status_emoji = '✅'
-        status_text = 'успешно завершена'
+        status_text = '成功完成'
     else:
         status_emoji = '⚠️'
-        status_text = 'завершена с ошибками'
+        status_text = '完成但有错误'
 
-    text = f"""
-{status_emoji} <b>Очистка {status_text}</b>
-
-📊 <b>Результаты:</b>
-• 🔍 Проверено подписок: {stats['checked']}
-• 🗑️ Деактивировано: {stats['deactivated']}
-• ❌ Ошибок: {stats['errors']}
-"""
+    text = f"{status_emoji} <b>清洁 {status_text}</b>\n\n📊 <b>结果：</b>\n• 🔍 已验证订阅：{stats['checked']}\n• 🗑️ 已停用：{stats['deactivated']}\n• ❌ 错误：{stats['errors']}"
 
     if stats['deactivated'] > 0:
-        text += '\n🗑️ <b>Деактивированные подписки:</b>\n'
-        text += 'Отключены подписки пользователей, которые\n'
-        text += 'отсутствуют в панели Remnawave.\n'
+        text += '🗑️ <b>已停用订阅：</b>'
+        text += '已禁用以下用户的订阅'
+        text += '面板 Remnawave 缺失。'
     else:
-        text += '\n✅ Все подписки актуальны!\nНеактуальных подписок не найдено.'
+        text += '✅ 所有订阅都是最新的！\n未找到过时的订阅。'
 
     if stats['errors'] > 0:
-        text += '\n⚠️ Обнаружены ошибки при обработке.\nПроверьте логи для подробной информации.'
+        text += '⚠️ 处理过程中检测到错误。\n检查日志以获取详细信息。'
 
     keyboard = [
-        [types.InlineKeyboardButton(text='🔄 Повторить очистку', callback_data='sync_cleanup')],
-        [types.InlineKeyboardButton(text='🔍 Валидация', callback_data='sync_validate')],
-        [types.InlineKeyboardButton(text='⬅️ К синхронизации', callback_data='admin_rw_sync')],
+        [types.InlineKeyboardButton(text='🔄重复清洁', callback_data='sync_cleanup')],
+        [types.InlineKeyboardButton(text='🔍 验证', callback_data='sync_validate')],
+        [types.InlineKeyboardButton(text='⬅️ 同步', callback_data='admin_rw_sync')],
     ]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard))
@@ -2751,10 +2421,7 @@ async def cleanup_subscriptions(callback: types.CallbackQuery, db_user: User, db
 @error_handler
 async def force_cleanup_all_orphaned_users(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
     await callback.message.edit_text(
-        '🗑️ Выполняется принудительная очистка всех пользователей, отсутствующих в панели...\n\n'
-        '⚠️ ВНИМАНИЕ: Это полностью удалит ВСЕ данные пользователей!\n'
-        '📊 Включая: транзакции, реферальные доходы, промокоды, серверы, балансы\n\n'
-        '⏳ Пожалуйста, подождите...',
+        '🗑️强制清除所有不在面板中的用户...\n\n⚠️警告：这将完全删除所有用户数据！\n📊 包括：交易、推荐收入、促销代码、服务器、余额\n\n⏳请稍候...',
         reply_markup=None,
     )
 
@@ -2763,43 +2430,25 @@ async def force_cleanup_all_orphaned_users(callback: types.CallbackQuery, db_use
 
     if stats['errors'] == 0:
         status_emoji = '✅'
-        status_text = 'успешно завершена'
+        status_text = '成功完成'
     else:
         status_emoji = '⚠️'
-        status_text = 'завершена с ошибками'
+        status_text = '完成但有错误'
 
-    text = f"""
-{status_emoji} <b>Принудительная очистка {status_text}</b>
-
-📊 <b>Результаты:</b>
-• 🔍 Проверено подписок: {stats['checked']}
-• 🗑️ Полностью очищено: {stats['deactivated']}
-• ❌ Ошибок: {stats['errors']}
-"""
+    text = f"{status_emoji} <b>强制清洗 {status_text}</b>\n\n📊 <b>结果：</b>\n• 🔍 已验证订阅：{stats['checked']}\n• 🗑️完全通关：{stats['deactivated']}\n• ❌ 错误：{stats['errors']}"
 
     if stats['deactivated'] > 0:
-        text += """
-
-🗑️ <b>Полностью очищенные данные:</b>
-• Подписки сброшены к начальному состоянию
-• Удалены ВСЕ транзакции пользователей
-• Удалены ВСЕ реферальные доходы
-• Удалены использования промокодов
-• Сброшены балансы к нулю
-• Удалены подключенные серверы
-• Сброшены HWID устройства в Remnawave
-• Очищены Remnawave UUID
-"""
+        text += '🗑️<b>完全清除数据：</b>\n• 订阅已重置为初始状态\n• 所有用户交易均被删除\n• 所有推荐收入均已删除\n• 删除了促销代码的使用\n• 余额重置为零\n• 连接的服务器已删除\n• 将 HWID 设备重置为 Remnawave\n• 已清洁 Remnawave UUID'
     else:
-        text += '\n✅ Неактуальных подписок не найдено!\nВсе пользователи синхронизированы с панелью.'
+        text += '✅ 未发现过时的订阅！\n所有用户都与面板同步。'
 
     if stats['errors'] > 0:
-        text += '\n⚠️ Обнаружены ошибки при обработке.\nПроверьте логи для подробной информации.'
+        text += '⚠️ 处理过程中检测到错误。\n检查日志以获取详细信息。'
 
     keyboard = [
-        [types.InlineKeyboardButton(text='🔄 Повторить очистку', callback_data='force_cleanup_orphaned')],
-        [types.InlineKeyboardButton(text='🔄 Полная синхронизация', callback_data='sync_all_users')],
-        [types.InlineKeyboardButton(text='⬅️ К синхронизации', callback_data='admin_rw_sync')],
+        [types.InlineKeyboardButton(text='🔄重复清洁', callback_data='force_cleanup_orphaned')],
+        [types.InlineKeyboardButton(text='🔄 完全同步', callback_data='sync_all_users')],
+        [types.InlineKeyboardButton(text='⬅️ 同步', callback_data='admin_rw_sync')],
     ]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard))
@@ -2809,31 +2458,11 @@ async def force_cleanup_all_orphaned_users(callback: types.CallbackQuery, db_use
 @admin_required
 @error_handler
 async def confirm_force_cleanup(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
-    text = """
-⚠️ <b>ВНИМАНИЕ! ОПАСНАЯ ОПЕРАЦИЯ!</b>
-
-🗑️ <b>Принудительная очистка полностью удалит:</b>
-• ВСЕ транзакции пользователей отсутствующих в панели
-• ВСЕ реферальные доходы и связи
-• ВСЕ использования промокодов
-• ВСЕ подключенные серверы подписок
-• ВСЕ балансы (сброс к нулю)
-• ВСЕ HWID устройства в Remnawave
-• ВСЕ Remnawave UUID и ссылки
-
-⚡ <b>Это действие НЕОБРАТИМО!</b>
-
-Используйте только если:
-• Обычная синхронизация не помогает
-• Нужно полностью очистить "мусорные" данные
-• После массового удаления пользователей из панели
-
-❓ <b>Вы действительно хотите продолжить?</b>
-"""
+    text = '⚠️<b>注意！危险操作！</b>\n\n🗑️<b>强制清洗将彻底去除：</b>\n• 不在面板中的用户的所有交易\n• 所有推荐收入和关系\n• 所有促销代码的使用\n• 所有连接的订阅服务器\n• 所有余额（重置为零）\n• Remnawave 中的所有 HWID 设备\n• 所有 Remnawave UUID 和链接\n\n⚡ <b>这个动作是不可逆转的！</b>\n\n仅在以下情况下使用：\n• 定期同步没有帮助\n• 有必要彻底清除“垃圾”数据\n• 从面板中大量删除用户后\n\n❓ <b>您确定要继续吗？</b>'
 
     keyboard = [
-        [types.InlineKeyboardButton(text='🗑️ ДА, ОЧИСТИТЬ ВСЕ', callback_data='force_cleanup_orphaned')],
-        [types.InlineKeyboardButton(text='❌ Отмена', callback_data='admin_rw_sync')],
+        [types.InlineKeyboardButton(text='🗑️ 是的，清除一切', callback_data='force_cleanup_orphaned')],
+        [types.InlineKeyboardButton(text='❌ 取消', callback_data='admin_rw_sync')],
     ]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard))
@@ -2875,73 +2504,69 @@ async def sync_users(callback: types.CallbackQuery, db_user: User, db: AsyncSess
 
     if stats['errors'] == 0:
         status_emoji = '✅'
-        status_text = 'успешно завершена'
+        status_text = '成功完成'
     elif stats['errors'] < total_operations:
         status_emoji = '⚠️'
-        status_text = 'завершена с предупреждениями'
+        status_text = '已完成但有警告'
     else:
         status_emoji = '❌'
-        status_text = 'завершена с ошибками'
+        status_text = '完成但有错误'
 
-    text = f"""
-{status_emoji} <b>Синхронизация {status_text}</b>
-
-📊 <b>Результат:</b>
-"""
+    text = f'{status_emoji} <b>同步 {status_text}</b>\n\n📊 <b> 结果：</b>'
 
     if sync_type == 'all_users':
-        text += f'• 🆕 Создано: {stats["created"]}\n'
-        text += f'• 🔄 Обновлено: {stats["updated"]}\n'
+        text += f"• 🆕 创建者：{stats['created']}"
+        text += f"• 🔄 更新：{stats['updated']}"
         if 'deleted' in stats:
-            text += f'• 🗑️ Удалено: {stats["deleted"]}\n'
-        text += f'• ❌ Ошибок: {stats["errors"]}\n'
+            text += f"• 🗑️ 已删除：{stats['deleted']}"
+        text += f"• ❌ 错误：{stats['errors']}"
     elif sync_type == 'new_users':
-        text += f'• 🆕 Создано: {stats["created"]}\n'
-        text += f'• ❌ Ошибок: {stats["errors"]}\n'
+        text += f"• 🆕 创建者：{stats['created']}"
+        text += f"• ❌ 错误：{stats['errors']}"
         if stats['created'] == 0 and stats['errors'] == 0:
-            text += '\n💡 Новых пользователей не найдено'
+            text += '💡 没有发现新用户'
     elif sync_type == 'update_data':
-        text += f'• 🔄 Обновлено: {stats["updated"]}\n'
-        text += f'• ❌ Ошибок: {stats["errors"]}\n'
+        text += f"• 🔄 更新：{stats['updated']}"
+        text += f"• ❌ 错误：{stats['errors']}"
         if stats['updated'] == 0 and stats['errors'] == 0:
-            text += '\n💡 Все данные актуальны'
+            text += '💡所有数据均为最新数据'
 
     if stats['errors'] > 0:
-        text += '\n⚠️ <b>Внимание:</b>\n'
-        text += 'Некоторые операции завершились с ошибками.\n'
-        text += 'Проверьте логи для получения подробной информации.'
+        text += '⚠️<b>注意：</b>'
+        text += '某些操作完成时出现错误。'
+        text += '检查日志以获取详细信息。'
 
     if sync_type == 'all_users' and 'deleted' in stats and stats['deleted'] > 0:
-        text += '\n🗑️ <b>Удаленные подписки:</b>\n'
-        text += 'Деактивированы подписки пользователей,\n'
-        text += 'которые отсутствуют в панели Remnawave.'
+        text += '🗑️ <b>远程订阅：</b>'
+        text += '用户订阅已停用'
+        text += 'Remnawave 面板中缺少这些。'
 
-    text += '\n\n💡 <b>Рекомендации:</b>\n'
+    text += '💡 <b>推荐：</b>'
     if sync_type == 'all_users':
-        text += '• Полная синхронизация выполнена\n'
-        text += '• Рекомендуется запускать раз в день\n'
+        text += '• 完全同步完成'
+        text += '• 建议每天运行一次'
     elif sync_type == 'new_users':
-        text += '• Синхронизация новых пользователей\n'
-        text += '• Используйте при массовом добавлении\n'
+        text += '• 新用户同步'
+        text += '• 批量添加时使用'
     elif sync_type == 'update_data':
-        text += '• Обновление данных о трафике\n'
-        text += '• Запускайте для актуализации статистики\n'
+        text += '• 流量数据更新'
+        text += '• 运行以更新统计数据'
 
     keyboard = []
 
     if stats['errors'] > 0:
-        keyboard.append([types.InlineKeyboardButton(text='🔄 Повторить синхронизацию', callback_data=callback.data)])
+        keyboard.append([types.InlineKeyboardButton(text='🔄 重新同步', callback_data=callback.data)])
 
     if sync_type != 'all_users':
-        keyboard.append([types.InlineKeyboardButton(text='🔄 Полная синхронизация', callback_data='sync_all_users')])
+        keyboard.append([types.InlineKeyboardButton(text='🔄 完全同步', callback_data='sync_all_users')])
 
     keyboard.extend(
         [
             [
-                types.InlineKeyboardButton(text='📊 Статистика системы', callback_data='admin_rw_system'),
-                types.InlineKeyboardButton(text='🌐 Ноды', callback_data='admin_rw_nodes'),
+                types.InlineKeyboardButton(text='📊 系统统计', callback_data='admin_rw_system'),
+                types.InlineKeyboardButton(text='🌐 节点', callback_data='admin_rw_nodes'),
             ],
-            [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')],
+            [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')],
         ]
     )
 
@@ -2955,14 +2580,14 @@ async def show_squads_management(callback: types.CallbackQuery, db_user: User, d
     remnawave_service = RemnaWaveService()
     squads = await remnawave_service.get_all_squads()
 
-    text = '🌍 <b>Управление сквадами</b>\n\n'
+    text = '🌍<b>球队管理</b>'
     keyboard = []
 
     if squads:
         for squad in squads:
             text += f'🔹 <b>{squad["name"]}</b>\n'
-            text += f'👥 Участников: {squad["members_count"]}\n'
-            text += f'📡 Инбаундов: {squad["inbounds_count"]}\n\n'
+            text += f"👥 参加者：{squad['members_count']}"
+            text += f"📡 界外球：{squad['inbounds_count']}"
 
             keyboard.append(
                 [
@@ -2972,12 +2597,12 @@ async def show_squads_management(callback: types.CallbackQuery, db_user: User, d
                 ]
             )
     else:
-        text += 'Сквады не найдены'
+        text += '没有找到队伍'
 
     keyboard.extend(
         [
-            [types.InlineKeyboardButton(text='➕ Создать сквад', callback_data='admin_squad_create')],
-            [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_remnawave')],
+            [types.InlineKeyboardButton(text='➕ 创建小队', callback_data='admin_squad_create')],
+            [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_remnawave')],
         ]
     )
 

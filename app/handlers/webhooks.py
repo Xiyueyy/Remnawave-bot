@@ -123,8 +123,7 @@ async def handle_successful_payment(message: types.Message):
                         )
 
                         await message.answer(
-                            f'✅ Баланс успешно пополнен на {settings.format_price(amount_kopeks)}!\n\n'
-                            'Средства зачислены на ваш баланс!'
+                            f'✅ 余额已成功充值至{settings.format_price(amount_kopeks)}！\n\n资金已记入您的余额！'
                         )
 
                         logger.info(

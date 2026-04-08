@@ -587,7 +587,7 @@ async def _auto_extend_subscription(
     await _delete_cart_for_subscription(user.id, cart_data)
     await clear_subscription_checkout_draft(user.id)
 
-    texts = get_texts(getattr(user, 'language', 'ru'))
+    texts = get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
     period_label = format_period_description(
         prepared.period_days,
         getattr(user, 'language', 'ru'),
@@ -983,7 +983,7 @@ async def _auto_purchase_tariff(
     # Send user notification only for Telegram users
     if bot and user.telegram_id:
         try:
-            texts = get_texts(getattr(user, 'language', 'ru'))
+            texts = get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
             period_label = format_period_description(period_days, getattr(user, 'language', 'ru'))
 
             message = texts.t(
@@ -1333,7 +1333,7 @@ async def _auto_purchase_daily_tariff(
     # Send user notification only for Telegram users
     if bot and user.telegram_id:
         try:
-            texts = get_texts(getattr(user, 'language', 'ru'))
+            texts = get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
 
             message = (
                 f'✅ <b>Суточный тариф «{html.escape(tariff.name)}» активирован!</b>\n\n'
@@ -1662,7 +1662,7 @@ async def _auto_add_devices(
 
     # Уведомление пользователю
     if bot and user.telegram_id:
-        texts = get_texts(getattr(user, 'language', 'ru'))
+        texts = get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
         try:
             message = texts.t(
                 'AUTO_PURCHASE_DEVICES_SUCCESS',
@@ -2010,7 +2010,7 @@ async def _auto_add_traffic(
 
     # User notification
     if bot and user.telegram_id:
-        texts = get_texts(getattr(user, 'language', 'ru'))
+        texts = get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
         try:
             message = texts.t(
                 'AUTO_PURCHASE_TRAFFIC_SUCCESS',
@@ -2334,7 +2334,7 @@ async def try_auto_extend_expired_after_topup(
             error=error,
         )
 
-    texts = get_texts(getattr(user, 'language', 'ru'))
+    texts = get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
     period_label = format_period_description(period_days, getattr(user, 'language', 'ru'))
     new_end_date = updated_subscription.end_date
     end_date_label = format_local_datetime(new_end_date, '%d.%m.%Y %H:%M')
@@ -2740,7 +2740,7 @@ async def try_resume_disabled_daily_after_topup(
     # User notification
     if bot and user.telegram_id:
         try:
-            texts = get_texts(getattr(user, 'language', 'ru'))
+            texts = get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
 
             message = texts.t(
                 'DAILY_SUBSCRIPTION_RESUMED_AFTER_TOPUP',
@@ -3091,7 +3091,7 @@ async def _process_legacy_generic_cart(
     subscription = purchase_result.get('subscription')
     transaction = purchase_result.get('transaction')
     was_trial_conversion = purchase_result.get('was_trial_conversion', False)
-    texts = get_texts(getattr(user, 'language', 'ru'))
+    texts = get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
 
     if bot:
         try:

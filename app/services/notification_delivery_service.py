@@ -267,7 +267,7 @@ class NotificationDeliveryService:
 
         try:
             # Get email template (check DB override first, then fall back to hardcoded)
-            language = user.language or 'ru'
+            language = user.language or settings.DEFAULT_LANGUAGE
 
             # Try DB override (get_rendered_override substitutes context vars and wraps in base template)
             template = None

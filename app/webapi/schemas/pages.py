@@ -31,7 +31,7 @@ class RichTextPageResponse(BaseModel):
 
 class RichTextPageUpdateRequest(BaseModel):
     language: str = Field(
-        default='ru',
+        default='zh',
         min_length=2,
         max_length=10,
         description='Язык, для которого выполняется обновление',
@@ -65,7 +65,7 @@ class FaqPageListResponse(BaseModel):
 
 class FaqPageCreateRequest(BaseModel):
     language: str = Field(
-        default='ru',
+        default='zh',
         min_length=2,
         max_length=10,
         description='Язык создаваемой страницы',
@@ -97,7 +97,7 @@ class FaqReorderItem(BaseModel):
 
 class FaqReorderRequest(BaseModel):
     language: str = Field(
-        default='ru',
+        default='zh',
         min_length=2,
         max_length=10,
         description='Язык, для которого применяется сортировка',
@@ -113,7 +113,7 @@ class FaqStatusResponse(BaseModel):
 
 class FaqStatusUpdateRequest(BaseModel):
     language: str = Field(
-        default='ru',
+        default='zh',
         min_length=2,
         max_length=10,
     )
@@ -132,13 +132,13 @@ class ServiceRulesResponse(BaseModel):
 
 class ServiceRulesUpdateRequest(BaseModel):
     language: str = Field(
-        default='ru',
+        default='zh',
         min_length=2,
         max_length=10,
         description='Язык, для которого обновляются правила',
     )
     title: str | None = Field(
-        default='Правила сервиса',
+        default='服务规则',
         min_length=1,
         max_length=255,
     )

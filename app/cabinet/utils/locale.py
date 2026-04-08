@@ -1,28 +1,38 @@
 """Locale resolution utilities for multi-locale landing page text fields."""
 
-SUPPORTED_LOCALES: tuple[str, ...] = ('ru', 'en', 'zh', 'fa')
-DEFAULT_LOCALE: str = 'ru'
+from app.config import settings
+
+SUPPORTED_LOCALES: tuple[str, ...] = ('zh',)
+DEFAULT_LOCALE: str = ((getattr(settings, 'DEFAULT_LANGUAGE', 'zh') or 'zh').split('-')[0].lower() or 'zh')
 
 
 def resolve_locale_text(data: dict[str, str] | str | None, lang: str = DEFAULT_LOCALE) -> str:
     """Resolve a localized text dict to a single string for the given language.
 
-    Fallback chain: requested lang -> 'ru' -> 'en' -> first available value -> ''.
+    Fallback chain: requested lang -> DEFAULT_LOCALE -> 'zh' -> 'ru' -> 'en' -> first available value -> ''.
     Accepts plain strings for backward compatibility with pre-migration data.
     """
     if data is None:
         return ''
     if isinstance(data, str):
         return data
-    return data.get(lang) or data.get('ru') or data.get('en') or next(iter(data.values()), '')
+    requested_lang = (lang or DEFAULT_LOCALE).split('-')[0].lower()
+    return (
+        data.get(requested_lang)
+        or data.get(DEFAULT_LOCALE)
+        or data.get('zh')
+        or data.get('ru')
+        or data.get('en')
+        or next(iter(data.values()), '')
+    )
 
 
 def ensure_locale_dict(value: dict[str, str] | str | None) -> dict[str, str]:
-    """Coerce a value to a locale dict. Plain strings become ``{'ru': value}``."""
+    """Coerce a value to a locale dict. Plain strings become ``{DEFAULT_LOCALE: value}``."""
     if value is None:
         return {}
     if isinstance(value, str):
-        return {'ru': value} if value else {}
+        return {DEFAULT_LOCALE: value} if value else {}
     return value
 
 

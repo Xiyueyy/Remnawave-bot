@@ -58,7 +58,7 @@ async def _send_pal24_payment_message(
             await message.answer(
                 texts.t(
                     'PAL24_PAYMENT_ERROR',
-                    '❌ Ошибка создания платежа PayPalych. Попробуйте позже или обратитесь в поддержку.',
+                    '❌创建PayPalych付款失败。请稍后再试或联系支持。',
                 )
             )
             await state.clear()
@@ -72,7 +72,7 @@ async def _send_pal24_payment_message(
             await message.answer(
                 texts.t(
                     'PAL24_PAYMENT_ERROR',
-                    '❌ Ошибка создания платежа PayPalych. Попробуйте позже или обратитесь в поддержку.',
+                    '❌创建PayPalych付款失败。请稍后再试或联系支持。',
                 )
             )
             await state.clear()
@@ -90,7 +90,7 @@ async def _send_pal24_payment_message(
 
         default_sbp_text = texts.t(
             'PAL24_SBP_PAY_BUTTON',
-            '🏦 Оплатить через PayPalych (СБП)',
+            '🏦通过PayPalych(快捷支付)付款',
         )
         sbp_button_text = settings.get_pal24_sbp_button_text(default_sbp_text)
 
@@ -106,14 +106,14 @@ async def _send_pal24_payment_message(
             steps.append(
                 texts.t(
                     'PAL24_INSTRUCTION_BUTTON',
-                    '{step}. Нажмите кнопку «{button}»',
+                    '{step}.点击“{button}”按钮',
                 ).format(step=step_counter, button=html.escape(sbp_button_text))
             )
             step_counter += 1
 
         default_card_text = texts.t(
             'PAL24_CARD_PAY_BUTTON',
-            '💳 Оплатить банковской картой (PayPalych)',
+            '💳使用银行卡支付(PayPalych)',
         )
         card_button_text = settings.get_pal24_card_button_text(default_card_text)
 
@@ -129,7 +129,7 @@ async def _send_pal24_payment_message(
             steps.append(
                 texts.t(
                     'PAL24_INSTRUCTION_BUTTON',
-                    '{step}. Нажмите кнопку «{button}»',
+                    '{step}.点击“{button}”按钮',
                 ).format(step=step_counter, button=html.escape(card_button_text))
             )
             step_counter += 1
@@ -146,46 +146,42 @@ async def _send_pal24_payment_message(
             steps.append(
                 texts.t(
                     'PAL24_INSTRUCTION_BUTTON',
-                    '{step}. Нажмите кнопку «{button}»',
+                    '{step}.点击“{button}”按钮',
                 ).format(step=step_counter, button=html.escape(sbp_button_text))
             )
             step_counter += 1
 
         follow_template = texts.t(
             'PAL24_INSTRUCTION_FOLLOW',
-            '{step}. Следуйте подсказкам платёжной системы',
+            '{step}.按照支付系统提示操作',
         )
         steps.append(follow_template.format(step=step_counter))
         step_counter += 1
 
         confirm_template = texts.t(
             'PAL24_INSTRUCTION_CONFIRM',
-            '{step}. Подтвердите перевод',
+            '{step}.确认转账',
         )
         steps.append(confirm_template.format(step=step_counter))
         step_counter += 1
 
         success_template = texts.t(
             'PAL24_INSTRUCTION_COMPLETE',
-            '{step}. Средства зачислятся автоматически',
+            '{step}.资金将自动到账',
         )
         steps.append(success_template.format(step=step_counter))
 
         message_template = texts.t(
             'PAL24_PAYMENT_INSTRUCTIONS',
             (
-                '🏦 <b>Оплата через PayPalych</b>\n\n'
-                '💰 Сумма: {amount}\n'
-                '🆔 ID счета: {bill_id}\n\n'
-                '📱 <b>Инструкция:</b>\n{steps}\n\n'
-                '❓ Если возникнут проблемы, обратитесь в {support}'
+                '🏦<b>通过PayPalych(快捷支付)付款</b>\n\n💰金额：{amount}\n🆔账单ID：{bill_id}\n\n📱<b>说明：</b>\n1.点击“通过PayPalych(快捷支付)付款”按钮\n2.按照支付系统提示操作\n3.确认转账\n4.资金将自动到账\n\n❓如果遇到问题，请联系{support}'
             ),
         )
 
         keyboard_rows = pay_buttons + [
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('CHECK_STATUS_BUTTON', '📊 Проверить статус'),
+                    text=texts.t('CHECK_STATUS_BUTTON', '📊检查状态'),
                     callback_data=f'check_pal24_{local_payment_id}',
                 )
             ],
@@ -246,7 +242,7 @@ async def _send_pal24_payment_message(
         await message.answer(
             texts.t(
                 'PAL24_PAYMENT_ERROR',
-                '❌ Ошибка создания платежа PayPalych. Попробуйте позже или обратитесь в поддержку.',
+                '❌创建PayPalych付款失败。请稍后再试或联系支持。',
             )
         )
         await state.clear()
@@ -266,19 +262,18 @@ async def start_pal24_payment(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await callback.message.edit_text(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
         await callback.answer()
         return
 
     if not settings.is_pal24_enabled():
-        await callback.answer('❌ Оплата через PayPalych временно недоступна', show_alert=True)
+        await callback.answer('❌暂时无法通过PayPalych付款', show_alert=True)
         return
 
     # Формируем текст сообщения в зависимости от доступных способов оплаты
@@ -295,9 +290,7 @@ async def start_pal24_payment(
     message_text = texts.t(
         'PAL24_TOPUP_PROMPT',
         (
-            f'🏦 <b>Оплата через PayPalych ({payment_methods_text})</b>\n\n'
-            'Введите сумму для пополнения от 100 до 1 000 000 ₽.\n'
-            f'Оплата проходит через PayPalych ({payment_methods_text}).'
+            f'🏦 <b>通过 PayPalych 付款 ({payment_methods_text})</b>\n\n输入充值金额，范围为 100 至 1,000,000 卢布。\n付款通过 PayPalych ({payment_methods_text}) 进行。'
         ),
     )
 
@@ -334,12 +327,11 @@ async def process_pal24_payment_amount(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await message.answer(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
             parse_mode='HTML',
         )
@@ -347,13 +339,13 @@ async def process_pal24_payment_amount(
         return
 
     if not settings.is_pal24_enabled():
-        await message.answer('❌ Оплата через PayPalych временно недоступна')
+        await message.answer('❌暂时无法通过PayPalych付款')
         return
 
     if amount_kopeks < settings.PAL24_MIN_AMOUNT_KOPEKS:
         min_rubles = settings.PAL24_MIN_AMOUNT_KOPEKS / 100
         await message.answer(
-            f'❌ Минимальная сумма для оплаты через PayPalych: {min_rubles:.0f} ₽',
+            f'❌ 通过 PayPalych 支付的最低金额：{min_rubles:.0f} ₽',
             reply_markup=get_back_keyboard(db_user.language),
         )
         return
@@ -403,7 +395,7 @@ async def process_pal24_payment_amount(
             [
                 types.InlineKeyboardButton(
                     text=settings.get_pal24_sbp_button_text(
-                        texts.t('PAL24_SBP_PAY_BUTTON', '🏦 Оплатить через PayPalych (СБП)')
+                        texts.t('PAL24_SBP_PAY_BUTTON', '🏦通过PayPalych(快捷支付)付款')
                     ),
                     callback_data='pal24_method_sbp',
                 )
@@ -414,7 +406,7 @@ async def process_pal24_payment_amount(
             [
                 types.InlineKeyboardButton(
                     text=settings.get_pal24_card_button_text(
-                        texts.t('PAL24_CARD_PAY_BUTTON', '💳 Оплатить банковской картой (PayPalych)')
+                        texts.t('PAL24_CARD_PAY_BUTTON', '💳使用银行卡支付(PayPalych)')
                     ),
                     callback_data='pal24_method_card',
                 )
@@ -426,7 +418,7 @@ async def process_pal24_payment_amount(
     await message.answer(
         texts.t(
             'PAL24_SELECT_PAYMENT_METHOD',
-            'Выберите способ оплаты PayPalych:',
+            '请选择PayPalych支付方式：',
         ),
         reply_markup=types.InlineKeyboardMarkup(inline_keyboard=method_buttons),
     )
@@ -445,7 +437,7 @@ async def handle_pal24_method_selection(
         await callback.answer(
             texts.t(
                 'PAL24_PAYMENT_ERROR',
-                '❌ Ошибка создания платежа PayPalych. Попробуйте позже или обратитесь в поддержку.',
+                '❌创建PayPalych付款失败。请稍后再试或联系支持。',
             ),
             show_alert=True,
         )
@@ -478,7 +470,7 @@ async def check_pal24_payment_status(
         status_info = await payment_service.get_pal24_payment_status(db, local_payment_id)
 
         if not status_info:
-            await callback.answer('❌ Платеж не найден', show_alert=True)
+            await callback.answer('❌ 未找到付款', show_alert=True)
             return
 
         payment = status_info['payment']
@@ -597,7 +589,7 @@ async def check_pal24_payment_status(
         if not payment.is_paid and payment.status in {'NEW', 'PROCESS'}:
             default_sbp_text = texts.t(
                 'PAL24_SBP_PAY_BUTTON',
-                '🏦 Оплатить через PayPalych (СБП)',
+                '🏦通过PayPalych(快捷支付)付款',
             )
             sbp_button_text = settings.get_pal24_sbp_button_text(default_sbp_text)
 
@@ -613,7 +605,7 @@ async def check_pal24_payment_status(
 
             default_card_text = texts.t(
                 'PAL24_CARD_PAY_BUTTON',
-                '💳 Оплатить банковской картой (PayPalych)',
+                '💳使用银行卡支付(PayPalych)',
             )
             card_button_text = settings.get_pal24_card_button_text(default_card_text)
 
@@ -631,7 +623,7 @@ async def check_pal24_payment_status(
         keyboard_rows = pay_rows + [
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('CHECK_STATUS_BUTTON', '📊 Проверить статус'),
+                    text=texts.t('CHECK_STATUS_BUTTON', '📊检查状态'),
                     callback_data=f'check_pal24_{local_payment_id}',
                 )
             ],
@@ -649,10 +641,10 @@ async def check_pal24_payment_status(
             )
         except TelegramBadRequest as error:
             if 'message is not modified' in str(error).lower():
-                await callback.answer(texts.t('CHECK_STATUS_NO_CHANGES', 'Статус не изменился'))
+                await callback.answer(texts.t('CHECK_STATUS_NO_CHANGES', '状态未更改'))
             else:
                 raise
 
     except Exception as e:
         logger.error('Ошибка проверки статуса PayPalych', error=e)
-        await callback.answer('❌ Ошибка проверки статуса', show_alert=True)
+        await callback.answer('❌ 状态检查错误', show_alert=True)

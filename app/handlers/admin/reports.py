@@ -28,7 +28,7 @@ async def show_reports_menu(
     db: AsyncSession,
 ) -> None:
     await callback.message.edit_text(
-        '📊 <b>Отчеты</b>\n\nВыберите период, чтобы отправить отчет в админский топик.',
+        '📊 <b>报告</b>\n\n选择将报告发送到管理主题的时间段。',
         reply_markup=get_admin_reports_keyboard(db_user.language),
         parse_mode='HTML',
     )
@@ -73,19 +73,19 @@ async def _send_report(
     try:
         report_text = await reporting_service.send_report(period, send_to_topic=True)
     except ReportingServiceError as exc:
-        logger.warning('Не удалось отправить отчет', exc=exc)
+        logger.warning('发送报告失败', exc=exc)
         await callback.answer(str(exc), show_alert=True)
         return
     except Exception as exc:
-        logger.error('Непредвиденная ошибка при отправке отчета', exc=exc)
-        await callback.answer('Не удалось отправить отчет. Попробуйте позже.', show_alert=True)
+        logger.error('发送报告时出现意外错误', exc=exc)
+        await callback.answer('发送报告失败。请稍后重试。', show_alert=True)
         return
 
     await callback.message.answer(
         report_text,
         reply_markup=get_admin_report_result_keyboard(language),
     )
-    await callback.answer('Отчет отправлен в топик')
+    await callback.answer('报告已发送至主题')
 
 
 @admin_required
@@ -100,11 +100,11 @@ async def close_report_message(
     try:
         await callback.message.delete()
     except (TelegramBadRequest, TelegramForbiddenError) as exc:
-        logger.warning('Не удалось закрыть сообщение отчета', exc=exc)
-        await callback.answer(texts.t('REPORT_CLOSE_ERROR', 'Не удалось закрыть отчет.'), show_alert=True)
+        logger.warning('无法关闭报告消息', exc=exc)
+        await callback.answer(texts.t('REPORT_CLOSE_ERROR', '❌关闭报告失败。'), show_alert=True)
         return
 
-    await callback.answer(texts.t('REPORT_CLOSED', 'Отчет закрыт.'))
+    await callback.answer(texts.t('REPORT_CLOSED', '✅报告已关闭。'))
 
 
 def register_handlers(dp: Dispatcher) -> None:

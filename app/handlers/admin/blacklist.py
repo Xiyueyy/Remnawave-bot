@@ -1,4 +1,4 @@
-"""
+﻿"""
 Обработчики админ-панели для управления черным списком
 """
 
@@ -24,7 +24,7 @@ async def show_blacklist_settings(callback: types.CallbackQuery, db_user: User, 
     """
     Показывает настройки черного списка
     """
-    logger.info('Вызван обработчик show_blacklist_settings для пользователя', from_user_id=callback.from_user.id)
+    logger.info('调用用户的 show_blacklist_settings 处理程序', from_user_id=callback.from_user.id)
 
     is_enabled = blacklist_service.is_blacklist_check_enabled()
     github_url = blacklist_service.get_blacklist_github_url()
@@ -33,40 +33,32 @@ async def show_blacklist_settings(callback: types.CallbackQuery, db_user: User, 
     status_text = '✅ Включена' if is_enabled else '❌ Отключена'
     url_text = github_url or 'Не задан'
 
-    text = f"""
-🔐 <b>Настройки черного списка</b>
-
-Статус: {status_text}
-URL к черному списку: <code>{url_text}</code>
-Количество записей: {blacklist_count}
-
-Действия:
-"""
+    text = f'🔐 <b>黑名单设置</b>\n\n状态：{status_text}\n黑名单网址：<code>{url_text}</code>\n条目数：{blacklist_count}\n\n行动：'
 
     keyboard = [
         [
             types.InlineKeyboardButton(
-                text='🔄 Обновить список' if is_enabled else '🔄 Обновить (откл.)',
+                text='🔄 更新列表' if is_enabled else '🔄 更新（已禁用）',
                 callback_data='admin_blacklist_update',
             )
         ],
         [
             types.InlineKeyboardButton(
-                text='📋 Просмотреть список' if is_enabled else '📋 Просмотр (откл.)',
+                text='📋 查看列表' if is_enabled else '📋 查看（已禁用）',
                 callback_data='admin_blacklist_view',
             )
         ],
         [
             types.InlineKeyboardButton(
-                text='✏️ URL к GitHub' if not github_url else '✏️ Изменить URL', callback_data='admin_blacklist_set_url'
+                text='✏️ GitHub URL' if not github_url else '✏️ 修改 URL', callback_data='admin_blacklist_set_url'
             )
         ],
         [
             types.InlineKeyboardButton(
-                text='✅ Включить' if not is_enabled else '❌ Отключить', callback_data='admin_blacklist_toggle'
+                text='✅ 启用' if not is_enabled else '❌ 禁用', callback_data='admin_blacklist_toggle'
             )
         ],
-        [types.InlineKeyboardButton(text='⬅️ Назад к пользователям', callback_data='admin_users')],
+        [types.InlineKeyboardButton(text='⬅️返回用户', callback_data='admin_users')],
     ]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard))
@@ -86,16 +78,14 @@ async def toggle_blacklist(callback: types.CallbackQuery, db_user: User, state: 
     # В реальной реализации нужно будет изменить настройку в базе данных
     # или в системе настроек, но сейчас просто покажем статус
     new_status = not is_enabled
-    status_text = 'включена' if new_status else 'отключена'
+    status_text = '已启用' if new_status else '已禁用'
 
     await callback.message.edit_text(
-        f'Статус проверки черного списка: {status_text}\n\n'
-        f'Для изменения статуса проверки черного списка измените значение\n'
-        f'<code>BLACKLIST_CHECK_ENABLED</code> в файле <code>.env</code>',
+        f'黑名单检查状态：{status_text}\n\n要更改黑名单检查状态，请更改值\n文件 <code>.env</code> 中的 <code>BLACKLIST_CHECK_ENABLED</code>',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
-                [types.InlineKeyboardButton(text='🔄 Обновить статус', callback_data='admin_blacklist_settings')],
-                [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_blacklist_settings')],
+                [types.InlineKeyboardButton(text='🔄 更新状态', callback_data='admin_blacklist_settings')],
+                [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_blacklist_settings')],
             ]
         ),
     )
@@ -115,19 +105,19 @@ async def update_blacklist(callback: types.CallbackQuery, db_user: User, state: 
             f'✅ {message}',
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
-                    [types.InlineKeyboardButton(text='📋 Просмотреть список', callback_data='admin_blacklist_view')],
-                    [types.InlineKeyboardButton(text='🔄 Ручное обновление', callback_data='admin_blacklist_update')],
-                    [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_blacklist_settings')],
+                    [types.InlineKeyboardButton(text='📋 查看列表', callback_data='admin_blacklist_view')],
+                    [types.InlineKeyboardButton(text='🔄 手动更新', callback_data='admin_blacklist_update')],
+                    [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_blacklist_settings')],
                 ]
             ),
         )
     else:
         await callback.message.edit_text(
-            f'❌ Ошибка обновления: {message}',
+            f'❌更新错误：{message}',
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
-                    [types.InlineKeyboardButton(text='🔄 Повторить', callback_data='admin_blacklist_update')],
-                    [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_blacklist_settings')],
+                    [types.InlineKeyboardButton(text='🔄 重试', callback_data='admin_blacklist_update')],
+                    [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_blacklist_settings')],
                 ]
             ),
         )
@@ -143,23 +133,23 @@ async def show_blacklist_users(callback: types.CallbackQuery, db_user: User, sta
     blacklist_users = await blacklist_service.get_all_blacklisted_users()
 
     if not blacklist_users:
-        text = 'Черный список пуст'
+        text = '黑名单为空'
     else:
-        text = f'🔐 <b>Черный список ({len(blacklist_users)} записей)</b>\n\n'
+        text = f'🔐 <b>黑名单（{len(blacklist_users)}条目）</b>'
 
         # Показываем первые 20 записей
         for i, (tg_id, username, reason) in enumerate(blacklist_users[:20], 1):
             text += f'{i}. <code>{tg_id}</code> {html.escape(username or "")} — {html.escape(reason or "")}\n'
 
         if len(blacklist_users) > 20:
-            text += f'\n... и еще {len(blacklist_users) - 20} записей'
+            text += f'...以及更多 {len(blacklist_users) - 20} 条目'
 
     await callback.message.edit_text(
         text,
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
-                [types.InlineKeyboardButton(text='🔄 Обновить', callback_data='admin_blacklist_view')],
-                [types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_blacklist_settings')],
+                [types.InlineKeyboardButton(text='🔄 刷新', callback_data='admin_blacklist_view')],
+                [types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_blacklist_settings')],
             ]
         ),
     )
@@ -175,12 +165,9 @@ async def start_set_blacklist_url(callback: types.CallbackQuery, db_user: User, 
     current_url = blacklist_service.get_blacklist_github_url() or 'не задан'
 
     await callback.message.edit_text(
-        f'Введите новый URL к файлу черного списка на GitHub\n\n'
-        f'Текущий URL: {current_url}\n\n'
-        f'Пример: https://raw.githubusercontent.com/username/repository/main/blacklist.txt\n\n'
-        f'Для отмены используйте команду /cancel',
+        f'在GitHub上输入黑名单文件的新URL\n\n当前网址：{current_url}\n\n示例：https://raw.githubusercontent.com/username/repository/main/blacklist.txt\n\n要取消，请使用命令 /cancel',
         reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ Назад', callback_data='admin_blacklist_settings')]]
+            inline_keyboard=[[types.InlineKeyboardButton(text='⬅️ 返回', callback_data='admin_blacklist_settings')]]
         ),
     )
 
@@ -194,7 +181,7 @@ async def process_blacklist_url(message: types.Message, db_user: User, state: FS
     """
     Обрабатывает введенный URL к черному списку
     """
-    # Обрабатываем сообщение только если бот ожидает ввод URL
+    # Обрабатываем сообщение только если б起 ожидает ввод URL
     if await state.get_state() != BlacklistStates.waiting_for_blacklist_url.state:
         return
 
@@ -204,12 +191,12 @@ async def process_blacklist_url(message: types.Message, db_user: User, state: FS
     # В текущей реализации просто выводим сообщение
     if url.lower() in ['/cancel', 'отмена', 'cancel']:
         await message.answer(
-            'Настройка URL отменена',
+            'URL 设置已取消',
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
                     [
                         types.InlineKeyboardButton(
-                            text='🔐 Настройки черного списка', callback_data='admin_blacklist_settings'
+                            text='🔐黑名单设置', callback_data='admin_blacklist_settings'
                         )
                     ]
                 ]
@@ -221,12 +208,12 @@ async def process_blacklist_url(message: types.Message, db_user: User, state: FS
     # Проверяем, что URL выглядит корректно
     if not url.startswith(('http://', 'https://')):
         await message.answer(
-            '❌ Некорректный URL. URL должен начинаться с http:// или https://',
+            '❌ 网址错误。 URL 必须以 http:// 或 https:// 开头',
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
                     [
                         types.InlineKeyboardButton(
-                            text='🔐 Настройки черного списка', callback_data='admin_blacklist_settings'
+                            text='🔐黑名单设置', callback_data='admin_blacklist_settings'
                         )
                     ]
                 ]
@@ -238,15 +225,13 @@ async def process_blacklist_url(message: types.Message, db_user: User, state: FS
     # или в систему конфигурации
 
     await message.answer(
-        f'✅ URL к черному списку установлен:\n<code>{url}</code>\n\n'
-        f'Для применения изменений перезапустите бота или измените значение\n'
-        f'<code>BLACKLIST_GITHUB_URL</code> в файле <code>.env</code>',
+        f'✅ 设置黑名单 URL：\n<code>{url}</code>\n\n要应用更改，请重新启动机器人或更改值\n文件 <code>.env</code> 中的 <code>BLACKLIST_GITHUB_URL</code>',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[
-                [types.InlineKeyboardButton(text='🔄 Обновить список', callback_data='admin_blacklist_update')],
+                [types.InlineKeyboardButton(text='🔄 刷新列表', callback_data='admin_blacklist_update')],
                 [
                     types.InlineKeyboardButton(
-                        text='🔐 Настройки черного списка', callback_data='admin_blacklist_settings'
+                        text='🔐黑名单设置', callback_data='admin_blacklist_settings'
                     )
                 ],
             ]
@@ -260,7 +245,7 @@ def register_blacklist_handlers(dp):
     Регистрация обработчиков черного списка
     """
     # Обработчик показа настроек черного списка
-    # Этот обработчик нужно будет вызывать из меню пользователей или отдельно
+    # Эт起 обработчик нужно будет вызывать из меню пользователей или отдельно
     dp.callback_query.register(show_blacklist_settings, lambda c: c.data == 'admin_blacklist_settings')
 
     # Обработчики для взаимодействия с черным списком
@@ -274,3 +259,5 @@ def register_blacklist_handlers(dp):
 
     # Обработчик сообщений для установки URL (работает только в нужном состоянии)
     dp.message.register(process_blacklist_url, StateFilter(BlacklistStates.waiting_for_blacklist_url))
+
+

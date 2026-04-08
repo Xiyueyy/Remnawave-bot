@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+﻿from collections.abc import Iterable
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
@@ -78,49 +78,49 @@ TRIAL_ENTRIES: tuple[SettingEntry, ...] = (
     SettingEntry(
         key='TRIAL_DURATION_DAYS',
         section='trial',
-        label_ru='⏳ Длительность (дни)',
+        label_ru='⏳ 持续时间（天）',
         label_en='⏳ Duration (days)',
         action='input',
     ),
     SettingEntry(
         key='TRIAL_TRAFFIC_LIMIT_GB',
         section='trial',
-        label_ru='📦 Лимит трафика (ГБ)',
+        label_ru='📦 流量限制（GB）',
         label_en='📦 Traffic limit (GB)',
         action='input',
     ),
     SettingEntry(
         key='TRIAL_DEVICE_LIMIT',
         section='trial',
-        label_ru='📱 Лимит устройств',
+        label_ru='📱设备限制',
         label_en='📱 Device limit',
         action='input',
     ),
     SettingEntry(
         key='TRIAL_PAYMENT_ENABLED',
         section='trial',
-        label_ru='💳 Платная активация',
+        label_ru='💳 付费激活',
         label_en='💳 Paid activation',
         action='toggle',
-        description_ru='Если включено — за активацию триала будет списываться указанная сумма.',
+        description_ru='如果启用，将收取指定金额的试用激活费用。',
         description_en='When enabled, the configured amount is charged during trial activation.',
     ),
     SettingEntry(
         key='TRIAL_ACTIVATION_PRICE',
         section='trial',
-        label_ru='💰 Стоимость активации',
+        label_ru='💰 激活费用',
         label_en='💰 Activation price',
         action='price',
-        description_ru='Указывается в копейках. 0 — бесплатная активация.',
+        description_ru='以戈比表示。 0 — 免费激活。',
         description_en='Amount in kopeks. 0 — free activation.',
     ),
     SettingEntry(
         key='TRIAL_ADD_REMAINING_DAYS_TO_PAID',
         section='trial',
-        label_ru='➕ Добавлять оставшиеся дни к платной подписке',
+        label_ru='➕ 将剩余天数添加到付费订阅中',
         label_en='➕ Add remaining trial days to paid plan',
         action='toggle',
-        description_ru='Если включено — при покупке платной подписки оставшиеся дни триала будут добавлены к сроку.',
+        description_ru='如果启用，则在购买付费订阅时，剩余的试用天数将添加到期限中。',
         description_en='When enabled, remaining trial days are added to paid subscription duration.',
     ),
 )
@@ -130,93 +130,93 @@ CORE_PRICING_ENTRIES: tuple[SettingEntry, ...] = (
     SettingEntry(
         key='BASE_SUBSCRIPTION_PRICE',
         section='core',
-        label_ru='💳 Базовая стоимость подписки',
+        label_ru='💳 基本订阅价格',
         label_en='💳 Base subscription price',
         action='price',
     ),
     SettingEntry(
         key='BASE_PROMO_GROUP_PERIOD_DISCOUNTS_ENABLED',
         section='core',
-        label_ru='🎟️ Базовые скидки для групп',
+        label_ru='🎟️团体基本折扣',
         label_en='🎟️ Base group discounts',
         action='toggle',
-        description_ru='Включает применение базовых скидок для групповых промо-периодов.',
+        description_ru='包括团体促销期间的基本折扣的应用。',
         description_en='Enables base discounts for promo group periods.',
     ),
     SettingEntry(
         key='BASE_PROMO_GROUP_PERIOD_DISCOUNTS',
         section='core',
-        label_ru='🔖 Скидки по периодам',
+        label_ru='🔖 按时段折扣',
         label_en='🔖 Period discounts',
         action='input',
-        description_ru='Формат: список пар дней и скидки через запятую (например 30:10,60:20).',
+        description_ru='格式：以逗号分隔的日期和折扣对列表（例如 30:10,60:20）。',
         description_en='Format: comma-separated day/discount pairs (e.g. 30:10,60:20).',
     ),
     SettingEntry(
         key='DEFAULT_DEVICE_LIMIT',
         section='core',
-        label_ru='📱 Устройств по умолчанию',
+        label_ru='📱 默认设备',
         label_en='📱 Default device limit',
         action='input',
     ),
     SettingEntry(
         key='DEFAULT_TRAFFIC_LIMIT_GB',
         section='core',
-        label_ru='📦 Трафик по умолчанию (ГБ)',
+        label_ru='📦 默认流量（GB）',
         label_en='📦 Default traffic (GB)',
         action='input',
     ),
     SettingEntry(
         key='MAX_DEVICES_LIMIT',
         section='core',
-        label_ru='📈 Максимум устройств',
+        label_ru='📈 最大设备数',
         label_en='📈 Maximum devices',
         action='input',
     ),
     SettingEntry(
         key='RESET_TRAFFIC_ON_PAYMENT',
         section='core',
-        label_ru='🔄 Сбрасывать трафик при оплате',
+        label_ru='🔄 支付时重置流量',
         label_en='🔄 Reset traffic on payment',
         action='toggle',
     ),
     SettingEntry(
         key='RESET_TRAFFIC_ON_TARIFF_SWITCH',
         section='core',
-        label_ru='🔄 Сбрасывать трафик при смене тарифа',
+        label_ru='🔄 更改套餐时重置流量',
         label_en='🔄 Reset traffic on tariff switch',
         action='toggle',
     ),
     SettingEntry(
         key='DEFAULT_TRAFFIC_RESET_STRATEGY',
         section='core',
-        label_ru='🗓 Стратегия сброса трафика',
+        label_ru='🗓 流量倾销策略',
         label_en='🗓 Traffic reset strategy',
         action='input',
-        description_ru='Доступные значения: DAY, WEEK, MONTH, NEVER.',
+        description_ru='可用值：日、周、月、从不。',
         description_en='Available values: DAY, WEEK, MONTH, NEVER.',
     ),
     SettingEntry(
         key='TRAFFIC_SELECTION_MODE',
         section='core',
-        label_ru='⚙️ Режим выбора трафика',
+        label_ru='⚙️流量选择模式',
         label_en='⚙️ Traffic selection mode',
         action='choice',
         choices=(
-            ChoiceOption('selectable', 'Выбор пакетов', 'Selectable'),
-            ChoiceOption('fixed', 'Фиксированный лимит', 'Fixed limit'),
-            ChoiceOption('fixed_with_topup', 'Фикс. лимит + докупка', 'Fixed + topup'),
+            ChoiceOption('selectable', '套餐选择', 'Selectable'),
+            ChoiceOption('fixed', '固定限额', 'Fixed limit'),
+            ChoiceOption('fixed_with_topup', '使固定。限量+追加购买', 'Fixed + topup'),
         ),
-        description_ru='Определяет, выбирают ли пользователи пакеты или получают фиксированный лимит.',
+        description_ru='确定用户是选择套餐还是接收固定限制。',
         description_en='Defines whether users pick packages or use a fixed limit.',
     ),
     SettingEntry(
         key='FIXED_TRAFFIC_LIMIT_GB',
         section='core',
-        label_ru='📏 Фиксированный лимит трафика (ГБ)',
+        label_ru='📏 固定流量限制（GB）',
         label_en='📏 Fixed traffic limit (GB)',
         action='input',
-        description_ru='Используется только в режиме фиксированного трафика. 0 = безлимит.',
+        description_ru='仅用于固定流量模式。 0 = 无限制。',
         description_en='Used only in fixed traffic mode. 0 = unlimited.',
     ),
 )
@@ -322,7 +322,7 @@ def _format_period_label(days: int, lang_code: str, short: bool = False) -> str:
         suffix = 'д' if lang_code == 'ru' else 'd'
         return f'{days}{suffix}'
     if lang_code == 'ru':
-        return f'{days} дней'
+        return f'{days}天'
     if days == 1:
         return '1 day'
     return f'{days}-day plan'
@@ -330,7 +330,7 @@ def _format_period_label(days: int, lang_code: str, short: bool = False) -> str:
 
 def _format_traffic_label(gb: int, lang_code: str, short: bool = False) -> str:
     if gb == 0:
-        return '∞' if short else ('Безлимит' if lang_code == 'ru' else 'Unlimited')
+        return '∞' if short else ('不限' if lang_code == 'ru' else 'Unlimited')
     unit = 'ГБ' if lang_code == 'ru' else 'GB'
     if short:
         return f'{gb}{unit}' if lang_code == 'ru' else f'{gb}{unit}'
@@ -441,7 +441,7 @@ def _build_period_options_summary(lang_code: str) -> str:
     available = ', '.join(f'{days}{suffix}' for days in settings.get_available_subscription_periods())
     renewal = ', '.join(f'{days}{suffix}' for days in settings.get_available_renewal_periods())
     if lang_code == 'ru':
-        return f'Подписки: {available or "—"} | Продления: {renewal or "—"}'
+        return f'订阅：{available or "-"} | 续费：{renewal or "-"}'
     return f'Subscriptions: {available or "-"} | Renewals: {renewal or "-"}'
 
 
@@ -459,11 +459,11 @@ def _build_settings_section(
     entries = SETTING_ENTRIES_BY_SECTION.get(section, ())
 
     if section == 'trial':
-        title = texts.t('ADMIN_PRICING_SECTION_TRIAL_TITLE', '🎁 Пробный период')
+        title = texts.t('ADMIN_PRICING_SECTION_TRIAL_TITLE', '🎁试用期')
     elif section == 'core':
-        title = texts.t('ADMIN_PRICING_SECTION_CORE_TITLE', '⚙️ Настройки тарифов')
+        title = texts.t('ADMIN_PRICING_SECTION_CORE_TITLE', '⚙️基本限制')
     else:
-        title = texts.t('ADMIN_PRICING_SECTION_SETTINGS_GENERIC', '⚙️ Настройки')
+        title = texts.t('ADMIN_PRICING_SECTION_SETTINGS_GENERIC', '⚙️设置')
 
     lines: list[str] = [title, '']
     keyboard_rows: list[list[types.InlineKeyboardButton]] = []
@@ -472,7 +472,7 @@ def _build_settings_section(
         lines.append(
             texts.t(
                 'ADMIN_PRICING_SECTION_CURRENT',
-                'Текущие значения:',
+                '当前值：',
             )
         )
         lines.append('')
@@ -487,7 +487,7 @@ def _build_settings_section(
             lines.append(f'{state_icon} <b>{label}</b> — {formatted}')
             button_text = texts.t(
                 'ADMIN_PRICING_SETTING_TOGGLE_STATEFUL',
-                '{icon} {label}',
+                '{icon}{label}',
             ).format(icon=state_icon, label=label)
             keyboard_rows.append(
                 [
@@ -517,7 +517,7 @@ def _build_settings_section(
             lines.append(f'• <b>{label}</b>: {formatted}')
             button_text = texts.t(
                 'ADMIN_PRICING_SETTING_EDIT_WITH_VALUE',
-                '✏️ {label} • {value}',
+                '✏️{label}•{value}',
             ).format(label=label, value=formatted)
             keyboard_rows.append(
                 [
@@ -534,9 +534,9 @@ def _build_settings_section(
         lines.append('')
 
     if entries:
-        lines.append(texts.t('ADMIN_PRICING_SECTION_PROMPT', 'Выберите что изменить:'))
+        lines.append(texts.t('ADMIN_PRICING_SECTION_PROMPT', '请选择要更改的内容：'))
     else:
-        lines.append(texts.t('ADMIN_PRICING_SECTION_EMPTY', 'Нет параметров для изменения.'))
+        lines.append(texts.t('ADMIN_PRICING_SECTION_EMPTY', '没有可用值。'))
 
     keyboard_rows.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='admin_pricing')])
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=keyboard_rows)
@@ -550,7 +550,7 @@ def _build_traffic_options_section(language: str) -> tuple[str, types.InlineKeyb
 
     title = texts.t(
         'ADMIN_PRICING_SECTION_TRAFFIC_OPTIONS_TITLE',
-        '🚦 Отображение пакетов трафика',
+        '🚦流量包显示',
     )
 
     lines: list[str] = [title, '']
@@ -563,14 +563,14 @@ def _build_traffic_options_section(language: str) -> tuple[str, types.InlineKeyb
         lines.append(
             texts.t(
                 'ADMIN_PRICING_SECTION_TRAFFIC_OPTIONS_ACTIVE',
-                'Активные пакеты: {items}',
+                '活跃流量包：{items}',
             ).format(items=', '.join(enabled_labels))
         )
     else:
         lines.append(
             texts.t(
                 'ADMIN_PRICING_SECTION_TRAFFIC_OPTIONS_NONE',
-                'Активных пакетов нет.',
+                '没有活跃流量包。',
             )
         )
 
@@ -578,7 +578,7 @@ def _build_traffic_options_section(language: str) -> tuple[str, types.InlineKeyb
     lines.append(
         texts.t(
             'ADMIN_PRICING_SECTION_TRAFFIC_OPTIONS_PROMPT',
-            'Нажмите на пакет, чтобы включить или выключить его отображение.',
+            '点击流量包以启用或禁用其显示。',
         )
     )
 
@@ -615,7 +615,7 @@ def _build_period_options_section(language: str) -> tuple[str, types.InlineKeybo
     subscription_options = (14, 30, 60, 90, 180, 360)
     renewal_options = (30, 60, 90, 180, 360)
 
-    title = texts.t('ADMIN_PRICING_SECTION_PERIOD_OPTIONS_TITLE', '🗓 Доступные периоды')
+    title = texts.t('ADMIN_PRICING_SECTION_PERIOD_OPTIONS_TITLE', '🗓可用周期')
     lines: list[str] = [title, '']
 
     sub_list = ', '.join(f'{days}{suffix}' for days in sorted(available_subscription)) or '—'
@@ -624,20 +624,20 @@ def _build_period_options_section(language: str) -> tuple[str, types.InlineKeybo
     lines.append(
         texts.t(
             'ADMIN_PRICING_SECTION_PERIOD_OPTIONS_SUB',
-            'Активные периоды подписки: {items}',
+            '活跃订阅周期：{items}',
         ).format(items=sub_list)
     )
     lines.append(
         texts.t(
             'ADMIN_PRICING_SECTION_PERIOD_OPTIONS_RENEW',
-            'Активные периоды продления: {items}',
+            '活跃续订周期：{items}',
         ).format(items=renew_list)
     )
     lines.append('')
     lines.append(
         texts.t(
             'ADMIN_PRICING_SECTION_PERIOD_OPTIONS_PROMPT',
-            'Нажмите на период, чтобы включить или выключить его отображение.',
+            '点击周期以启用或禁用其显示。',
         )
     )
 
@@ -689,59 +689,59 @@ def _build_overview(language: str) -> tuple[str, types.InlineKeyboardMarkup]:
     summary_period_options = _build_period_options_summary(lang_code)
 
     lines = [
-        f'💰 <b>{texts.t("ADMIN_PRICING_MENU_TITLE", "Управление ценами")}</b>',
+        f'💰 <b>{texts.t("ADMIN_PRICING_MENU_TITLE", '价格管理')}</b>',
         texts.t(
             'ADMIN_PRICING_MENU_DESCRIPTION',
-            'Быстрый доступ к настройкам тарифов, периодов и пакетов.',
+            '快速访问订阅套餐、流量包和额外服务。',
         ),
         '',
-        f'<b>{texts.t("ADMIN_PRICING_MENU_SUMMARY", "Краткая сводка")}</b>',
-        f'🎁 {texts.t("ADMIN_PRICING_MENU_SUMMARY_TRIAL", "Триал: {summary}").format(summary=summary_trial)}',
-        f'⚙️ {texts.t("ADMIN_PRICING_MENU_SUMMARY_CORE", "Базовые лимиты: {summary}").format(summary=summary_core)}',
-        f'🗓 {texts.t("ADMIN_PRICING_MENU_SUMMARY_PERIOD_OPTIONS", "Доступные периоды: {summary}").format(summary=summary_period_options)}',
-        f'💵 {texts.t("ADMIN_PRICING_MENU_SUMMARY_PERIODS", "Стоимость периодов: {summary}").format(summary=summary_periods)}',
-        f'📦 {texts.t("ADMIN_PRICING_MENU_SUMMARY_TRAFFIC", "Пакеты трафика: {summary}").format(summary=summary_traffic)}',
-        f'➕ {texts.t("ADMIN_PRICING_MENU_SUMMARY_EXTRA", "Дополнительно: {summary}").format(summary=summary_extra)}',
+        f'<b>{texts.t("ADMIN_PRICING_MENU_SUMMARY", '简要概览：')}</b>',
+        f'🎁 {texts.t("ADMIN_PRICING_MENU_SUMMARY_TRIAL", '•试用：{summary}').format(summary=summary_trial)}',
+        f'⚙️ {texts.t("ADMIN_PRICING_MENU_SUMMARY_CORE", '•基本限制：{summary}').format(summary=summary_core)}',
+        f'🗓 {texts.t("ADMIN_PRICING_MENU_SUMMARY_PERIOD_OPTIONS", '•可用周期：{summary}').format(summary=summary_period_options)}',
+        f'💵 {texts.t("ADMIN_PRICING_MENU_SUMMARY_PERIODS", '•周期：{summary}').format(summary=summary_periods)}',
+        f'📦 {texts.t("ADMIN_PRICING_MENU_SUMMARY_TRAFFIC", '•流量：{summary}').format(summary=summary_traffic)}',
+        f'➕ {texts.t("ADMIN_PRICING_MENU_SUMMARY_EXTRA", '•额外：{summary}').format(summary=summary_extra)}',
         '',
-        texts.t('ADMIN_PRICING_MENU_PROMPT', 'Выберите раздел для редактирования:'),
+        texts.t('ADMIN_PRICING_MENU_PROMPT', '请选择要编辑的部分：'),
     ]
 
     keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PRICING_BUTTON_TRIAL', '🎁 Пробный период'),
+                    text=texts.t('ADMIN_PRICING_BUTTON_TRIAL', '🎁试用期'),
                     callback_data='admin_pricing_section:trial',
                 ),
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PRICING_BUTTON_CORE', '⚙️ Настройки тарифов'),
+                    text=texts.t('ADMIN_PRICING_BUTTON_CORE', '⚙️基本限制'),
                     callback_data='admin_pricing_section:core',
                 ),
             ],
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PRICING_BUTTON_PERIOD_OPTIONS', '🗓 Доступные периоды'),
+                    text=texts.t('ADMIN_PRICING_BUTTON_PERIOD_OPTIONS', '🗓可用周期'),
                     callback_data='admin_pricing_section:period_options',
                 ),
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PRICING_BUTTON_PERIODS', '💵 Стоимость периодов'),
+                    text=texts.t('ADMIN_PRICING_BUTTON_PERIODS', '🗓订阅周期'),
                     callback_data='admin_pricing_section:periods',
                 ),
             ],
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PRICING_BUTTON_TRAFFIC', '📦 Пакеты трафика'),
+                    text=texts.t('ADMIN_PRICING_BUTTON_TRAFFIC', '📦流量包'),
                     callback_data='admin_pricing_section:traffic',
                 ),
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PRICING_BUTTON_TRAFFIC_OPTIONS',
-                        '🚦 Отображение пакетов',
+                        '🚦流量包显示',
                     ),
                     callback_data='admin_pricing_section:traffic_options',
                 ),
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PRICING_BUTTON_EXTRA', '➕ Дополнительно'),
+                    text=texts.t('ADMIN_PRICING_BUTTON_EXTRA', '➕额外'),
                     callback_data='admin_pricing_section:extra',
                 ),
             ],
@@ -761,13 +761,13 @@ def _build_section(
 
     if section == 'periods':
         items = _get_period_items(lang_code)
-        title = texts.t('ADMIN_PRICING_SECTION_PERIODS_TITLE', '🗓 Периоды подписки')
+        title = texts.t('ADMIN_PRICING_SECTION_PERIODS_TITLE', '🗓订阅周期')
     elif section == 'traffic':
         items = _get_traffic_items(lang_code)
-        title = texts.t('ADMIN_PRICING_SECTION_TRAFFIC_TITLE', '📦 Пакеты трафика')
+        title = texts.t('ADMIN_PRICING_SECTION_TRAFFIC_TITLE', '📦流量包')
     elif section == 'extra':
         items = _get_extra_items(lang_code)
-        title = texts.t('ADMIN_PRICING_SECTION_EXTRA_TITLE', '➕ Дополнительные опции')
+        title = texts.t('ADMIN_PRICING_SECTION_EXTRA_TITLE', '➕额外选项')
     elif section == 'traffic_options':
         return _build_traffic_options_section(language)
     elif section in SETTING_ENTRIES_BY_SECTION:
@@ -776,7 +776,7 @@ def _build_section(
         return _build_period_options_section(language)
     else:
         items = _get_extra_items(lang_code)
-        title = texts.t('ADMIN_PRICING_SECTION_EXTRA_TITLE', '➕ Дополнительные опции')
+        title = texts.t('ADMIN_PRICING_SECTION_EXTRA_TITLE', '➕额外选项')
 
     lines = [title, '']
 
@@ -784,9 +784,9 @@ def _build_section(
         for key, label, price in items:
             lines.append(f'• {label} — {settings.format_price(price)}')
         lines.append('')
-        lines.append(texts.t('ADMIN_PRICING_SECTION_PROMPT', 'Выберите что изменить:'))
+        lines.append(texts.t('ADMIN_PRICING_SECTION_PROMPT', '请选择要更改的内容：'))
     else:
-        lines.append(texts.t('ADMIN_PRICING_SECTION_EMPTY', 'Нет доступных значений.'))
+        lines.append(texts.t('ADMIN_PRICING_SECTION_EMPTY', '没有可用值。'))
 
     keyboard_rows: list[list[types.InlineKeyboardButton]] = []
     for key, label, price in items:
@@ -807,18 +807,18 @@ def _build_section(
 
 def _build_price_prompt(texts: Any, label: str, current_price: str) -> str:
     lines = [
-        f'💰 <b>{texts.t("ADMIN_PRICING_EDIT_TITLE", "Изменение цены")}</b>',
+        f'💰 <b>{texts.t("ADMIN_PRICING_EDIT_TITLE", '更改价格')}</b>',
         '',
-        f'{texts.t("ADMIN_PRICING_EDIT_TARGET", "Текущий тариф")}: <b>{label}</b>',
-        f'{texts.t("ADMIN_PRICING_EDIT_CURRENT", "Текущее значение")}: <b>{current_price}</b>',
+        f'{texts.t("ADMIN_PRICING_EDIT_TARGET", '当前套餐')}: <b>{label}</b>',
+        f'{texts.t("ADMIN_PRICING_EDIT_CURRENT", '当前值')}: <b>{current_price}</b>',
         '',
         texts.t(
             'ADMIN_PRICING_EDIT_PROMPT',
-            'Введите новую стоимость в рублях (например 990 или 990.50). Для бесплатного тарифа укажите 0.',
+            '请输入新的卢布价格（例如990或990.50）。免费套餐请输入0。',
         ),
         texts.t(
             'ADMIN_PRICING_EDIT_CANCEL_HINT',
-            'Напишите «Отмена», чтобы вернуться без изменений.',
+            '输入“取消”以返回而不保存更改。',
         ),
     ]
     return '\n'.join(lines)
@@ -962,7 +962,7 @@ async def start_price_edit(
         inline_keyboard=[
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PRICING_EDIT_CANCEL', '❌ Отмена'),
+                    text=texts.t('ADMIN_PRICING_EDIT_CANCEL', '❌取消'),
                     callback_data=f'admin_pricing_section:{section}',
                 )
             ]
@@ -1019,32 +1019,32 @@ async def start_setting_edit(
         example = guidance.get('example') or '—'
         warning = guidance.get('warning') or ''
         prompt_parts = [
-            f'⚙️ <b>{texts.t("ADMIN_PRICING_SETTING_EDIT_TITLE", "Настройка параметра")}</b>',
+            f'⚙️ <b>{texts.t("ADMIN_PRICING_SETTING_EDIT_TITLE", '参数设置')}</b>',
             '',
-            f'{texts.t("ADMIN_PRICING_SETTING_PARAMETER", "Параметр")}: <b>{label}</b>',
-            f'{texts.t("ADMIN_PRICING_SETTING_CURRENT", "Текущее значение")}: <b>{formatted_current}</b>',
+            f'{texts.t("ADMIN_PRICING_SETTING_PARAMETER", '参数')}: <b>{label}</b>',
+            f'{texts.t("ADMIN_PRICING_SETTING_CURRENT", '当前值')}: <b>{formatted_current}</b>',
         ]
         if description:
             prompt_parts.extend(['', description])
         prompt_parts.extend(
             [
                 '',
-                f'ℹ️ {texts.t("ADMIN_PRICING_SETTING_FORMAT", "Формат ввода")}: {format_hint}',
-                f'📌 {texts.t("ADMIN_PRICING_SETTING_EXAMPLE", "Пример")}: {example}',
+                f'ℹ️ {texts.t("ADMIN_PRICING_SETTING_FORMAT", '输入格式')}: {format_hint}',
+                f'📌 {texts.t("ADMIN_PRICING_SETTING_EXAMPLE", '示例')}: {example}',
             ]
         )
         if warning:
-            prompt_parts.append(f'⚠️ {texts.t("ADMIN_PRICING_SETTING_WARNING", "Важно")}: {warning}')
+            prompt_parts.append(f'⚠️ {texts.t("ADMIN_PRICING_SETTING_WARNING", '重要提示')}: {warning}')
         prompt_parts.extend(
             [
                 '',
                 texts.t(
                     'ADMIN_PRICING_SETTING_PROMPT',
-                    'Отправьте новое значение или напишите «Отмена». Для очистки используйте none.',
+                    '请发送新值或输入“取消”。要清除请使用none。',
                 ),
                 texts.t(
                     'ADMIN_PRICING_SETTING_CANCEL_HINT',
-                    'Чтобы вернуться без изменений, ответьте «Отмена».',
+                    '要返回而不保存更改，请回复“取消”。',
                 ),
             ]
         )
@@ -1054,7 +1054,7 @@ async def start_setting_edit(
         inline_keyboard=[
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PRICING_EDIT_CANCEL', '❌ Отмена'),
+                    text=texts.t('ADMIN_PRICING_EDIT_CANCEL', '❌取消'),
                     callback_data=f'admin_pricing_section:{section}',
                 )
             ]
@@ -1081,7 +1081,7 @@ async def process_pricing_input(
     texts = get_texts(db_user.language)
 
     if not key:
-        await message.answer(texts.t('ADMIN_PRICING_EDIT_EXPIRED', 'Сессия редактирования истекла.'))
+        await message.answer(texts.t('ADMIN_PRICING_EDIT_EXPIRED', '编辑会话已过期。'))
         await state.clear()
         return
 
@@ -1097,7 +1097,7 @@ async def process_pricing_input(
                 section_text,
                 section_keyboard,
             )
-        await message.answer(texts.t('ADMIN_PRICING_EDIT_CANCELLED', 'Изменения отменены.'))
+        await message.answer(texts.t('ADMIN_PRICING_EDIT_CANCELLED', '更改已取消。'))
         return
 
     if mode == 'price':
@@ -1107,7 +1107,7 @@ async def process_pricing_input(
             await message.answer(
                 texts.t(
                     'ADMIN_PRICING_EDIT_INVALID',
-                    'Не удалось распознать цену. Укажите число в рублях (например 990 или 990.50).',
+                    '无法识别价格。请输入卢布数字（例如990或990.50）。',
                 )
             )
             return
@@ -1117,7 +1117,7 @@ async def process_pricing_input(
         except ValueError as error:
             error_text = str(error) or texts.t(
                 'ADMIN_PRICING_SETTING_INVALID',
-                'Не удалось обновить параметр. Проверьте формат значения.',
+                '未能更新参数。请检查值格式。',
             )
             await message.answer(error_text)
             return
@@ -1155,7 +1155,7 @@ async def process_pricing_input(
     await message.answer(
         texts.t(
             'ADMIN_PRICING_SETTING_SUCCESS',
-            'Параметр {label} обновлен: {value}',
+            '参数{label}已更新：{value}',
         ).format(label=label, value=formatted_value)
     )
 
@@ -1240,7 +1240,7 @@ async def select_setting_choice(
         await callback.answer(
             texts.t(
                 'ADMIN_PRICING_CHOICE_ALREADY',
-                'Это значение уже активно.',
+                '此值已激活。',
             )
         )
         return
@@ -1252,7 +1252,7 @@ async def select_setting_choice(
     await callback.answer(
         texts.t(
             'ADMIN_PRICING_CHOICE_UPDATED',
-            'Выбрано: {label}',
+            '已选择：{label}',
         ).format(label=target_option.label(lang_code))
     )
 
@@ -1290,7 +1290,7 @@ async def toggle_traffic_package(
         await callback.answer(
             texts.t(
                 'ADMIN_PRICING_TRAFFIC_PACKAGE_MIN',
-                'Должен оставаться хотя бы один пакет.',
+                '必须至少保留一个流量包。',
             ),
             show_alert=True,
         )
@@ -1301,9 +1301,9 @@ async def toggle_traffic_package(
     await _save_traffic_packages(db, packages)
 
     status_text = (
-        texts.t('ADMIN_PRICING_TRAFFIC_PACKAGE_ENABLED', 'Пакет включен.')
+        texts.t('ADMIN_PRICING_TRAFFIC_PACKAGE_ENABLED', '流量包已启用。')
         if target_package['enabled']
-        else texts.t('ADMIN_PRICING_TRAFFIC_PACKAGE_DISABLED', 'Пакет отключен.')
+        else texts.t('ADMIN_PRICING_TRAFFIC_PACKAGE_DISABLED', '流量包已禁用。')
     )
     await callback.answer(status_text)
 
@@ -1351,16 +1351,16 @@ async def toggle_period_option(
             await callback.answer(
                 texts.t(
                     'ADMIN_PRICING_PERIOD_MIN',
-                    'Должен оставаться хотя бы один период.',
+                    '必须至少保留一个周期。',
                 ),
                 show_alert=True,
             )
             return
         current.remove(days)
-        action_text = texts.t('ADMIN_PRICING_PERIOD_DISABLED', 'Период отключен.')
+        action_text = texts.t('ADMIN_PRICING_PERIOD_DISABLED', '周期已禁用。')
     else:
         current.add(days)
-        action_text = texts.t('ADMIN_PRICING_PERIOD_ENABLED', 'Период включен.')
+        action_text = texts.t('ADMIN_PRICING_PERIOD_ENABLED', '周期已启用。')
 
     new_value = ','.join(str(item) for item in sorted(current))
     await bot_configuration_service.set_value(db, setting_key, new_value)
@@ -1409,3 +1409,4 @@ def register_handlers(dp: Dispatcher) -> None:
         process_pricing_input,
         PricingStates.waiting_for_value,
     )
+

@@ -79,7 +79,7 @@ async def _reply_not_eligible(callback: types.CallbackQuery, language: str):
     """Reply that user is not eligible to play."""
     texts = get_texts(language)
     await callback.answer(
-        texts.t('CONTEST_NOT_ELIGIBLE', 'Игры доступны только с активной или триальной подпиской.'),
+        texts.t('CONTEST_NOT_ELIGIBLE', '仅限有效订阅或试用订阅用户参与游戏。'),
         show_alert=True,
     )
 
@@ -129,7 +129,7 @@ async def show_contests_menu(callback: types.CallbackQuery, db_user, db: AsyncSe
         buttons.append(
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('CONTEST_EMPTY', 'Сейчас игр нет'),
+                    text=texts.t('CONTEST_EMPTY', '当前暂无游戏可参加'),
                     callback_data='noop',
                 )
             ]
@@ -138,7 +138,7 @@ async def show_contests_menu(callback: types.CallbackQuery, db_user, db: AsyncSe
     buttons.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='back_to_menu')])
 
     await callback.message.edit_text(
-        texts.t('CONTEST_MENU_TITLE', '🎲 <b>Игры/Конкурсы</b>\nВыберите игру:'),
+        texts.t('CONTEST_MENU_TITLE', '🎲 <b>游戏 / 竞赛</b>\n请选择游戏：'),
         reply_markup=types.InlineKeyboardMarkup(inline_keyboard=buttons),
     )
     await callback.answer()
@@ -162,7 +162,7 @@ async def play_contest(callback: types.CallbackQuery, state: FSMContext, db_user
     # Rate limit check
     if not _check_rate_limit(db_user.id, 'contest_play', limit=2, window_seconds=10):
         await callback.answer(
-            texts.t('CONTEST_TOO_FAST', 'Слишком быстро! Подождите.'),
+            texts.t('CONTEST_TOO_FAST', '太快了！等待。'),
             show_alert=True,
         )
         return
@@ -170,14 +170,14 @@ async def play_contest(callback: types.CallbackQuery, state: FSMContext, db_user
     # Validate callback data
     parts = _validate_callback_data(callback.data)
     if not parts or len(parts) < 4 or parts[1] != 'play':
-        await callback.answer('Некорректные данные', show_alert=True)
+        await callback.answer('数据不正确', show_alert=True)
         return
 
     round_id_str = parts[-1]
     try:
         round_id = int(round_id_str)
     except ValueError:
-        await callback.answer('Некорректные данные', show_alert=True)
+        await callback.answer('数据不正确', show_alert=True)
         return
 
     # Get round with template
@@ -187,14 +187,14 @@ async def play_contest(callback: types.CallbackQuery, state: FSMContext, db_user
 
         if not round_obj:
             await callback.answer(
-                texts.t('CONTEST_ROUND_FINISHED', 'Раунд завершён или недоступен.'),
+                texts.t('CONTEST_ROUND_FINISHED', '本轮已结束或当前不可用。'),
                 show_alert=True,
             )
             return
 
         if not round_obj.template or not round_obj.template.is_enabled:
             await callback.answer(
-                texts.t('CONTEST_DISABLED', 'Игра отключена.'),
+                texts.t('CONTEST_DISABLED', '游戏被禁用。'),
                 show_alert=True,
             )
             return
@@ -203,7 +203,7 @@ async def play_contest(callback: types.CallbackQuery, state: FSMContext, db_user
         attempt = await get_attempt(db2, round_id, db_user.id)
         if attempt:
             await callback.answer(
-                texts.t('CONTEST_ALREADY_PLAYED', 'У вас уже была попытка в этом раунде.'),
+                texts.t('CONTEST_ALREADY_PLAYED', '你已经参加过本轮了。'),
                 show_alert=True,
             )
             return
@@ -214,7 +214,7 @@ async def play_contest(callback: types.CallbackQuery, state: FSMContext, db_user
 
         if not strategy:
             await callback.answer(
-                texts.t('CONTEST_UNKNOWN', 'Тип конкурса не поддерживается.'),
+                texts.t('CONTEST_UNKNOWN', '不支持该竞赛类型。'),
                 show_alert=True,
             )
             return
@@ -247,7 +247,7 @@ async def handle_pick(callback: types.CallbackQuery, db_user, db: AsyncSession):
     # Rate limit check
     if not _check_rate_limit(db_user.id, 'contest_pick', limit=1, window_seconds=3):
         await callback.answer(
-            texts.t('CONTEST_TOO_FAST', 'Слишком быстро! Подождите.'),
+            texts.t('CONTEST_TOO_FAST', '太快了！等待。'),
             show_alert=True,
         )
         return
@@ -255,7 +255,7 @@ async def handle_pick(callback: types.CallbackQuery, db_user, db: AsyncSession):
     # Validate callback data
     parts = _validate_callback_data(callback.data)
     if not parts or len(parts) < 4 or parts[1] != 'pick':
-        await callback.answer('Некорректные данные', show_alert=True)
+        await callback.answer('数据不正确', show_alert=True)
         return
 
     round_id_str = parts[2]
@@ -264,7 +264,7 @@ async def handle_pick(callback: types.CallbackQuery, db_user, db: AsyncSession):
     try:
         round_id = int(round_id_str)
     except ValueError:
-        await callback.answer('Некорректные данные', show_alert=True)
+        await callback.answer('数据不正确', show_alert=True)
         return
 
     # Re-check subscription
@@ -275,7 +275,7 @@ async def handle_pick(callback: types.CallbackQuery, db_user, db: AsyncSession):
     subscription = max(eligible, key=lambda s: s.days_left) if eligible else None
     if not _user_allowed(subscription):
         await callback.answer(
-            texts.t('CONTEST_NOT_ELIGIBLE', 'Игра недоступна без активной подписки.'),
+            texts.t('CONTEST_NOT_ELIGIBLE', '仅限有效订阅或试用订阅用户参与游戏。'),
             show_alert=True,
         )
         return
@@ -286,7 +286,7 @@ async def handle_pick(callback: types.CallbackQuery, db_user, db: AsyncSession):
 
         if not round_obj:
             await callback.answer(
-                texts.t('CONTEST_ROUND_FINISHED', 'Раунд завершён.'),
+                texts.t('CONTEST_ROUND_FINISHED', '本轮已结束或当前不可用。'),
                 show_alert=True,
             )
             return
@@ -321,7 +321,7 @@ async def handle_text_answer(message: types.Message, state: FSMContext, db_user,
 
         if not round_obj:
             await message.answer(
-                texts.t('CONTEST_ROUND_FINISHED', 'Раунд завершён.'),
+                texts.t('CONTEST_ROUND_FINISHED', '本轮已结束或当前不可用。'),
                 reply_markup=get_back_keyboard(db_user.language),
             )
             await state.clear()

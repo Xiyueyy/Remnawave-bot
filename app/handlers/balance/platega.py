@@ -67,7 +67,7 @@ async def _prompt_amount(
 
     prompt_template = texts.t(
         'PLATEGA_TOPUP_PROMPT',
-        (f'💳 <b>Оплата через Platega ({{method_name}})</b>\n\n{default_prompt_body}Оплата происходит через Platega.'),
+        (f'💳 <b>通过 Platega 付款 ({{method_name}})</b>\n\n{default_prompt_body}付款是通过Platega进行的。'),
     )
 
     keyboard = get_back_keyboard(db_user.language)
@@ -103,12 +103,11 @@ async def start_platega_payment(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await callback.message.edit_text(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
         await callback.answer()
@@ -118,7 +117,7 @@ async def start_platega_payment(
         await callback.answer(
             texts.t(
                 'PLATEGA_TEMPORARILY_UNAVAILABLE',
-                '❌ Оплата через Platega временно недоступна',
+                '❌通过Platega支付暂时不可用',
             ),
             show_alert=True,
         )
@@ -129,7 +128,7 @@ async def start_platega_payment(
         await callback.answer(
             texts.t(
                 'PLATEGA_METHODS_NOT_CONFIGURED',
-                '⚠️ На стороне Platega нет доступных методов оплаты',
+                '⚠️Platega方面没有可用的支付方式',
             ),
             show_alert=True,
         )
@@ -161,7 +160,7 @@ async def start_platega_payment(
     await callback.message.edit_text(
         texts.t(
             'PLATEGA_SELECT_PAYMENT_METHOD',
-            'Выберите способ оплаты Platega:',
+            '请选择Platega支付方式：',
         ),
         reply_markup=types.InlineKeyboardMarkup(inline_keyboard=method_buttons),
     )
@@ -179,11 +178,11 @@ async def handle_platega_method_selection(
     try:
         method_code = int(callback.data.rsplit('_', 1)[-1])
     except ValueError:
-        await callback.answer('❌ Некорректный способ оплаты', show_alert=True)
+        await callback.answer('❌ 付款方式不正确', show_alert=True)
         return
 
     if method_code not in _get_active_methods():
-        await callback.answer('⚠️ Этот способ сейчас недоступен', show_alert=True)
+        await callback.answer('⚠️此方法目前不可用', show_alert=True)
         return
 
     await _prompt_amount(callback.message, db_user, state, method_code)
@@ -202,7 +201,7 @@ async def start_platega_direct_method(
     try:
         method_code = int(callback.data.removeprefix('topup_platega_m'))
     except (ValueError, IndexError):
-        await callback.answer('❌ Некорректный способ оплаты', show_alert=True)
+        await callback.answer('❌ 付款方式不正确', show_alert=True)
         return
 
     if getattr(db_user, 'restriction_topup', False):
@@ -210,12 +209,11 @@ async def start_platega_direct_method(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await callback.message.edit_text(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
         )
         await callback.answer()
@@ -225,14 +223,14 @@ async def start_platega_direct_method(
         await callback.answer(
             texts.t(
                 'PLATEGA_TEMPORARILY_UNAVAILABLE',
-                '❌ Оплата через Platega временно недоступна',
+                '❌通过Platega支付暂时不可用',
             ),
             show_alert=True,
         )
         return
 
     if method_code not in _get_active_methods():
-        await callback.answer('⚠️ Этот способ сейчас недоступен', show_alert=True)
+        await callback.answer('⚠️此方法目前不可用', show_alert=True)
         return
 
     await _prompt_amount(callback.message, db_user, state, method_code)
@@ -255,12 +253,11 @@ async def process_platega_payment_amount(
         support_url = settings.get_support_contact_url()
         keyboard = []
         if support_url:
-            keyboard.append([types.InlineKeyboardButton(text='🆘 Обжаловать', url=support_url)])
+            keyboard.append([types.InlineKeyboardButton(text='🆘 申诉', url=support_url)])
         keyboard.append([types.InlineKeyboardButton(text=texts.BACK, callback_data='menu_balance')])
 
         await message.answer(
-            f'🚫 <b>Пополнение ограничено</b>\n\n{reason}\n\n'
-            'Если вы считаете это ошибкой, вы можете обжаловать решение.',
+            f'🚫 <b>补货有限</b>\n\n{reason}\n\n如果您认为这是一个错误，您可以对该决定提出申诉。',
             reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
             parse_mode='HTML',
         )
@@ -271,7 +268,7 @@ async def process_platega_payment_amount(
         await message.answer(
             texts.t(
                 'PLATEGA_TEMPORARILY_UNAVAILABLE',
-                '❌ Оплата через Platega временно недоступна',
+                '❌通过Platega支付暂时不可用',
             )
         )
         return
@@ -282,7 +279,7 @@ async def process_platega_payment_amount(
         await message.answer(
             texts.t(
                 'PLATEGA_METHOD_SELECTION_REQUIRED',
-                '⚠️ Выберите способ оплаты Platega перед вводом суммы',
+                '⚠️请在输入金额前选择Platega支付方式',
             )
         )
         await state.set_state(BalanceStates.waiting_for_platega_method)
@@ -292,7 +289,7 @@ async def process_platega_payment_amount(
         await message.answer(
             texts.t(
                 'PLATEGA_AMOUNT_TOO_LOW',
-                'Минимальная сумма для оплаты через Platega: {amount}',
+                '通过Platega支付的最低金额为：{amount}',
             ).format(amount=settings.format_price(settings.PLATEGA_MIN_AMOUNT_KOPEKS)),
             reply_markup=get_back_keyboard(db_user.language),
         )
@@ -302,7 +299,7 @@ async def process_platega_payment_amount(
         await message.answer(
             texts.t(
                 'PLATEGA_AMOUNT_TOO_HIGH',
-                'Максимальная сумма для оплаты через Platega: {amount}',
+                '通过Platega支付的最高金额为：{amount}',
             ).format(amount=settings.format_price(settings.PLATEGA_MAX_AMOUNT_KOPEKS)),
             reply_markup=get_back_keyboard(db_user.language),
         )
@@ -326,7 +323,7 @@ async def process_platega_payment_amount(
         await message.answer(
             texts.t(
                 'PLATEGA_PAYMENT_ERROR',
-                '❌ Ошибка создания платежа Platega. Попробуйте позже или обратитесь в поддержку.',
+                '❌创建Platega付款失败。请稍后再试或联系支持。',
             )
         )
         await state.clear()
@@ -343,14 +340,14 @@ async def process_platega_payment_amount(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'PLATEGA_PAY_BUTTON',
-                        '💳 Оплатить через {method}',
+                        '💳通过{method}支付',
                     ).format(method=method_title),
                     url=redirect_url,
                 )
             ],
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('CHECK_STATUS_BUTTON', '📊 Проверить статус'),
+                    text=texts.t('CHECK_STATUS_BUTTON', '📊检查状态'),
                     callback_data=f'check_platega_{local_payment_id}',
                 )
             ],
@@ -361,15 +358,7 @@ async def process_platega_payment_amount(
     instructions_template = texts.t(
         'PLATEGA_PAYMENT_INSTRUCTIONS',
         (
-            '💳 <b>Оплата через Platega ({method})</b>\n\n'
-            '💰 Сумма: {amount}\n'
-            '🆔 ID транзакции: {transaction}\n\n'
-            '📱 <b>Инструкция:</b>\n'
-            '1. Нажмите кнопку «Оплатить»\n'
-            '2. Следуйте подсказкам платёжной системы\n'
-            '3. Подтвердите перевод\n'
-            '4. Средства зачислятся автоматически\n\n'
-            '❓ Если возникнут проблемы, обратитесь в {support}'
+            '💳<b>通过Platega({method})付款</b>\n\n💰金额：{amount}\n🆔交易ID：{transaction}\n\n📱<b>说明：</b>\n1.点击“支付”按钮\n2.按照支付系统提示操作\n3.确认转账\n4.资金将自动到账\n\n❓如果遇到问题，请联系{support}'
         ),
     )
 
@@ -433,7 +422,7 @@ async def check_platega_payment_status(
     try:
         local_payment_id = int(callback.data.split('_')[-1])
     except ValueError:
-        await callback.answer('❌ Некорректный идентификатор платежа', show_alert=True)
+        await callback.answer('❌ 付款 ID 错误', show_alert=True)
         return
 
     payment_service = PaymentService(callback.bot)
@@ -442,11 +431,11 @@ async def check_platega_payment_status(
         status_info = await payment_service.get_platega_payment_status(db, local_payment_id)
     except Exception as error:
         logger.exception('Ошибка проверки статуса Platega', error=error)
-        await callback.answer('⚠️ Ошибка проверки статуса', show_alert=True)
+        await callback.answer('⚠️状态检查错误', show_alert=True)
         return
 
     if not status_info:
-        await callback.answer('⚠️ Платёж не найден', show_alert=True)
+        await callback.answer('⚠️未找到付款', show_alert=True)
         return
 
     payment = status_info.get('payment')
@@ -461,9 +450,9 @@ async def check_platega_payment_status(
     texts = get_texts(language)
 
     if is_paid:
-        await callback.answer(texts.t('PLATEGA_PAYMENT_ALREADY_CONFIRMED', '✅ Платёж уже зачислен'), show_alert=True)
+        await callback.answer(texts.t('PLATEGA_PAYMENT_ALREADY_CONFIRMED', '✅付款已到账'), show_alert=True)
     else:
         await callback.answer(
-            texts.t('PLATEGA_PAYMENT_STATUS', 'Текущий статус платежа: {status}').format(status=status),
+            texts.t('PLATEGA_PAYMENT_STATUS', '当前付款状态：{status}').format(status=status),
             show_alert=True,
         )

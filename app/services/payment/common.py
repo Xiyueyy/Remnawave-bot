@@ -36,7 +36,7 @@ class PaymentCommonMixin:
     async def build_topup_success_keyboard(self, user: Any) -> InlineKeyboardMarkup:
         """Формирует клавиатуру по завершении платежа, подстраиваясь под пользователя."""
         # Загружаем нужные тексты с учётом выбранного языка пользователя.
-        texts = get_texts(user.language if user else 'ru')
+        texts = get_texts(user.language if user else settings.DEFAULT_LANGUAGE)
 
         # Определяем статус подписки, чтобы показать подходящую кнопку.
         has_active_subscription = False
@@ -370,7 +370,7 @@ async def send_cart_notification_after_topup(
         refreshed_user = await get_user_by_id(db, user.id)
         balance = getattr(refreshed_user or user, 'balance_kopeks', 0)
 
-        texts = get_texts(getattr(user, 'language', 'ru'))
+        texts = get_texts(getattr(user, 'language', settings.DEFAULT_LANGUAGE))
 
         # Build message based on whether balance is sufficient
         fmt = settings.format_price

@@ -59,14 +59,14 @@ async def handle_connect_subscription(
                 keyboard.append(
                     [
                         types.InlineKeyboardButton(
-                            text=f'🔗 {tariff_name} ({days_left}д.)',
+                            text=f'🔗 {tariff_name} ({days_left}d.)',
                             callback_data=f'sl:{sub.id}',
                         )
                     ]
                 )
-            keyboard.append([types.InlineKeyboardButton(text='◀️ Назад', callback_data='back_to_menu')])
+            keyboard.append([types.InlineKeyboardButton(text='◀️ 返回', callback_data='back_to_menu')])
             await callback.message.edit_text(
-                '🔗 <b>Подключиться</b>\n\nВыберите подписку:',
+                '🔗 <b>连接</b>\n\n选择订阅：',
                 reply_markup=types.InlineKeyboardMarkup(inline_keyboard=keyboard),
             )
             await callback.answer()
@@ -83,7 +83,7 @@ async def handle_connect_subscription(
         await callback.answer(
             texts.t(
                 'SUBSCRIPTION_NO_ACTIVE_LINK',
-                '⚠ У вас нет активной подписки или ссылка еще генерируется',
+                '⚠您没有活跃的订阅或链接仍在生成中',
             ),
             show_alert=True,
         )
@@ -96,7 +96,7 @@ async def handle_connect_subscription(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text=texts.t('CONNECT_BUTTON', '🔗 Подключиться'),
+                        text=texts.t('CONNECT_BUTTON', '🔗连接'),
                         web_app=types.WebAppInfo(url=subscription_link),
                     )
                 ],
@@ -107,9 +107,7 @@ async def handle_connect_subscription(
         await callback.message.edit_text(
             texts.t(
                 'SUBSCRIPTION_CONNECT_MINIAPP_MESSAGE',
-                """📱 <b>Подключить подписку</b>
-
-🚀 Нажмите кнопку ниже, чтобы открыть подписку в мини-приложении Telegram:""",
+                '📱<b>连接订阅</b>\n\n🚀点击下方按钮在电报小程序中打开订阅：',
             ),
             reply_markup=keyboard,
             parse_mode='HTML',
@@ -120,7 +118,7 @@ async def handle_connect_subscription(
             await callback.answer(
                 texts.t(
                     'CUSTOM_MINIAPP_URL_NOT_SET',
-                    '⚠ Кастомная ссылка для мини-приложения не настроена',
+                    '⚠未设置小程序的自定义链接',
                 ),
                 show_alert=True,
             )
@@ -130,7 +128,7 @@ async def handle_connect_subscription(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text=texts.t('CONNECT_BUTTON', '🔗 Подключиться'),
+                        text=texts.t('CONNECT_BUTTON', '🔗连接'),
                         web_app=types.WebAppInfo(url=settings.MINIAPP_CUSTOM_URL),
                     )
                 ],
@@ -141,16 +139,14 @@ async def handle_connect_subscription(
         await callback.message.edit_text(
             texts.t(
                 'SUBSCRIPTION_CONNECT_CUSTOM_MESSAGE',
-                """🚀 <b>Подключить подписку</b>
-
-📱 Нажмите кнопку ниже, чтобы открыть приложение:""",
+                '🚀<b>连接订阅</b>\n\n📱点击下方按钮打开应用程序：',
             ),
             reply_markup=keyboard,
             parse_mode='HTML',
         )
 
     elif connect_mode == 'link':
-        rows = [[InlineKeyboardButton(text=texts.t('CONNECT_BUTTON', '🔗 Подключиться'), url=subscription_link)]]
+        rows = [[InlineKeyboardButton(text=texts.t('CONNECT_BUTTON', '🔗连接'), url=subscription_link)]]
         happ_row = get_happ_download_button_row(texts)
         if happ_row:
             rows.append(happ_row)
@@ -161,9 +157,7 @@ async def handle_connect_subscription(
         await callback.message.edit_text(
             texts.t(
                 'SUBSCRIPTION_CONNECT_LINK_MESSAGE',
-                """🚀 <b>Подключить подписку</b>",
-
-🔗 Нажмите кнопку ниже, чтобы открыть ссылку подписки:""",
+                '🚀<b>连接订阅</b>\n\n🔗点击下方按钮打开订阅链接：',
             ),
             reply_markup=keyboard,
             parse_mode='HTML',
@@ -172,7 +166,7 @@ async def handle_connect_subscription(
         rows = [
             [
                 InlineKeyboardButton(
-                    text=texts.t('CONNECT_BUTTON', '🔗 Подключиться'),
+                    text=texts.t('CONNECT_BUTTON', '🔗连接'),
                     callback_data=f'open_subscription_link:{sub_id}'
                     if settings.is_multi_tariff_enabled()
                     else 'open_subscription_link',
@@ -189,9 +183,7 @@ async def handle_connect_subscription(
         await callback.message.edit_text(
             texts.t(
                 'SUBSCRIPTION_CONNECT_LINK_MESSAGE',
-                """🚀 <b>Подключить подписку</b>",
-
-🔗 Нажмите кнопку ниже, чтобы открыть ссылку подписки:""",
+                '🚀<b>连接订阅</b>\n\n🔗点击下方按钮打开订阅链接：',
             ),
             reply_markup=keyboard,
             parse_mode='HTML',
@@ -210,9 +202,7 @@ async def handle_connect_subscription(
             await callback.message.edit_text(
                 texts.t(
                     'GUIDE_CONFIG_NOT_SET',
-                    '⚠️ <b>Конфигурация не настроена</b>\n\n'
-                    'Администратор ещё не настроил конфигурацию приложений.\n'
-                    'Обратитесь к администратору.',
+                    '⚠️ <b>配置未配置</b>\n\n管理员尚未配置应用程序。\n请联系您的管理员。',
                 ),
                 reply_markup=InlineKeyboardMarkup(
                     inline_keyboard=[
@@ -227,21 +217,12 @@ async def handle_connect_subscription(
         if hide_subscription_link:
             device_text = texts.t(
                 'SUBSCRIPTION_CONNECT_DEVICE_MESSAGE_HIDDEN',
-                """📱 <b>Подключить подписку</b>
-
-ℹ️ Ссылка подписки доступна по кнопкам ниже или в разделе "Моя подписка".
-
-💡 <b>Выберите ваше устройство</b> для получения подробной инструкции по настройке:""",
+                '📱<b>连接订阅</b>\n\nℹ️订阅链接在下方按钮中或“我的订阅”部分可用。\n\n💡<b>请选择您的设备</b>以获取详细设置说明：',
             )
         else:
             device_text = texts.t(
                 'SUBSCRIPTION_CONNECT_DEVICE_MESSAGE',
-                """📱 <b>Подключить подписку</b>
-
-🔗 <b>Ссылка подписки:</b>
-<code>{subscription_url}</code>
-
-💡 <b>Выберите ваше устройство</b> для получения подробной инструкции по настройке:""",
+                '📱<b>连接订阅</b>\n\n🔗<b>订阅链接：</b>\n<code>{subscription_url}</code>\n\n💡<b>请选择您的设备</b>以获取详细设置说明：',
             ).format(subscription_url=subscription_link)
 
         await callback.message.edit_text(
@@ -265,7 +246,7 @@ async def handle_open_subscription_link(
 
     if not subscription_link:
         await callback.answer(
-            texts.t('SUBSCRIPTION_LINK_UNAVAILABLE', '❌ Ссылка подписки недоступна'),
+            texts.t('SUBSCRIPTION_LINK_UNAVAILABLE', '❌订阅链接不可用'),
             show_alert=True,
         )
         return
@@ -276,29 +257,29 @@ async def handle_open_subscription_link(
         happ_message = (
             texts.t(
                 'SUBSCRIPTION_HAPP_OPEN_TITLE',
-                '🔗 <b>Подключение через Happ</b>',
+                '🔗<b>通过Happ连接</b>',
             )
             + '\n\n'
             + texts.t(
                 'SUBSCRIPTION_HAPP_OPEN_LINK',
-                '<a href="{subscription_link}">🔓 Открыть ссылку в Happ</a>',
+                '<ahref="{subscription_link}">🔓在Happ中打开链接</a>',
             ).format(subscription_link=happ_scheme_link)
             + '\n\n'
             + texts.t(
                 'SUBSCRIPTION_HAPP_OPEN_HINT',
-                '💡 Если ссылка не открывается автоматически, скопируйте её вручную:',
+                '💡如果链接未自动打开，请手动复制：',
             )
         )
 
         if redirect_link:
             happ_message += '\n\n' + texts.t(
                 'SUBSCRIPTION_HAPP_OPEN_BUTTON_HINT',
-                '▶️ Нажмите кнопку "Подключиться" ниже, чтобы открыть Happ и добавить подписку автоматически.',
+                '▶️点击下方的“连接”按钮以打开Happ并自动添加订阅。',
             )
 
         happ_message += '\n\n' + texts.t(
             'SUBSCRIPTION_HAPP_CRYPTOLINK_BLOCK',
-            '<blockquote expandable><code>{crypto_link}</code></blockquote>',
+            '<blockquoteexpandable><code>{crypto_link}</code></blockquote>',
         ).format(crypto_link=subscription_link)
 
         keyboard = get_happ_cryptolink_keyboard(
@@ -317,35 +298,35 @@ async def handle_open_subscription_link(
         return
 
     link_text = (
-        texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗 <b>Ссылка подписки:</b>')
+        texts.t('SUBSCRIPTION_DEVICE_LINK_TITLE', '🔗<b>订阅链接：</b>')
         + '\n\n'
         + f'<code>{subscription_link}</code>\n\n'
-        + texts.t('SUBSCRIPTION_LINK_USAGE_TITLE', '📱 <b>Как использовать:</b>')
+        + texts.t('SUBSCRIPTION_LINK_USAGE_TITLE', '📱<b>如何使用：</b>')
         + '\n'
         + '\n'.join(
             [
                 texts.t(
                     'SUBSCRIPTION_LINK_STEP1',
-                    '1. Нажмите на ссылку выше чтобы её скопировать',
+                    '1.点击上方链接以复制',
                 ),
                 texts.t(
                     'SUBSCRIPTION_LINK_STEP2',
-                    '2. Откройте ваше VPN приложение',
+                    '2.打开您的网络代理应用',
                 ),
                 texts.t(
                     'SUBSCRIPTION_LINK_STEP3',
-                    '3. Найдите функцию "Добавить подписку" или "Import"',
+                    '3.找到“添加订阅”或“导入”功能',
                 ),
                 texts.t(
                     'SUBSCRIPTION_LINK_STEP4',
-                    '4. Вставьте скопированную ссылку',
+                    '4.粘贴复制的链接',
                 ),
             ]
         )
         + '\n\n'
         + texts.t(
             'SUBSCRIPTION_LINK_HINT',
-            '💡 Если ссылка не скопировалась, выделите её вручную и скопируйте.',
+            '💡如果链接未复制，请手动选中并复制。',
         )
     )
 
@@ -355,7 +336,7 @@ async def handle_open_subscription_link(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text=texts.t('CONNECT_BUTTON', '🔗 Подключиться'),
+                        text=texts.t('CONNECT_BUTTON', '🔗连接'),
                         callback_data=f'subscription_connect:{sub_id}'
                         if settings.is_multi_tariff_enabled()
                         else 'subscription_connect',

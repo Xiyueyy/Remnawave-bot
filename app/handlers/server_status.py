@@ -42,7 +42,7 @@ async def _render_server_status(
     texts = get_texts(db_user.language)
 
     if settings.get_server_status_mode() != 'xray':
-        await callback.answer(texts.t('SERVER_STATUS_NOT_CONFIGURED', 'Функция недоступна.'), show_alert=True)
+        await callback.answer(texts.t('SERVER_STATUS_NOT_CONFIGURED', '功能不可用。'), show_alert=True)
         return
 
     try:
@@ -50,14 +50,14 @@ async def _render_server_status(
     except ServerStatusError as error:
         logger.warning('Server status error', error=error)
         await callback.answer(
-            texts.t('SERVER_STATUS_ERROR_SHORT', 'Не удалось получить данные'),
+            texts.t('SERVER_STATUS_ERROR_SHORT', '未能获取数据'),
             show_alert=True,
         )
         return
     except Exception as error:  # pragma: no cover - defensive logging
         logger.error('Unexpected server status error', error=error)
         await callback.answer(
-            texts.t('SERVER_STATUS_ERROR_SHORT', 'Не удалось получить данные'),
+            texts.t('SERVER_STATUS_ERROR_SHORT', '未能获取数据'),
             show_alert=True,
         )
         return
@@ -90,17 +90,17 @@ def _build_status_message(
 
     current_online, current_offline = pages[current_index] if pages else ([], [])
 
-    lines: list[str] = [texts.t('SERVER_STATUS_TITLE', '📊 <b>Статус серверов</b>')]
+    lines: list[str] = [texts.t('SERVER_STATUS_TITLE', '📊<b>服务器状态</b>')]
 
     if total_servers == 0:
         lines.append('')
-        lines.append(texts.t('SERVER_STATUS_NO_SERVERS', 'Нет данных о серверах.'))
+        lines.append(texts.t('SERVER_STATUS_NO_SERVERS', '没有服务器数据。'))
         message = '\n'.join(lines).strip()
         return message, 1, 1
 
     summary = texts.t(
         'SERVER_STATUS_SUMMARY',
-        'Всего серверов: {total} (в сети: {online}, вне сети: {offline})',
+        '总服务器：{total}(在线：{online}，离线：{offline})',
     ).format(
         total=total_servers,
         online=len(online_servers),
@@ -113,24 +113,24 @@ def _build_status_message(
         [
             '',
             summary,
-            texts.t('SERVER_STATUS_UPDATED_AT', '⏱ Обновлено: {time}').format(time=updated_at),
+            texts.t('SERVER_STATUS_UPDATED_AT', '⏱更新时间：{time}').format(time=updated_at),
             '',
         ]
     )
 
     if current_online:
-        lines.append(texts.t('SERVER_STATUS_AVAILABLE', '✅ <b>Доступны</b>'))
+        lines.append(texts.t('SERVER_STATUS_AVAILABLE', '✅<b>可用</b>'))
         lines.extend(_format_server_lines(current_online, texts, online=True))
         lines.append('')
 
     if current_offline:
-        lines.append(texts.t('SERVER_STATUS_UNAVAILABLE', '❌ <b>Недоступны</b>'))
+        lines.append(texts.t('SERVER_STATUS_UNAVAILABLE', '❌<b>不可用</b>'))
         lines.extend(_format_server_lines(current_offline, texts, online=False))
         lines.append('')
 
     if total_pages > 1:
         lines.append(
-            texts.t('SERVER_STATUS_PAGINATION', 'Страница {current} из {total}').format(
+            texts.t('SERVER_STATUS_PAGINATION', '第{current}页，共{total}页').format(
                 current=current_index + 1,
                 total=total_pages,
             )
@@ -184,11 +184,11 @@ def _format_server_lines(
         latency_text: str
         if online:
             if server.latency_ms and server.latency_ms > 0:
-                latency_text = texts.t('SERVER_STATUS_LATENCY', '{latency} мс').format(latency=server.latency_ms)
+                latency_text = texts.t('SERVER_STATUS_LATENCY', '{latency}毫秒').format(latency=server.latency_ms)
             else:
-                latency_text = texts.t('SERVER_STATUS_LATENCY_UNKNOWN', 'нет данных')
+                latency_text = texts.t('SERVER_STATUS_LATENCY_UNKNOWN', '无数据')
         else:
-            latency_text = texts.t('SERVER_STATUS_OFFLINE', 'нет ответа')
+            latency_text = texts.t('SERVER_STATUS_OFFLINE', '无响应')
 
         name = html.escape(server.display_name or server.name)
         flag_prefix = f'{server.flag} ' if server.flag else ''

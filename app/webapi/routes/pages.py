@@ -433,7 +433,7 @@ async def get_service_rules(
     rules = await get_rules_by_language(db, requested_lang)
 
     if not rules and fallback:
-        default_lang = (settings.DEFAULT_LANGUAGE or 'ru').split('-')[0].lower()
+        default_lang = (settings.DEFAULT_LANGUAGE or 'zh').split('-')[0].lower()
         if default_lang != requested_lang:
             rules = await get_rules_by_language(db, default_lang)
 

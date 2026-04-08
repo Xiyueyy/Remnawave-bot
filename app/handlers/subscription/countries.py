@@ -46,7 +46,7 @@ async def handle_add_countries(callback: types.CallbackQuery, db_user: User, db:
         await callback.answer(
             texts.t(
                 'COUNTRY_MANAGEMENT_UNAVAILABLE',
-                'ℹ️ Управление серверами недоступно - доступен только один сервер',
+                'ℹ️服务器管理不可用-只有一个服务器可用',
             ),
             show_alert=True,
         )
@@ -59,7 +59,7 @@ async def handle_add_countries(callback: types.CallbackQuery, db_user: User, db:
 
     if not subscription or subscription.is_trial:
         await callback.answer(
-            texts.t('PAID_FEATURE_ONLY', '⚠ Эта функция доступна только для платных подписок'),
+            texts.t('PAID_FEATURE_ONLY', '⚠此功能仅适用于付费订阅'),
             show_alert=True,
         )
         return
@@ -82,21 +82,13 @@ async def handle_add_countries(callback: types.CallbackQuery, db_user: User, db:
     current_list = (
         '\n'.join(f'• {name}' for name in current_countries_names)
         if current_countries_names
-        else texts.t('COUNTRY_MANAGEMENT_NONE', 'Нет подключенных стран')
+        else texts.t('COUNTRY_MANAGEMENT_NONE', '没有已连接的国家')
     )
 
     text = texts.t(
         'COUNTRY_MANAGEMENT_PROMPT',
         (
-            '🌍 <b>Управление странами подписки</b>\n\n'
-            '📋 <b>Текущие страны ({current_count}):</b>\n'
-            '{current_list}\n\n'
-            '💡 <b>Инструкция:</b>\n'
-            '✅ - страна подключена\n'
-            '➕ - будет добавлена (платно)\n'
-            '➖ - будет отключена (бесплатно)\n'
-            '⚪ - не выбрана\n\n'
-            '⚠️ <b>Важно:</b> Повторное подключение отключенных стран будет платным!'
+            '🌍<b>订阅国家管理</b>\n\n📋<b>当前国家({current_count}):</b>\n{current_list}\n\n💡<b>说明：</b>\n✅-已连接国家\n➕-将添加(收费)\n➖-将禁用(免费)\n⚪-未选择\n\n⚠️<b>重要提示：</b>重新连接已禁用的国家将收费！'
         ),
     ).format(
         current_count=len(current_countries),
@@ -173,7 +165,7 @@ async def handle_manage_country(callback: types.CallbackQuery, db_user: User, db
     if not subscription or subscription.is_trial:
         texts = get_texts(db_user.language)
         await callback.answer(
-            texts.t('PAID_FEATURE_ONLY_SHORT', '⚠ Только для платных подписок'),
+            texts.t('PAID_FEATURE_ONLY_SHORT', '⚠仅限付费订阅'),
             show_alert=True,
         )
         return
@@ -189,7 +181,7 @@ async def handle_manage_country(callback: types.CallbackQuery, db_user: User, db
         await callback.answer(
             texts.t(
                 'COUNTRY_NOT_AVAILABLE_PROMOGROUP',
-                '❌ Сервер недоступен для вашей промогруппы',
+                '❌服务器不适用于您的促销组',
             ),
             show_alert=True,
         )
@@ -258,7 +250,7 @@ async def apply_countries_changes(callback: types.CallbackQuery, db_user: User, 
 
     if not added and not removed:
         await callback.answer(
-            texts.t('COUNTRY_CHANGES_NOT_FOUND', '⚠️ Изменения не обнаружены'),
+            texts.t('COUNTRY_CHANGES_NOT_FOUND', '⚠️未检测到更改'),
             show_alert=True,
         )
         return
@@ -336,11 +328,7 @@ async def apply_countries_changes(callback: types.CallbackQuery, db_user: User, 
         message_text = texts.t(
             'ADDON_INSUFFICIENT_FUNDS_MESSAGE',
             (
-                '⚠️ <b>Недостаточно средств</b>\n\n'
-                'Стоимость услуги: {required}\n'
-                'На балансе: {balance}\n'
-                'Не хватает: {missing}\n\n'
-                'Выберите способ пополнения. Сумма подставится автоматически.'
+                '⚠️<b>资金不足</b>\n\n服务费用：{required}\n当前余额：{balance}\n缺少：{missing}\n\n请选择充值方式。金额将自动填入。'
             ),
         ).format(
             required=required_text,
@@ -365,7 +353,7 @@ async def apply_countries_changes(callback: types.CallbackQuery, db_user: User, 
         await callback.answer(
             texts.t(
                 'COUNTRIES_MINIMUM_REQUIRED',
-                '❌ Нельзя отключить все страны. Должна быть подключена хотя бы одна страна.',
+                '❌ 不能关闭所有国家。至少要保留一个国家。',
             ),
             show_alert=True,
         )
@@ -378,7 +366,7 @@ async def apply_countries_changes(callback: types.CallbackQuery, db_user: User, 
             )
             if not success:
                 await callback.answer(
-                    texts.t('PAYMENT_CHARGE_ERROR', '⚠️ Ошибка списания средств'),
+                    texts.t('PAYMENT_CHARGE_ERROR', '⚠️扣款失败'),
                     show_alert=True,
                 )
                 return
@@ -428,19 +416,19 @@ async def apply_countries_changes(callback: types.CallbackQuery, db_user: User, 
 
         success_text = texts.t(
             'COUNTRY_CHANGES_SUCCESS_HEADER',
-            '✅ <b>Страны успешно обновлены!</b>\n\n',
+            '✅<b>国家已成功更新！</b>\n\n',
         )
 
         if added_names:
             success_text += texts.t(
                 'COUNTRY_CHANGES_ADDED_HEADER',
-                '➕ <b>Добавлены страны:</b>\n',
+                '➕<b>已添加国家：</b>\n',
             )
             success_text += '\n'.join(f'• {name}' for name in added_names)
             if total_cost > 0:
                 success_text += '\n' + texts.t(
                     'COUNTRY_CHANGES_CHARGED',
-                    '💰 Списано: {amount} (за {days} дн.)',
+                    '💰已扣除：{amount}(共{months}个月)',
                 ).format(
                     amount=texts.format_price(total_cost),
                     days=charged_days,
@@ -448,7 +436,7 @@ async def apply_countries_changes(callback: types.CallbackQuery, db_user: User, 
                 if total_discount > 0:
                     success_text += texts.t(
                         'COUNTRY_CHANGES_DISCOUNT_INFO',
-                        ' (скидка {percent}%: -{amount})',
+                        '(折扣{percent}%:-{amount})',
                     ).format(
                         percent=servers_discount_percent,
                         amount=texts.format_price(total_discount),
@@ -458,21 +446,21 @@ async def apply_countries_changes(callback: types.CallbackQuery, db_user: User, 
         if removed_names:
             success_text += '\n' + texts.t(
                 'COUNTRY_CHANGES_REMOVED_HEADER',
-                '➖ <b>Отключены страны:</b>\n',
+                '➖<b>已禁用国家：</b>\n',
             )
             success_text += '\n'.join(f'• {name}' for name in removed_names)
             success_text += (
                 '\n'
                 + texts.t(
                     'COUNTRY_CHANGES_REMOVED_WARNING',
-                    'ℹ️ Повторное подключение будет платным',
+                    'ℹ️重新连接将收费',
                 )
                 + '\n'
             )
 
         success_text += '\n' + texts.t(
             'COUNTRY_CHANGES_ACTIVE_COUNT',
-            '🌐 <b>Активных стран:</b> {count}',
+            '🌐<b>活跃国家：</b>{count}',
         ).format(count=len(selected_countries))
 
         await callback.message.edit_text(
@@ -500,7 +488,7 @@ async def select_country(callback: types.CallbackQuery, state: FSMContext, db_us
     data = await state.get_data()
 
     if 'period_days' not in data:
-        await callback.answer('❌ Данные подписки устарели. Начните оформление заново.', show_alert=True)
+        await callback.answer('❌ 订阅数据已过时。重新开始你的设计。', show_alert=True)
         return
 
     selected_countries = data.get('countries', [])
@@ -513,7 +501,7 @@ async def select_country(callback: types.CallbackQuery, state: FSMContext, db_us
     allowed_country_ids = {country['uuid'] for country in countries}
 
     if country_uuid not in allowed_country_ids and country_uuid not in selected_countries:
-        await callback.answer('❌ Сервер недоступен для вашей промогруппы', show_alert=True)
+        await callback.answer('❌ 您的促销组的服务器不可用', show_alert=True)
         return
 
     data['countries'] = selected_countries
@@ -541,7 +529,7 @@ async def countries_continue(callback: types.CallbackQuery, state: FSMContext, d
     texts = get_texts(db_user.language)
 
     if not data.get('countries'):
-        await callback.answer('⚠️ Выберите хотя бы одну страну!', show_alert=True)
+        await callback.answer('⚠️至少选择一个国家！', show_alert=True)
         return
 
     if not settings.is_devices_selection_enabled():
@@ -694,7 +682,7 @@ async def handle_add_country_to_subscription(
     allowed_country_ids = {country['uuid'] for country in countries}
 
     if country_uuid not in allowed_country_ids and country_uuid not in selected_countries:
-        await callback.answer('❌ Сервер недоступен для вашей промогруппы', show_alert=True)
+        await callback.answer('❌ 您的促销组的服务器不可用', show_alert=True)
         return
 
     if country_uuid in selected_countries:
@@ -813,7 +801,7 @@ async def confirm_add_countries_to_subscription(
     removed_countries = [c for c in current_countries if c not in selected_countries]
 
     if not new_countries and not removed_countries:
-        await callback.answer('⚠️ Изменения не обнаружены', show_alert=True)
+        await callback.answer('⚠️ 未检测到任何变化', show_alert=True)
         return
 
     # TOCTOU protection: lock user row before reading discount and charging balance
@@ -866,11 +854,7 @@ async def confirm_add_countries_to_subscription(
         message_text = texts.t(
             'ADDON_INSUFFICIENT_FUNDS_MESSAGE',
             (
-                '⚠️ <b>Недостаточно средств</b>\n\n'
-                'Стоимость услуги: {required}\n'
-                'На балансе: {balance}\n'
-                'Не хватает: {missing}\n\n'
-                'Выберите способ пополнения. Сумма подставится автоматически.'
+                '⚠️<b>资金不足</b>\n\n服务费用：{required}\n当前余额：{balance}\n缺少：{missing}\n\n请选择充值方式。金额将自动填入。'
             ),
         ).format(
             required=texts.format_price(total_price),
@@ -896,7 +880,7 @@ async def confirm_add_countries_to_subscription(
             await callback.answer(
                 texts.t(
                     'COUNTRIES_MINIMUM_REQUIRED',
-                    '❌ Нельзя отключить все страны. Должна быть подключена хотя бы одна страна.',
+                    '❌ 不能关闭所有国家。至少要保留一个国家。',
                 ),
                 show_alert=True,
             )
@@ -908,7 +892,7 @@ async def confirm_add_countries_to_subscription(
             )
 
             if not success:
-                await callback.answer('❌ Ошибка списания средств', show_alert=True)
+                await callback.answer('❌ 借方错误', show_alert=True)
                 return
 
             await create_transaction(
@@ -929,23 +913,23 @@ async def confirm_add_countries_to_subscription(
         await db.refresh(db_user)
         await db.refresh(subscription)
 
-        success_text = '✅ Страны успешно обновлены!\n\n'
+        success_text = '✅ 国家已成功更新！'
 
         if new_countries_names:
-            success_text += f'➕ Добавлены страны:\n{chr(10).join(f"• {name}" for name in new_countries_names)}\n'
+            success_text += f"➕ 新增国家：\n{chr(10).join((f'• {name}' for name in new_countries_names))}"
             if total_price > 0:
-                success_text += f'💰 Списано: {texts.format_price(total_price)}'
+                success_text += f'💰 注销：{texts.format_price(total_price)}'
                 if total_discount_value > 0:
                     success_text += (
-                        f' (скидка {servers_discount_percent}%: -{texts.format_price(total_discount_value)})'
+                        f'（折扣{servers_discount_percent}%：-{texts.format_price(total_discount_value)}）'
                     )
                 success_text += '\n'
 
         if removed_countries_names:
-            success_text += f'\n➖ Отключены страны:\n{chr(10).join(f"• {name}" for name in removed_countries_names)}\n'
-            success_text += 'ℹ️ Повторное подключение будет платным\n'
+            success_text += f"➖ 残疾人国家：\n{chr(10).join((f'• {name}' for name in removed_countries_names))}"
+            success_text += 'ℹ️重新连接需付费'
 
-        success_text += f'\n🌍 Активных стран: {len(selected_countries)}'
+        success_text += f'🌍 活跃国家：{len(selected_countries)}'
 
         await callback.message.edit_text(success_text, reply_markup=get_back_keyboard(db_user.language))
 

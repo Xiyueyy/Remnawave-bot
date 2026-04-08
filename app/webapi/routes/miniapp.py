@@ -49,8 +49,8 @@ from app.database.models import (
     PaymentMethod,
     PromoGroup,
     PromoOfferTemplate,
-    Subscription,
-    SubscriptionTemporaryAccess,
+    订阅,
+    订阅TemporaryAccess,
     Transaction,
     TransactionType,
     User,
@@ -73,15 +73,15 @@ from app.services.subscription_purchase_service import (
     purchase_service,
 )
 from app.services.subscription_renewal_service import (
-    SubscriptionRenewalChargeError,
-    SubscriptionRenewalService,
+    订阅RenewalChargeError,
+    订阅RenewalService,
     build_payment_descriptor,
     calculate_missing_amount,
     decode_payment_payload,
     encode_payment_payload,
     with_admin_notification_service,
 )
-from app.services.subscription_service import SubscriptionService
+from app.services.subscription_service import 订阅Service
 from app.services.trial_activation_service import (
     TrialPaymentChargeFailed,
     TrialPaymentInsufficientFunds,
@@ -90,7 +90,7 @@ from app.services.trial_activation_service import (
     revert_trial_activation,
     rollback_trial_subscription_activation,
 )
-from app.services.tribute_service import TributeService
+from app.services.tribute_service import 致敬支付Service
 from app.utils.currency_converter import currency_converter
 from app.utils.pricing_utils import (
     apply_percentage_discount,
@@ -115,7 +115,7 @@ from ..schemas.miniapp import (
     MiniAppAutoPromoGroupLevel,
     MiniAppConnectedServer,
     MiniAppCurrentTariff,
-    MiniAppDailySubscriptionToggleRequest,
+    MiniAppDaily订阅ToggleRequest,
     MiniAppDevice,
     MiniAppDeviceRemovalRequest,
     MiniAppDeviceRemovalResponse,
@@ -149,40 +149,40 @@ from ..schemas.miniapp import (
     MiniAppReferralStats,
     MiniAppReferralTerms,
     MiniAppRichTextDocument,
-    MiniAppSubscriptionAutopay,
-    MiniAppSubscriptionAutopayRequest,
-    MiniAppSubscriptionAutopayResponse,
-    MiniAppSubscriptionBillingContext,
-    MiniAppSubscriptionCurrentSettings,
-    MiniAppSubscriptionDeviceOption,
-    MiniAppSubscriptionDevicesSettings,
-    MiniAppSubscriptionDevicesUpdateRequest,
-    MiniAppSubscriptionPurchaseOptionsRequest,
-    MiniAppSubscriptionPurchaseOptionsResponse,
-    MiniAppSubscriptionPurchasePreviewRequest,
-    MiniAppSubscriptionPurchasePreviewResponse,
-    MiniAppSubscriptionPurchaseRequest,
-    MiniAppSubscriptionPurchaseResponse,
-    MiniAppSubscriptionRenewalOptionsRequest,
-    MiniAppSubscriptionRenewalOptionsResponse,
-    MiniAppSubscriptionRenewalPeriod,
-    MiniAppSubscriptionRenewalRequest,
-    MiniAppSubscriptionRenewalResponse,
-    MiniAppSubscriptionRequest,
-    MiniAppSubscriptionResponse,
-    MiniAppSubscriptionServerOption,
-    MiniAppSubscriptionServersSettings,
-    MiniAppSubscriptionServersUpdateRequest,
-    MiniAppSubscriptionSettings,
-    MiniAppSubscriptionSettingsRequest,
-    MiniAppSubscriptionSettingsResponse,
-    MiniAppSubscriptionTrafficOption,
-    MiniAppSubscriptionTrafficSettings,
-    MiniAppSubscriptionTrafficUpdateRequest,
-    MiniAppSubscriptionTrialRequest,
-    MiniAppSubscriptionTrialResponse,
-    MiniAppSubscriptionUpdateResponse,
-    MiniAppSubscriptionUser,
+    MiniApp订阅Autopay,
+    MiniApp订阅AutopayRequest,
+    MiniApp订阅AutopayResponse,
+    MiniApp订阅BillingContext,
+    MiniApp订阅CurrentSettings,
+    MiniApp订阅DeviceOption,
+    MiniApp订阅DevicesSettings,
+    MiniApp订阅DevicesUpdateRequest,
+    MiniApp订阅PurchaseOptionsRequest,
+    MiniApp订阅PurchaseOptionsResponse,
+    MiniApp订阅PurchasePreviewRequest,
+    MiniApp订阅PurchasePreviewResponse,
+    MiniApp订阅PurchaseRequest,
+    MiniApp订阅PurchaseResponse,
+    MiniApp订阅RenewalOptionsRequest,
+    MiniApp订阅RenewalOptionsResponse,
+    MiniApp订阅RenewalPeriod,
+    MiniApp订阅RenewalRequest,
+    MiniApp订阅RenewalResponse,
+    MiniApp订阅Request,
+    MiniApp订阅Response,
+    MiniApp订阅ServerOption,
+    MiniApp订阅ServersSettings,
+    MiniApp订阅ServersUpdateRequest,
+    MiniApp订阅Settings,
+    MiniApp订阅SettingsRequest,
+    MiniApp订阅SettingsResponse,
+    MiniApp订阅TrafficOption,
+    MiniApp订阅TrafficSettings,
+    MiniApp订阅TrafficUpdateRequest,
+    MiniApp订阅TrialRequest,
+    MiniApp订阅TrialResponse,
+    MiniApp订阅UpdateResponse,
+    MiniApp订阅User,
     MiniAppTariff,
     MiniAppTariffPeriod,
     MiniAppTariffPurchaseRequest,
@@ -202,7 +202,7 @@ logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 promo_code_service = PromoCodeService()
-renewal_service = SubscriptionRenewalService()
+renewal_service = 订阅RenewalService()
 
 
 _CRYPTOBOT_MIN_USD = 1.0
@@ -268,7 +268,7 @@ def _normalize_autopay_days(value: Any | None) -> int | None:
     return numeric if numeric >= 0 else None
 
 
-def _get_autopay_day_options(subscription: Subscription | None) -> list[int]:
+def _get_autopay_day_options(subscription: 订阅 | None) -> list[int]:
     options: set[int] = set()
     for candidate in _AUTOPAY_DEFAULT_DAY_OPTIONS:
         normalized = _normalize_autopay_days(candidate)
@@ -288,8 +288,8 @@ def _get_autopay_day_options(subscription: Subscription | None) -> list[int]:
 
 
 def _build_autopay_payload(
-    subscription: Subscription | None,
-) -> MiniAppSubscriptionAutopay | None:
+    subscription: 订阅 | None,
+) -> MiniApp订阅Autopay | None:
     if subscription is None:
         return None
 
@@ -322,14 +322,14 @@ def _build_autopay_payload(
         'defaultDaysBefore': default_days,
     }
 
-    return MiniAppSubscriptionAutopay(**autopay_kwargs)
+    return MiniApp订阅Autopay(**autopay_kwargs)
 
 
 def _autopay_response_extras(
     enabled: bool,
     days_before: int | None,
     options: list[int],
-    autopay_payload: MiniAppSubscriptionAutopay | None,
+    autopay_payload: MiniApp订阅Autopay | None,
 ) -> dict[str, Any]:
     extras: dict[str, Any] = {
         'autopayEnabled': enabled,
@@ -407,7 +407,7 @@ def _build_balance_invoice_payload(user_id: int, amount_kopeks: int) -> str:
 
 
 def _merge_purchase_selection_from_request(
-    payload: MiniAppSubscriptionPurchasePreviewRequest | MiniAppSubscriptionPurchaseRequest,
+    payload: MiniApp订阅PurchasePreviewRequest | MiniApp订阅PurchaseRequest,
 ) -> dict[str, Any]:
     base: dict[str, Any] = {}
     if payload.selection:
@@ -585,7 +585,7 @@ async def _resolve_user_from_init_data(
     if not isinstance(telegram_user, dict) or 'id' not in telegram_user:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail='Invalid Telegram user payload',
+            detail='电报用户数据无效',
         )
 
     try:
@@ -593,14 +593,14 @@ async def _resolve_user_from_init_data(
     except (TypeError, ValueError):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail='Invalid Telegram user identifier',
+            detail='电报用户标识无效',
         ) from None
 
     user = await get_user_by_telegram_id(db, telegram_id)
     if not user:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
-            detail='User not found',
+            detail='未找到用户',
         )
 
     # Block access for banned/deleted users
@@ -608,7 +608,7 @@ async def _resolve_user_from_init_data(
     if user_status in ('blocked', 'deleted'):
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
-            detail='Account is blocked or deleted',
+            detail='账号已被封禁或删除',
         )
 
     return user, webapp_data
@@ -654,7 +654,7 @@ def _build_mulenpay_iframe_config() -> MiniAppPaymentIframeConfig | None:
     response_model=MiniAppMaintenanceStatusResponse,
 )
 async def get_maintenance_status(
-    payload: MiniAppSubscriptionRequest,
+    payload: MiniApp订阅Request,
     db: AsyncSession = Depends(get_db_session),
 ) -> MiniAppMaintenanceStatusResponse:
     _, _ = await _resolve_user_from_init_data(db, payload.init_data)
@@ -762,7 +762,7 @@ async def get_payment_methods(
                         title_key='topup.method.pal24.option.card.title',
                         description_key='topup.method.pal24.option.card.description',
                         title='Bank card',
-                        description='Pay with a bank card via PayPalych.',
+                        description='Pay with a bank card 通过 PayPalych.',
                     ),
                 ],
             )
@@ -993,7 +993,7 @@ async def create_payment_link(
         )
         confirmation_url = result.get('confirmation_url') if result else None
         if not result or not confirmation_url:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         extra: dict[str, Any] = {
             'local_payment_id': result.get('local_payment_id'),
@@ -1032,7 +1032,7 @@ async def create_payment_link(
             ),
         )
         if not result or not result.get('confirmation_url'):
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -1067,7 +1067,7 @@ async def create_payment_link(
             language=user.language,
         )
         if not result or not result.get('payment_url'):
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -1114,7 +1114,7 @@ async def create_payment_link(
 
         redirect_url = result.get('redirect_url') if result else None
         if not result or not redirect_url:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -1152,7 +1152,7 @@ async def create_payment_link(
         )
         payment_url = result.get('payment_url') if result else None
         if not result or not payment_url:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -1192,7 +1192,7 @@ async def create_payment_link(
             language=user.language or settings.DEFAULT_LANGUAGE,
         )
         if not result:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         preferred_urls: list[str | None] = []
         if option == 'sbp':
@@ -1209,7 +1209,7 @@ async def create_payment_link(
         )
         payment_url = next((url for url in preferred_urls if url), None)
         if not payment_url:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to obtain payment url')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='获取支付链接失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -1257,7 +1257,7 @@ async def create_payment_link(
         except (InvalidOperation, ValueError):
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                detail='Unable to convert amount to USD',
+                detail='无法将金额换算为美元',
             )
 
         payment_service = PaymentService()
@@ -1272,14 +1272,14 @@ async def create_payment_link(
             payload=f'balance_{user.id}_{amount_kopeks}',
         )
         if not result:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         # Priority: web_app for desktop/browser, mini_app for mobile, bot as fallback
         payment_url = (
             result.get('web_app_invoice_url') or result.get('mini_app_invoice_url') or result.get('bot_invoice_url')
         )
         if not payment_url:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to obtain payment url')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='获取支付链接失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -1325,7 +1325,7 @@ async def create_payment_link(
         )
 
         if not result or not result.get('payment_url'):
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -1373,7 +1373,7 @@ async def create_payment_link(
         )
 
         if not result or not result.get('payment_url'):
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -1416,7 +1416,7 @@ async def create_payment_link(
         )
 
         if not result or not result.get('payment_url'):
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -1437,7 +1437,7 @@ async def create_payment_link(
 
         bot = create_bot()
         try:
-            tribute_service = TributeService(bot)
+            tribute_service = 致敬支付Service(bot)
             payment_url = await tribute_service.create_payment_link(
                 user_id=user.telegram_id,
                 amount_kopeks=amount_kopeks or 0,
@@ -1449,7 +1449,7 @@ async def create_payment_link(
             await bot.session.close()
 
         if not payment_url:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='Failed to create payment')
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, detail='创建支付失败')
 
         return MiniAppPaymentCreateResponse(
             method=method,
@@ -2459,21 +2459,21 @@ def _format_bonus_label(amount_kopeks: int) -> str | None:
 
 async def _find_active_test_access_offers(
     db: AsyncSession,
-    subscription: Subscription | None,
+    subscription: 订阅 | None,
 ) -> list[ActiveOfferContext]:
     if not subscription or not getattr(subscription, 'id', None):
         return []
 
     now = datetime.now(UTC)
     result = await db.execute(
-        select(SubscriptionTemporaryAccess)
-        .options(selectinload(SubscriptionTemporaryAccess.offer))
+        select(订阅TemporaryAccess)
+        .options(selectinload(订阅TemporaryAccess.offer))
         .where(
-            SubscriptionTemporaryAccess.subscription_id == subscription.id,
-            SubscriptionTemporaryAccess.is_active == True,
-            SubscriptionTemporaryAccess.expires_at > now,
+            订阅TemporaryAccess.subscription_id == subscription.id,
+            订阅TemporaryAccess.is_active == True,
+            订阅TemporaryAccess.expires_at > now,
         )
-        .order_by(SubscriptionTemporaryAccess.expires_at.desc())
+        .order_by(订阅TemporaryAccess.expires_at.desc())
     )
 
     entries = list(result.scalars().all())
@@ -2872,13 +2872,13 @@ def _serialize_transaction(transaction: Transaction) -> MiniAppTransaction:
 
 
 async def _load_subscription_links(
-    subscription: Subscription,
+    subscription: 订阅,
 ) -> dict[str, Any]:
     if not subscription.remnawave_short_uuid or not _is_remnawave_configured():
         return {}
 
     try:
-        service = SubscriptionService()
+        service = 订阅Service()
         info = await service.get_subscription_info(subscription.remnawave_short_uuid)
     except Exception as error:  # pragma: no cover - defensive logging
         logger.warning('Failed to load subscription info from RemnaWave', error=error)
@@ -3032,11 +3032,11 @@ def _is_trial_available_for_user(user: User) -> bool:
     return True
 
 
-@router.post('/subscription', response_model=MiniAppSubscriptionResponse)
+@router.post('/subscription', response_model=MiniApp订阅Response)
 async def get_subscription_details(
-    payload: MiniAppSubscriptionRequest,
+    payload: MiniApp订阅Request,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionResponse:
+) -> MiniApp订阅Response:
     # Check maintenance mode first
     if maintenance_service.is_maintenance_active():
         status_info = maintenance_service.get_status_info()
@@ -3061,7 +3061,7 @@ async def get_subscription_details(
     if not isinstance(telegram_user, dict) or 'id' not in telegram_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Invalid Telegram user payload',
+            detail='电报用户数据无效',
         )
 
     try:
@@ -3069,7 +3069,7 @@ async def get_subscription_details(
     except (TypeError, ValueError):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Invalid Telegram user identifier',
+            detail='电报用户标识无效',
         ) from None
 
     # Check required channel subscription
@@ -3084,7 +3084,7 @@ async def get_subscription_details(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail={
                     'code': 'channel_subscription_required',
-                    'message': 'Please subscribe to the required channels to continue',
+                    'message': '请先订阅必需频道后再继续',
                     'channels': channels_with_status,
                 },
             )
@@ -3095,7 +3095,7 @@ async def get_subscription_details(
     if not user:
         detail: dict[str, Any] = {
             'code': 'user_not_found',
-            'message': 'User not found. Please register in the bot to continue.',
+            'message': '未找到用户，请先在机器人中注册后继续。',
             'title': 'Registration required',
         }
         if purchase_url:
@@ -3120,7 +3120,7 @@ async def get_subscription_details(
     usage_synced = False
 
     if subscription and _is_remnawave_configured():
-        service = SubscriptionService()
+        service = 订阅Service()
         try:
             usage_synced = await service.sync_subscription_usage(db, subscription)
         except Exception as error:  # pragma: no cover - defensive logging
@@ -3407,7 +3407,7 @@ async def get_subscription_details(
             if subscription.end_date:
                 daily_next_charge_at = subscription.end_date
 
-    response_user = MiniAppSubscriptionUser(
+    response_user = MiniApp订阅User(
         telegram_id=user.telegram_id,
         username=user.username,
         first_name=user.first_name,
@@ -3496,7 +3496,7 @@ async def get_subscription_details(
                 }
             )
 
-    return MiniAppSubscriptionResponse(
+    return MiniApp订阅Response(
         traffic_purchases=traffic_purchases_data,
         subscription_id=getattr(subscription, 'id', None),
         remnawave_short_uuid=remnawave_short_uuid,
@@ -3656,17 +3656,17 @@ async def _get_current_tariff_model(db: AsyncSession, subscription, user=None) -
 
 @router.post(
     '/subscription/autopay',
-    response_model=MiniAppSubscriptionAutopayResponse,
+    response_model=MiniApp订阅AutopayResponse,
 )
 async def update_subscription_autopay_endpoint(
-    payload: MiniAppSubscriptionAutopayRequest,
+    payload: MiniApp订阅AutopayRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionAutopayResponse:
+) -> MiniApp订阅AutopayResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(user, subscription_id=payload.subscription_id)
     _validate_subscription_id(payload.subscription_id, subscription)
 
-    # Суточные подписки имеют свой механизм продления (DailySubscriptionService),
+    # Суточные подписки имеют свой механизм продления (Daily订阅Service),
     # глобальный autopay для них запрещён
     target_enabled = bool(payload.enabled) if payload.enabled is not None else bool(subscription.autopay_enabled)
     if target_enabled:
@@ -3679,7 +3679,7 @@ async def update_subscription_autopay_endpoint(
                 status.HTTP_400_BAD_REQUEST,
                 detail={
                     'code': 'autopay_not_available_for_daily',
-                    'message': 'Autopay is not available for daily subscriptions',
+                    'message': '按日订阅暂不支持自动续费',
                 },
             )
 
@@ -3700,7 +3700,7 @@ async def update_subscription_autopay_endpoint(
                 status.HTTP_400_BAD_REQUEST,
                 detail={
                     'code': 'autopay_no_days',
-                    'message': 'Auto-pay day selection is temporarily unavailable',
+                    'message': '自动续费日期选择暂时不可用',
                 },
             )
         normalized_days = default_day
@@ -3720,7 +3720,7 @@ async def update_subscription_autopay_endpoint(
             autopay_days_options,
             autopay_payload,
         )
-        return MiniAppSubscriptionAutopayResponse(
+        return MiniApp订阅AutopayResponse(
             subscription_id=subscription.id,
             autopay_enabled=target_enabled,
             autopay_days_before=autopay_days_before,
@@ -3751,7 +3751,7 @@ async def update_subscription_autopay_endpoint(
         autopay_payload,
     )
 
-    return MiniAppSubscriptionAutopayResponse(
+    return MiniApp订阅AutopayResponse(
         subscription_id=updated_subscription.id,
         autopay_enabled=bool(updated_subscription.autopay_enabled),
         autopay_days_before=autopay_days_before,
@@ -3764,12 +3764,12 @@ async def update_subscription_autopay_endpoint(
 
 @router.post(
     '/subscription/trial',
-    response_model=MiniAppSubscriptionTrialResponse,
+    response_model=MiniApp订阅TrialResponse,
 )
 async def activate_subscription_trial_endpoint(
-    payload: MiniAppSubscriptionTrialRequest,
+    payload: MiniApp订阅TrialRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionTrialResponse:
+) -> MiniApp订阅TrialResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
 
     existing_subscription = getattr(user, 'subscription', None)
@@ -3778,7 +3778,7 @@ async def activate_subscription_trial_endpoint(
             status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'subscription_exists',
-                'message': 'Subscription is already active',
+                'message': '订阅已处于启用状态',
             },
         )
 
@@ -3792,7 +3792,7 @@ async def activate_subscription_trial_endpoint(
             status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': error_code,
-                'message': 'Trial is not available for this user',
+                'message': '当前用户无法使用试用订阅',
             },
         )
 
@@ -3804,7 +3804,7 @@ async def activate_subscription_trial_endpoint(
             status.HTTP_402_PAYMENT_REQUIRED,
             detail={
                 'code': 'insufficient_funds',
-                'message': 'Not enough funds to activate the trial',
+                'message': '余额不足，无法激活试用订阅',
                 'missing_amount_kopeks': missing,
                 'required_amount_kopeks': error.required_amount,
                 'balance_kopeks': error.balance_amount,
@@ -3856,12 +3856,12 @@ async def activate_subscription_trial_endpoint(
             tariff_id=tariff_id_for_trial,
         )
     except Exception as error:  # pragma: no cover - defensive logging
-        logger.error('Failed to activate trial subscription for user', user_id=user.id, error=error)
+        logger.error('激活试用订阅失败 for user', user_id=user.id, error=error)
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 'code': 'trial_activation_failed',
-                'message': 'Failed to activate trial subscription',
+                'message': '激活试用订阅失败',
             },
         ) from error
 
@@ -3876,7 +3876,7 @@ async def activate_subscription_trial_endpoint(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={
                     'code': 'trial_rollback_failed',
-                    'message': 'Failed to revert trial activation after charge error',
+                    'message': '扣费出错后回滚试用激活失败',
                 },
             ) from error
 
@@ -3885,7 +3885,7 @@ async def activate_subscription_trial_endpoint(
             status.HTTP_402_PAYMENT_REQUIRED,
             detail={
                 'code': 'insufficient_funds',
-                'message': 'Not enough funds to activate the trial',
+                'message': '余额不足，无法激活试用订阅',
                 'missing_amount_kopeks': error.missing_amount,
                 'required_amount_kopeks': error.required_amount,
                 'balance_kopeks': error.balance_amount,
@@ -3899,12 +3899,12 @@ async def activate_subscription_trial_endpoint(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={
                     'code': 'trial_rollback_failed',
-                    'message': 'Failed to revert trial activation after charge error',
+                    'message': '扣费出错后回滚试用激活失败',
                 },
             ) from error
 
         logger.error(
-            'Failed to charge balance for trial activation after subscription creation',
+            '为试用激活扣除余额失败 after subscription creation',
             subscription_id=subscription.id,
             error=error,
         )
@@ -3912,14 +3912,14 @@ async def activate_subscription_trial_endpoint(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 'code': 'charge_failed',
-                'message': 'Failed to charge balance for trial activation',
+                'message': '为试用激活扣除余额失败',
             },
         ) from error
 
     await db.refresh(user)
     await db.refresh(subscription)
 
-    subscription_service = SubscriptionService()
+    subscription_service = 订阅Service()
     try:
         await subscription_service.create_remnawave_user(db, subscription)
     except RemnaWaveConfigurationError as error:  # pragma: no cover - configuration issues
@@ -3936,7 +3936,7 @@ async def activate_subscription_trial_endpoint(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={
                     'code': 'trial_rollback_failed',
-                    'message': 'Failed to revert trial activation after RemnaWave error',
+                    'message': '雷纳波报错后回滚试用激活失败',
                 },
             ) from error
         if charged_amount > 0 and not revert_result.refunded:
@@ -3944,7 +3944,7 @@ async def activate_subscription_trial_endpoint(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={
                     'code': 'trial_refund_failed',
-                    'message': 'Failed to refund trial activation charge after RemnaWave error',
+                    'message': '雷纳波报错后退还试用激活费用失败',
                 },
             ) from error
 
@@ -3952,7 +3952,7 @@ async def activate_subscription_trial_endpoint(
             status.HTTP_502_BAD_GATEWAY,
             detail={
                 'code': 'remnawave_configuration_error',
-                'message': 'Trial activation failed due to RemnaWave configuration. Charge refunded.',
+                'message': '由于雷纳波配置异常，试用激活失败，费用已退回。',
             },
         ) from error
     except Exception as error:  # pragma: no cover - defensive logging
@@ -3971,7 +3971,7 @@ async def activate_subscription_trial_endpoint(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={
                     'code': 'trial_rollback_failed',
-                    'message': 'Failed to revert trial activation after RemnaWave error',
+                    'message': '雷纳波报错后回滚试用激活失败',
                 },
             ) from error
         if charged_amount > 0 and not revert_result.refunded:
@@ -3979,7 +3979,7 @@ async def activate_subscription_trial_endpoint(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={
                     'code': 'trial_refund_failed',
-                    'message': 'Failed to refund trial activation charge after RemnaWave error',
+                    'message': '雷纳波报错后退还试用激活费用失败',
                 },
             ) from error
 
@@ -3987,7 +3987,7 @@ async def activate_subscription_trial_endpoint(
             status.HTTP_502_BAD_GATEWAY,
             detail={
                 'code': 'remnawave_provisioning_failed',
-                'message': 'Trial activation failed due to RemnaWave provisioning. Charge refunded.',
+                'message': '由于雷纳波开通失败，试用激活失败，费用已退回。',
             },
         ) from error
 
@@ -4014,9 +4014,9 @@ async def activate_subscription_trial_endpoint(
         else:
             message = 'Триал активирован. Приятного пользования!'
     elif duration_days:
-        message = f'Trial activated for {duration_days} days. Enjoy!'
+        message = f'试用订阅已成功激活，有效期 {duration_days} 天，祝你使用愉快！'
     else:
-        message = 'Trial activated successfully. Enjoy!'
+        message = '试用订阅已成功激活，祝你使用愉快！'
 
     if charged_amount_label:
         if language_code in {'ru', 'fa'}:
@@ -4033,7 +4033,7 @@ async def activate_subscription_trial_endpoint(
         )
     )
 
-    return MiniAppSubscriptionTrialResponse(
+    return MiniApp订阅TrialResponse(
         message=message,
         subscription_id=getattr(subscription, 'id', None),
         trial_status='activated',
@@ -4065,7 +4065,7 @@ async def activate_promo_code(
     if not isinstance(telegram_user, dict) or 'id' not in telegram_user:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_user', 'message': 'Invalid Telegram user payload'},
+            detail={'code': 'invalid_user', 'message': '电报用户数据无效'},
         )
 
     try:
@@ -4073,21 +4073,21 @@ async def activate_promo_code(
     except (TypeError, ValueError):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_user', 'message': 'Invalid Telegram user identifier'},
+            detail={'code': 'invalid_user', 'message': '电报用户标识无效'},
         ) from None
 
     user = await get_user_by_telegram_id(db, telegram_id)
     if not user:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
-            detail={'code': 'user_not_found', 'message': 'User not found'},
+            detail={'code': 'user_not_found', 'message': '未找到用户'},
         )
 
     code = (payload.code or '').strip().upper()
     if not code:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid', 'message': 'Promo code must not be empty'},
+            detail={'code': 'invalid', 'message': '优惠码不能为空'},
         )
 
     result = await promo_code_service.activate_promocode(db, user.id, code)
@@ -4134,21 +4134,21 @@ async def activate_promo_code(
         'server_error': status.HTTP_500_INTERNAL_SERVER_ERROR,
     }
     message_map = {
-        'invalid': 'Promo code must not be empty',
-        'not_found': 'Promo code not found',
-        'expired': 'Promo code expired',
-        'used': 'Promo code already used',
-        'already_used_by_user': 'Promo code already used by this user',
-        'no_subscription_for_days': 'This promo code requires an active or expired subscription',
-        'active_discount_exists': 'You already have an active discount',
-        'not_first_purchase': 'This promo code is only available for first purchase',
-        'daily_limit': 'Too many promo code activations today',
-        'user_not_found': 'User not found',
-        'server_error': 'Failed to activate promo code',
+        'invalid': '优惠码不能为空',
+        'not_found': '未找到优惠码',
+        'expired': '优惠码已过期',
+        'used': '优惠码已被使用',
+        'already_used_by_user': '优惠码已被使用 by this user',
+        'no_subscription_for_days': '该优惠码要求用户拥有有效订阅或过期订阅',
+        'active_discount_exists': '你已有生效中的折扣',
+        'not_first_purchase': '该优惠码仅限首次购买使用',
+        'daily_limit': '今日优惠码激活次数过多',
+        'user_not_found': '未找到用户',
+        'server_error': '激活优惠码失败',
     }
 
     http_status = status_map.get(error_code, status.HTTP_400_BAD_REQUEST)
-    message = message_map.get(error_code, 'Unable to activate promo code')
+    message = message_map.get(error_code, '无法激活优惠码')
 
     raise HTTPException(
         http_status,
@@ -4177,7 +4177,7 @@ async def claim_promo_offer(
     if not isinstance(telegram_user, dict) or 'id' not in telegram_user:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_user', 'message': 'Invalid Telegram user payload'},
+            detail={'code': 'invalid_user', 'message': '电报用户数据无效'},
         )
 
     try:
@@ -4185,28 +4185,28 @@ async def claim_promo_offer(
     except (TypeError, ValueError):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_user', 'message': 'Invalid Telegram user identifier'},
+            detail={'code': 'invalid_user', 'message': '电报用户标识无效'},
         ) from None
 
     user = await get_user_by_telegram_id(db, telegram_id)
     if not user:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
-            detail={'code': 'user_not_found', 'message': 'User not found'},
+            detail={'code': 'user_not_found', 'message': '未找到用户'},
         )
 
     offer = await get_offer_by_id(db, offer_id)
     if not offer or offer.user_id != user.id:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
-            detail={'code': 'offer_not_found', 'message': 'Offer not found'},
+            detail={'code': 'offer_not_found', 'message': '未找到优惠'},
         )
 
     now = datetime.now(UTC)
     if offer.claimed_at is not None:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
-            detail={'code': 'already_claimed', 'message': 'Offer already claimed'},
+            detail={'code': 'already_claimed', 'message': '该优惠已领取'},
         )
 
     if not offer.is_active or offer.expires_at <= now:
@@ -4214,7 +4214,7 @@ async def claim_promo_offer(
         await db.commit()
         raise HTTPException(
             status.HTTP_410_GONE,
-            detail={'code': 'offer_expired', 'message': 'Offer expired'},
+            detail={'code': 'offer_expired', 'message': '该优惠已过期'},
         )
 
     effect_type = _normalize_effect_type(getattr(offer, 'effect_type', None))
@@ -4229,14 +4229,14 @@ async def claim_promo_offer(
         if not success:
             code = error_code or 'claim_failed'
             message_map = {
-                'subscription_missing': 'Active subscription required',
-                'squads_missing': 'No squads configured for test access',
-                'already_connected': 'Servers already connected',
-                'remnawave_sync_failed': 'Failed to apply servers',
+                'subscription_missing': '需要有效订阅',
+                'squads_missing': '未配置测试访问节点组',
+                'already_connected': '服务器已连接',
+                'remnawave_sync_failed': '应用服务器失败',
             }
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                detail={'code': code, 'message': message_map.get(code, 'Unable to activate offer')},
+                detail={'code': code, 'message': message_map.get(code, '无法激活优惠')},
             )
 
         await mark_offer_claimed(
@@ -4255,7 +4255,7 @@ async def claim_promo_offer(
     if discount_percent <= 0:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_discount', 'message': 'Offer does not contain discount'},
+            detail={'code': 'invalid_discount', 'message': '该优惠不包含折扣'},
         )
 
     user.promo_offer_discount_percent = discount_percent
@@ -4322,7 +4322,7 @@ async def remove_connected_device(
     if not isinstance(telegram_user, dict) or 'id' not in telegram_user:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_user', 'message': 'Invalid Telegram user payload'},
+            detail={'code': 'invalid_user', 'message': '电报用户数据无效'},
         )
 
     try:
@@ -4330,35 +4330,35 @@ async def remove_connected_device(
     except (TypeError, ValueError):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_user', 'message': 'Invalid Telegram user identifier'},
+            detail={'code': 'invalid_user', 'message': '电报用户标识无效'},
         ) from None
 
     user = await get_user_by_telegram_id(db, telegram_id)
     if not user:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
-            detail={'code': 'user_not_found', 'message': 'User not found'},
+            detail={'code': 'user_not_found', 'message': '未找到用户'},
         )
 
     remnawave_uuid = getattr(user, 'remnawave_uuid', None)
     if not remnawave_uuid:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
-            detail={'code': 'remnawave_unavailable', 'message': 'RemnaWave user is not linked'},
+            detail={'code': 'remnawave_unavailable', 'message': '雷纳波用户尚未关联'},
         )
 
     hwid = (payload.hwid or '').strip()
     if not hwid:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_hwid', 'message': 'Device identifier is required'},
+            detail={'code': 'invalid_hwid', 'message': '设备标识不能为空'},
         )
 
     service = RemnaWaveService()
     if not service.is_configured:
         raise HTTPException(
             status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail={'code': 'service_unavailable', 'message': 'Device management is temporarily unavailable'},
+            detail={'code': 'service_unavailable', 'message': '设备管理暂时不可用'},
         )
 
     try:
@@ -4370,16 +4370,16 @@ async def remove_connected_device(
             detail={'code': 'service_unavailable', 'message': str(error)},
         ) from error
     except Exception as error:  # pragma: no cover - defensive
-        logger.warning('Failed to remove device for user', hwid=hwid, telegram_id=telegram_id, error=error)
+        logger.warning('移除设备失败 for user', hwid=hwid, telegram_id=telegram_id, error=error)
         raise HTTPException(
             status.HTTP_502_BAD_GATEWAY,
-            detail={'code': 'remnawave_error', 'message': 'Failed to remove device'},
+            detail={'code': 'remnawave_error', 'message': '移除设备失败'},
         ) from error
 
     if not success:
         raise HTTPException(
             status.HTTP_502_BAD_GATEWAY,
-            detail={'code': 'remnawave_error', 'message': 'Failed to remove device'},
+            detail={'code': 'remnawave_error', 'message': '移除设备失败'},
         )
 
     return MiniAppDeviceRemovalResponse(success=True)
@@ -4453,7 +4453,7 @@ def _build_promo_offer_payload(user: User | None) -> dict[str, Any] | None:
     if language_code in {'ru', 'fa'}:
         payload['message'] = 'Дополнительная скидка применяется автоматически.'
     else:
-        payload['message'] = 'Extra discount is applied automatically.'
+        payload['message'] = '额外优惠会自动生效。'
 
     return payload
 
@@ -4462,10 +4462,10 @@ def _format_payment_method_title(method: str) -> str:
     mapping = {
         'cryptobot': 'CryptoBot',
         'yookassa': 'YooKassa',
-        'yookassa_sbp': 'YooKassa СБП',
+        'yookassa_sbp': 'YooKassa SBP',
         'mulenpay': 'MulenPay',
-        'pal24': 'Pal24',
-        'wata': 'WataPay',
+        'pal24': 'PayPalych',
+        'wata': 'WATA',
         'heleket': 'Heleket',
         'tribute': 'Tribute',
         'stars': 'Telegram Stars',
@@ -4476,7 +4476,7 @@ def _format_payment_method_title(method: str) -> str:
 
 def _build_renewal_success_message(
     user: User,
-    subscription: Subscription,
+    subscription: 订阅,
     charged_amount: int,
     promo_discount_value: int = 0,
 ) -> str:
@@ -4503,15 +4503,15 @@ def _build_renewal_success_message(
             )
     elif charged_amount > 0:
         message = (
-            f'Subscription{tariff_label} renewed until {date_label}. '
+            f'订阅{tariff_label} renewed until {date_label}. '
             if date_label
-            else f'Subscription{tariff_label} renewed. '
-        ) + f'Charged {amount_label}.'
+            else f'订阅{tariff_label} renewed. '
+        ) + f'已扣除 {amount_label}.'
     else:
         message = (
-            f'Subscription{tariff_label} renewed until {date_label}.'
+            f'订阅{tariff_label} renewed until {date_label}.'
             if date_label
-            else f'Subscription{tariff_label} renewed successfully.'
+            else f'订阅{tariff_label} renewed successfully.'
         )
 
     if promo_discount_value > 0:
@@ -4519,7 +4519,7 @@ def _build_renewal_success_message(
         if language_code in {'ru', 'fa'}:
             message += f' Применена дополнительная скидка {discount_label}.'
         else:
-            message += f' Promo discount applied: {discount_label}.'
+            message += f' 已应用优惠折扣: {discount_label}.'
 
     return message
 
@@ -4542,8 +4542,8 @@ def _build_renewal_pending_message(
         return f'Недостаточно средств на балансе. Доплатите {amount_label}, чтобы завершить продление.'
 
     if method_title:
-        return f'Not enough balance. Pay the remaining {amount_label} via {method_title} to finish the renewal.'
-    return f'Not enough balance. Pay the remaining {amount_label} to finish the renewal.'
+        return f'余额不足，请补足剩余 {amount_label} 通过 {method_title} 以完成续费。'
+    return f'余额不足，请补足剩余 {amount_label} 以完成续费。'
 
 
 def _parse_period_identifier(identifier: str | None) -> int | None:
@@ -4563,11 +4563,11 @@ def _parse_period_identifier(identifier: str | None) -> int | None:
 async def _prepare_subscription_renewal_options(
     db: AsyncSession,
     user: User,
-    subscription: Subscription,
-) -> tuple[list[MiniAppSubscriptionRenewalPeriod], dict[str | int, dict[str, Any]], str | None]:
+    subscription: 订阅,
+) -> tuple[list[MiniApp订阅RenewalPeriod], dict[str | int, dict[str, Any]], str | None]:
     from app.services.pricing_engine import pricing_engine
 
-    option_payloads: list[tuple[MiniAppSubscriptionRenewalPeriod, dict[str, Any]]] = []
+    option_payloads: list[tuple[MiniApp订阅RenewalPeriod, dict[str, Any]]] = []
 
     # Определяем доступные периоды: из тарифа или из настроек
     tariff_id = getattr(subscription, 'tariff_id', None)
@@ -4590,7 +4590,7 @@ async def _prepare_subscription_renewal_options(
             )
         except Exception as error:  # pragma: no cover - defensive logging
             logger.warning(
-                'Failed to calculate renewal pricing for subscription (period)',
+                '计算续费价格失败 for subscription (period)',
                 subscription_id=subscription.id,
                 period_days=period_days,
                 error=error,
@@ -4620,7 +4620,7 @@ async def _prepare_subscription_renewal_options(
             f'tariff_{tariff.id}_{period_days}' if pricing_result.is_tariff_mode and tariff else f'days:{period_days}'
         )
 
-        option_model = MiniAppSubscriptionRenewalPeriod(
+        option_model = MiniApp订阅RenewalPeriod(
             id=period_id,
             days=period_days,
             months=months,
@@ -4676,7 +4676,7 @@ async def _prepare_subscription_renewal_options(
 
 
 def _get_period_hint_from_subscription(
-    subscription: Subscription | None,
+    subscription: 订阅 | None,
 ) -> int | None:
     if not subscription or not subscription.end_date:
         return None
@@ -4691,7 +4691,7 @@ def _get_period_hint_from_subscription(
 
 def _validate_subscription_id(
     requested_id: int | None,
-    subscription: Subscription,
+    subscription: 订阅,
 ) -> None:
     if requested_id is None:
         return
@@ -4703,7 +4703,7 @@ def _validate_subscription_id(
             status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'invalid_subscription_id',
-                'message': 'Invalid subscription identifier',
+                'message': '订阅标识无效',
             },
         ) from None
 
@@ -4712,7 +4712,7 @@ def _validate_subscription_id(
             status.HTTP_403_FORBIDDEN,
             detail={
                 'code': 'subscription_mismatch',
-                'message': 'Subscription does not belong to the authorized user',
+                'message': '订阅 does not belong to the authorized user',
             },
         )
 
@@ -4724,7 +4724,7 @@ async def _authorize_miniapp_user(
     if not init_data:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED,
-            detail={'code': 'unauthorized', 'message': 'Authorization data is missing'},
+            detail={'code': 'unauthorized', 'message': '缺少授权数据'},
         )
 
     try:
@@ -4739,7 +4739,7 @@ async def _authorize_miniapp_user(
     if not isinstance(telegram_user, dict) or 'id' not in telegram_user:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_user', 'message': 'Invalid Telegram user payload'},
+            detail={'code': 'invalid_user', 'message': '电报用户数据无效'},
         )
 
     try:
@@ -4747,14 +4747,14 @@ async def _authorize_miniapp_user(
     except (TypeError, ValueError):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_user', 'message': 'Invalid Telegram user identifier'},
+            detail={'code': 'invalid_user', 'message': '电报用户标识无效'},
         ) from None
 
     user = await get_user_by_telegram_id(db, telegram_id)
     if not user:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
-            detail={'code': 'user_not_found', 'message': 'User not found'},
+            detail={'code': 'user_not_found', 'message': '未找到用户'},
         )
 
     # Block access for banned/deleted users
@@ -4762,7 +4762,7 @@ async def _authorize_miniapp_user(
     if user_status in ('blocked', 'deleted'):
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
-            detail={'code': 'account_blocked', 'message': 'Account is blocked or deleted'},
+            detail={'code': 'account_blocked', 'message': '账号已被封禁或删除'},
         )
 
     return user
@@ -4773,7 +4773,7 @@ def _ensure_paid_subscription(
     *,
     allowed_statuses: Collection[str] | None = None,
     subscription_id: int | None = None,
-) -> Subscription:
+) -> 订阅:
     subs = getattr(user, 'subscriptions', None) or []
     if subscription_id:
         subscription = next((s for s in subs if s.id == subscription_id), None)
@@ -4782,7 +4782,7 @@ def _ensure_paid_subscription(
     if not subscription:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
-            detail={'code': 'subscription_not_found', 'message': 'Subscription not found'},
+            detail={'code': 'subscription_not_found', 'message': '订阅 not found'},
         )
 
     normalized_allowed_statuses = set(allowed_statuses or {'active'})
@@ -4792,7 +4792,7 @@ def _ensure_paid_subscription(
             status.HTTP_403_FORBIDDEN,
             detail={
                 'code': 'paid_subscription_required',
-                'message': 'This action is available only for paid subscriptions',
+                'message': '该操作仅适用于付费订阅',
             },
         )
 
@@ -4802,22 +4802,22 @@ def _ensure_paid_subscription(
         if actual_status == 'trial':
             detail = {
                 'code': 'paid_subscription_required',
-                'message': 'This action is available only for paid subscriptions',
+                'message': '该操作仅适用于付费订阅',
             }
         elif actual_status == 'disabled':
             detail = {
                 'code': 'subscription_disabled',
-                'message': 'Subscription is disabled',
+                'message': '订阅 is disabled',
             }
         elif actual_status == 'limited':
             detail = {
                 'code': 'traffic_exhausted',
-                'message': 'Traffic limit reached. Please purchase additional traffic.',
+                'message': '流量已用尽，请购买额外流量。',
             }
         else:
             detail = {
                 'code': 'subscription_inactive',
-                'message': 'Subscription must be active to manage settings',
+                'message': '订阅 must be active to manage settings',
             }
 
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail=detail)
@@ -4827,7 +4827,7 @@ def _ensure_paid_subscription(
             status.HTTP_403_FORBIDDEN,
             detail={
                 'code': 'subscription_inactive',
-                'message': 'Subscription must be active to manage settings',
+                'message': '订阅 must be active to manage settings',
             },
         )
 
@@ -4837,11 +4837,11 @@ def _ensure_paid_subscription(
 async def _prepare_server_catalog(
     db: AsyncSession,
     user: User,
-    subscription: Subscription,
+    subscription: 订阅,
     discount_percent: int,
 ) -> tuple[
     list[MiniAppConnectedServer],
-    list[MiniAppSubscriptionServerOption],
+    list[MiniApp订阅ServerOption],
     dict[str, dict[str, Any]],
 ]:
     available_servers = await get_available_server_squads(
@@ -4934,7 +4934,7 @@ async def _prepare_server_catalog(
         for uuid in current_squads
     ]
 
-    server_options: list[MiniAppSubscriptionServerOption] = []
+    server_options: list[MiniApp订阅ServerOption] = []
     discount_value = discount_percent if discount_percent > 0 else None
 
     for uuid in ordered_uuids:
@@ -4943,7 +4943,7 @@ async def _prepare_server_catalog(
         is_connected = bool(entry.get('is_connected', False))
         option_available = available_for_new or is_connected
         server_options.append(
-            MiniAppSubscriptionServerOption(
+            MiniApp订阅ServerOption(
                 uuid=uuid,
                 name=entry.get('name', uuid),
                 price_kopeks=int(entry.get('discounted_per_month', 0)),
@@ -4961,8 +4961,8 @@ async def _prepare_server_catalog(
 async def _build_subscription_settings(
     db: AsyncSession,
     user: User,
-    subscription: Subscription,
-) -> MiniAppSubscriptionSettings:
+    subscription: 订阅,
+) -> MiniApp订阅Settings:
     period_hint_days = _get_period_hint_from_subscription(subscription)
     months_remaining = max(1, math.ceil((period_hint_days or 0) / 30))
     servers_discount = PricingEngine.get_addon_discount_percent(user, 'servers', period_hint_days)
@@ -4976,7 +4976,7 @@ async def _build_subscription_settings(
         servers_discount,
     )
 
-    traffic_options: list[MiniAppSubscriptionTrafficOption] = []
+    traffic_options: list[MiniApp订阅TrafficOption] = []
     # В режиме fixed_with_topup показываем опции трафика (для докупки)
     if not settings.is_traffic_topup_blocked():
         for package in settings.get_traffic_packages():
@@ -4993,7 +4993,7 @@ async def _build_subscription_settings(
             price = int(package.get('price') or 0)
             discounted_price, _ = apply_percentage_discount(price, traffic_discount)
             traffic_options.append(
-                MiniAppSubscriptionTrafficOption(
+                MiniApp订阅TrafficOption(
                     value=gb_value,
                     label=None,
                     price_kopeks=discounted_price,
@@ -5033,7 +5033,7 @@ async def _build_subscription_settings(
         devices_discount,
     )
 
-    devices_options: list[MiniAppSubscriptionDeviceOption] = []
+    devices_options: list[MiniApp订阅DeviceOption] = []
     for value in range(1, max_devices + 1):
         chargeable = max(0, value - default_device_limit)
         discounted_per_month, _ = apply_percentage_discount(
@@ -5041,7 +5041,7 @@ async def _build_subscription_settings(
             devices_discount,
         )
         devices_options.append(
-            MiniAppSubscriptionDeviceOption(
+            MiniApp订阅DeviceOption(
                 value=value,
                 label=None,
                 price_kopeks=discounted_per_month,
@@ -5049,28 +5049,28 @@ async def _build_subscription_settings(
             )
         )
 
-    settings_payload = MiniAppSubscriptionSettings(
+    settings_payload = MiniApp订阅Settings(
         subscription_id=subscription.id,
         currency=(getattr(user, 'balance_currency', None) or 'RUB').upper(),
-        current=MiniAppSubscriptionCurrentSettings(
+        current=MiniApp订阅CurrentSettings(
             servers=current_servers,
             traffic_limit_gb=subscription.traffic_limit_gb,
             traffic_limit_label=None,
             device_limit=current_device_limit,
         ),
-        servers=MiniAppSubscriptionServersSettings(
+        servers=MiniApp订阅ServersSettings(
             available=server_options,
             min=1 if server_options else 0,
             max=len(server_options) if server_options else 0,
             can_update=True,
             hint=None,
         ),
-        traffic=MiniAppSubscriptionTrafficSettings(
+        traffic=MiniApp订阅TrafficSettings(
             options=traffic_options,
             can_update=not settings.is_traffic_topup_blocked(),
             current_value=subscription.traffic_limit_gb,
         ),
-        devices=MiniAppSubscriptionDevicesSettings(
+        devices=MiniApp订阅DevicesSettings(
             options=devices_options,
             can_update=devices_can_update,
             min=1,
@@ -5080,7 +5080,7 @@ async def _build_subscription_settings(
             price_kopeks=discounted_single_device,
             price_label=None,
         ),
-        billing=MiniAppSubscriptionBillingContext(
+        billing=MiniApp订阅BillingContext(
             months_remaining=max(1, months_remaining),
             period_hint_days=period_hint_days,
             renews_at=subscription.end_date,
@@ -5092,12 +5092,12 @@ async def _build_subscription_settings(
 
 @router.post(
     '/subscription/renewal/options',
-    response_model=MiniAppSubscriptionRenewalOptionsResponse,
+    response_model=MiniApp订阅RenewalOptionsResponse,
 )
 async def get_subscription_renewal_options_endpoint(
-    payload: MiniAppSubscriptionRenewalOptionsRequest,
+    payload: MiniApp订阅RenewalOptionsRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionRenewalOptionsResponse:
+) -> MiniApp订阅RenewalOptionsResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -5108,12 +5108,12 @@ async def get_subscription_renewal_options_endpoint(
 
     # Block classic subscription renewal when tariff mode is active
     if settings.is_tariffs_mode() and not subscription.tariff_id:
-        return MiniAppSubscriptionRenewalOptionsResponse(
+        return MiniApp订阅RenewalOptionsResponse(
             periods=[],
             currency=(getattr(user, 'balance_currency', None) or 'RUB').upper(),
             balance_kopeks=getattr(user, 'balance_kopeks', 0),
             balance_label=settings.format_price(getattr(user, 'balance_kopeks', 0)),
-            status_message='Classic subscriptions cannot be renewed. Please purchase a tariff.',
+            status_message='经典订阅不能直接续费，请购买套餐。',
             sales_mode=settings.get_sales_mode(),
         )
 
@@ -5160,7 +5160,7 @@ async def get_subscription_renewal_options_endpoint(
         renewal_autopay_payload,
     )
 
-    return MiniAppSubscriptionRenewalOptionsResponse(
+    return MiniApp订阅RenewalOptionsResponse(
         subscription_id=subscription.id,
         currency=currency,
         balance_kopeks=balance_kopeks,
@@ -5184,12 +5184,12 @@ async def get_subscription_renewal_options_endpoint(
 
 @router.post(
     '/subscription/renewal',
-    response_model=MiniAppSubscriptionRenewalResponse,
+    response_model=MiniApp订阅RenewalResponse,
 )
 async def submit_subscription_renewal_endpoint(
-    payload: MiniAppSubscriptionRenewalRequest,
+    payload: MiniApp订阅RenewalRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionRenewalResponse:
+) -> MiniApp订阅RenewalResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
 
     if getattr(user, 'restriction_subscription', False):
@@ -5197,7 +5197,7 @@ async def submit_subscription_renewal_endpoint(
             status.HTTP_403_FORBIDDEN,
             detail={
                 'code': 'subscription_restricted',
-                'message': 'Subscription purchases are restricted for this account',
+                'message': '订阅 purchases are restricted for this account',
             },
         )
 
@@ -5214,7 +5214,7 @@ async def submit_subscription_renewal_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'classic_subscription_blocked',
-                'message': 'Classic subscriptions cannot be renewed. Please purchase a tariff.',
+                'message': '经典订阅不能直接续费，请购买套餐。',
             },
         )
 
@@ -5225,7 +5225,7 @@ async def submit_subscription_renewal_endpoint(
         except (TypeError, ValueError) as error:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                detail={'code': 'invalid_period', 'message': 'Invalid renewal period'},
+                detail={'code': 'invalid_period', 'message': '续费周期无效'},
             ) from error
 
     if period_days is None:
@@ -5234,7 +5234,7 @@ async def submit_subscription_renewal_endpoint(
     if period_days is None or period_days <= 0:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'invalid_period', 'message': 'Invalid renewal period'},
+            detail={'code': 'invalid_period', 'message': '续费周期无效'},
         )
 
     # Валидация периода и расчёт цены через PricingEngine
@@ -5252,7 +5252,7 @@ async def submit_subscription_renewal_endpoint(
                 status.HTTP_400_BAD_REQUEST,
                 detail={
                     'code': 'period_unavailable',
-                    'message': 'Selected renewal period is not available for this tariff',
+                    'message': '当前套餐不支持所选续费周期',
                 },
             )
     else:
@@ -5260,7 +5260,7 @@ async def submit_subscription_renewal_endpoint(
         if period_days not in available_periods:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                detail={'code': 'period_unavailable', 'message': 'Selected renewal period is not available'},
+                detail={'code': 'period_unavailable', 'message': '所选续费周期不可用'},
             )
 
     from app.database.crud.user import lock_user_for_pricing
@@ -5273,14 +5273,14 @@ async def submit_subscription_renewal_endpoint(
         raise
     except Exception as error:
         logger.error(
-            'Failed to calculate renewal pricing for subscription (period)',
+            '计算续费价格失败 for subscription (period)',
             subscription_id=subscription.id,
             period_days=period_days,
             error=error,
         )
         raise HTTPException(
             status.HTTP_502_BAD_GATEWAY,
-            detail={'code': 'pricing_failed', 'message': 'Failed to calculate renewal pricing'},
+            detail={'code': 'pricing_failed', 'message': '计算续费价格失败'},
         ) from error
 
     final_total = pricing_result.final_total
@@ -5304,13 +5304,13 @@ async def submit_subscription_renewal_endpoint(
                 description=description,
                 payment_method=PaymentMethod.BALANCE,
             )
-        except SubscriptionRenewalChargeError as error:
+        except 订阅RenewalChargeError as error:
             logger.error(
-                'Failed to charge balance for subscription renewal', subscription_id=subscription.id, error=error
+                '扣除余额失败 for subscription renewal', subscription_id=subscription.id, error=error
             )
             raise HTTPException(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={'code': 'charge_failed', 'message': 'Failed to charge balance'},
+                detail={'code': 'charge_failed', 'message': '扣除余额失败'},
             ) from error
 
         updated_subscription = result.subscription
@@ -5321,7 +5321,7 @@ async def submit_subscription_renewal_endpoint(
             promo_offer_discount_value,
         )
 
-        return MiniAppSubscriptionRenewalResponse(
+        return MiniApp订阅RenewalResponse(
             message=message,
             balance_kopeks=user.balance_kopeks,
             balance_label=settings.format_price(user.balance_kopeks),
@@ -5336,7 +5336,7 @@ async def submit_subscription_renewal_endpoint(
                 status.HTTP_402_PAYMENT_REQUIRED,
                 detail={
                     'code': 'insufficient_funds',
-                    'message': 'Not enough funds to renew the subscription',
+                    'message': '余额不足，无法续费订阅',
                     'missing_amount_kopeks': missing,
                 },
             )
@@ -5345,7 +5345,7 @@ async def submit_subscription_renewal_endpoint(
             status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'payment_method_required',
-                'message': 'Payment method is required when balance is insufficient',
+                'message': '余额不足时必须选择支付方式',
             },
         )
 
@@ -5353,7 +5353,7 @@ async def submit_subscription_renewal_endpoint(
     if method not in supported_methods:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'unsupported_method', 'message': 'Payment method is not supported for renewal'},
+            detail={'code': 'unsupported_method', 'message': '该支付方式不支持续费'},
         )
 
     if method == 'cryptobot':
@@ -5385,7 +5385,7 @@ async def submit_subscription_renewal_endpoint(
         except (InvalidOperation, ValueError) as error:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                detail={'code': 'conversion_failed', 'message': 'Unable to convert amount to USD'},
+                detail={'code': 'conversion_failed', 'message': '无法将金额换算为美元'},
             ) from error
 
         if amount_usd <= 0:
@@ -5413,7 +5413,7 @@ async def submit_subscription_renewal_endpoint(
         if not result:
             raise HTTPException(
                 status.HTTP_502_BAD_GATEWAY,
-                detail={'code': 'payment_creation_failed', 'message': 'Failed to create payment'},
+                detail={'code': 'payment_creation_failed', 'message': '创建支付失败'},
             )
 
         # Priority: web_app for desktop/browser, mini_app for mobile, bot as fallback
@@ -5423,7 +5423,7 @@ async def submit_subscription_renewal_endpoint(
         if not payment_url:
             raise HTTPException(
                 status.HTTP_502_BAD_GATEWAY,
-                detail={'code': 'payment_url_missing', 'message': 'Failed to obtain payment url'},
+                detail={'code': 'payment_url_missing', 'message': '获取支付链接失败'},
             )
 
         extra_payload = {
@@ -5434,7 +5434,7 @@ async def submit_subscription_renewal_endpoint(
 
         message = _build_renewal_pending_message(user, missing_amount, method)
 
-        return MiniAppSubscriptionRenewalResponse(
+        return MiniApp订阅RenewalResponse(
             success=False,
             message=message,
             balance_kopeks=user.balance_kopeks,
@@ -5452,18 +5452,18 @@ async def submit_subscription_renewal_endpoint(
 
     raise HTTPException(
         status.HTTP_400_BAD_REQUEST,
-        detail={'code': 'unsupported_method', 'message': 'Payment method is not supported for renewal'},
+        detail={'code': 'unsupported_method', 'message': '该支付方式不支持续费'},
     )
 
 
 @router.post(
     '/subscription/purchase/options',
-    response_model=MiniAppSubscriptionPurchaseOptionsResponse,
+    response_model=MiniApp订阅PurchaseOptionsResponse,
 )
 async def get_subscription_purchase_options_endpoint(
-    payload: MiniAppSubscriptionPurchaseOptionsRequest,
+    payload: MiniApp订阅PurchaseOptionsRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionPurchaseOptionsResponse:
+) -> MiniApp订阅PurchaseOptionsResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     context = await purchase_service.build_options(db, user)
 
@@ -5474,7 +5474,7 @@ async def get_subscription_purchase_options_endpoint(
     data_payload.setdefault('balance_label', settings.format_price(context.balance_kopeks))
     data_payload.setdefault('balanceLabel', settings.format_price(context.balance_kopeks))
 
-    return MiniAppSubscriptionPurchaseOptionsResponse(
+    return MiniApp订阅PurchaseOptionsResponse(
         currency=context.currency,
         balance_kopeks=context.balance_kopeks,
         balance_label=settings.format_price(context.balance_kopeks),
@@ -5485,12 +5485,12 @@ async def get_subscription_purchase_options_endpoint(
 
 @router.post(
     '/subscription/purchase/preview',
-    response_model=MiniAppSubscriptionPurchasePreviewResponse,
+    response_model=MiniApp订阅PurchasePreviewResponse,
 )
 async def subscription_purchase_preview_endpoint(
-    payload: MiniAppSubscriptionPurchasePreviewRequest,
+    payload: MiniApp订阅PurchasePreviewRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionPurchasePreviewResponse:
+) -> MiniApp订阅PurchasePreviewResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     context = await purchase_service.build_options(db, user)
 
@@ -5508,7 +5508,7 @@ async def subscription_purchase_preview_endpoint(
 
     balance_label = settings.format_price(getattr(user, 'balance_kopeks', 0))
 
-    return MiniAppSubscriptionPurchasePreviewResponse(
+    return MiniApp订阅PurchasePreviewResponse(
         preview=preview_payload,
         balance_kopeks=user.balance_kopeks,
         balance_label=balance_label,
@@ -5517,12 +5517,12 @@ async def subscription_purchase_preview_endpoint(
 
 @router.post(
     '/subscription/purchase',
-    response_model=MiniAppSubscriptionPurchaseResponse,
+    response_model=MiniApp订阅PurchaseResponse,
 )
 async def subscription_purchase_endpoint(
-    payload: MiniAppSubscriptionPurchaseRequest,
+    payload: MiniApp订阅PurchaseRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionPurchaseResponse:
+) -> MiniApp订阅PurchaseResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
 
     if getattr(user, 'restriction_subscription', False):
@@ -5530,7 +5530,7 @@ async def subscription_purchase_endpoint(
             status.HTTP_403_FORBIDDEN,
             detail={
                 'code': 'subscription_restricted',
-                'message': 'Subscription purchases are restricted for this account',
+                'message': '订阅 purchases are restricted for this account',
             },
         )
 
@@ -5593,7 +5593,7 @@ async def subscription_purchase_endpoint(
 
     balance_label = settings.format_price(getattr(user, 'balance_kopeks', 0))
 
-    return MiniAppSubscriptionPurchaseResponse(
+    return MiniApp订阅PurchaseResponse(
         message=result.get('message'),
         balance_kopeks=user.balance_kopeks,
         balance_label=balance_label,
@@ -5603,12 +5603,12 @@ async def subscription_purchase_endpoint(
 
 @router.post(
     '/subscription/settings',
-    response_model=MiniAppSubscriptionSettingsResponse,
+    response_model=MiniApp订阅SettingsResponse,
 )
 async def get_subscription_settings_endpoint(
-    payload: MiniAppSubscriptionSettingsRequest,
+    payload: MiniApp订阅SettingsRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionSettingsResponse:
+) -> MiniApp订阅SettingsResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -5619,17 +5619,17 @@ async def get_subscription_settings_endpoint(
 
     settings_payload = await _build_subscription_settings(db, user, subscription)
 
-    return MiniAppSubscriptionSettingsResponse(settings=settings_payload)
+    return MiniApp订阅SettingsResponse(settings=settings_payload)
 
 
 @router.post(
     '/subscription/servers',
-    response_model=MiniAppSubscriptionUpdateResponse,
+    response_model=MiniApp订阅UpdateResponse,
 )
 async def update_subscription_servers_endpoint(
-    payload: MiniAppSubscriptionServersUpdateRequest,
+    payload: MiniApp订阅ServersUpdateRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionUpdateResponse:
+) -> MiniApp订阅UpdateResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -5665,7 +5665,7 @@ async def update_subscription_servers_endpoint(
             status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'validation_error',
-                'message': 'At least one server must be selected',
+                'message': '至少选择一个服务器',
             },
         )
 
@@ -5677,9 +5677,9 @@ async def update_subscription_servers_endpoint(
     removed = [uuid for uuid in current_squads if uuid not in selected_set]
 
     if not added and not removed:
-        return MiniAppSubscriptionUpdateResponse(
+        return MiniApp订阅UpdateResponse(
             success=True,
-            message='No changes',
+            message='没有变更',
         )
 
     # Lock user BEFORE price computation to prevent TOCTOU on promo discount
@@ -5707,7 +5707,7 @@ async def update_subscription_servers_endpoint(
             status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'validation_error',
-                'message': 'At least one authorized server must be selected',
+                'message': '至少选择一个已授权服务器',
             },
         )
     # Recompute added/removed after authorization filter
@@ -5716,9 +5716,9 @@ async def update_subscription_servers_endpoint(
     removed = [uuid for uuid in current_squads if uuid not in selected_set]
 
     if not added and not removed:
-        return MiniAppSubscriptionUpdateResponse(
+        return MiniApp订阅UpdateResponse(
             success=True,
-            message='No changes',
+            message='没有变更',
         )
 
     invalid_servers = [uuid for uuid in selected_order if uuid not in catalog]
@@ -5727,7 +5727,7 @@ async def update_subscription_servers_endpoint(
             status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'invalid_servers',
-                'message': 'Some of the selected servers are not available',
+                'message': '所选服务器中有部分不可用',
             },
         )
 
@@ -5738,7 +5738,7 @@ async def update_subscription_servers_endpoint(
                 status.HTTP_400_BAD_REQUEST,
                 detail={
                     'code': 'server_unavailable',
-                    'message': 'Selected server is not available',
+                    'message': '所选服务器不可用',
                 },
             )
 
@@ -5838,7 +5838,7 @@ async def update_subscription_servers_endpoint(
     except Exception:  # pragma: no cover - defensive refresh safeguard
         pass
 
-    service = SubscriptionService()
+    service = 订阅Service()
     await service.update_remnawave_user(db, subscription, sync_squads=True)
 
     await with_admin_notification_service(
@@ -5853,17 +5853,17 @@ async def update_subscription_servers_endpoint(
         )
     )
 
-    return MiniAppSubscriptionUpdateResponse(success=True)
+    return MiniApp订阅UpdateResponse(success=True)
 
 
 @router.post(
     '/subscription/traffic',
-    response_model=MiniAppSubscriptionUpdateResponse,
+    response_model=MiniApp订阅UpdateResponse,
 )
 async def update_subscription_traffic_endpoint(
-    payload: MiniAppSubscriptionTrafficUpdateRequest,
+    payload: MiniApp订阅TrafficUpdateRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionUpdateResponse:
+) -> MiniApp订阅UpdateResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -5877,7 +5877,7 @@ async def update_subscription_traffic_endpoint(
     if raw_value is None:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'validation_error', 'message': 'Traffic amount is required'},
+            detail={'code': 'validation_error', 'message': '流量数值不能为空'},
         )
 
     try:
@@ -5885,17 +5885,17 @@ async def update_subscription_traffic_endpoint(
     except (TypeError, ValueError):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'validation_error', 'message': 'Invalid traffic amount'},
+            detail={'code': 'validation_error', 'message': '流量数值无效'},
         ) from None
 
     if new_traffic < 0:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'validation_error', 'message': 'Traffic amount must be non-negative'},
+            detail={'code': 'validation_error', 'message': '流量数值不能为负数'},
         )
 
     if new_traffic == subscription.traffic_limit_gb:
-        return MiniAppSubscriptionUpdateResponse(success=True, message='No changes')
+        return MiniApp订阅UpdateResponse(success=True, message='没有变更')
 
     # В режиме fixed полностью блокируем изменение трафика
     # В режиме fixed_with_topup разрешаем докупку (is_traffic_topup_blocked = False)
@@ -5904,7 +5904,7 @@ async def update_subscription_traffic_endpoint(
             status.HTTP_403_FORBIDDEN,
             detail={
                 'code': 'traffic_fixed',
-                'message': 'Traffic cannot be changed for this subscription',
+                'message': '该订阅不支持修改流量',
             },
         )
 
@@ -5925,7 +5925,7 @@ async def update_subscription_traffic_endpoint(
             status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'traffic_unavailable',
-                'message': 'Selected traffic package is not available',
+                'message': '所选流量包不可用',
             },
         )
 
@@ -5993,7 +5993,7 @@ async def update_subscription_traffic_endpoint(
     except Exception:  # pragma: no cover - defensive refresh safeguard
         pass
 
-    service = SubscriptionService()
+    service = 订阅Service()
     await service.update_remnawave_user(db, subscription)
 
     await with_admin_notification_service(
@@ -6008,17 +6008,17 @@ async def update_subscription_traffic_endpoint(
         )
     )
 
-    return MiniAppSubscriptionUpdateResponse(success=True)
+    return MiniApp订阅UpdateResponse(success=True)
 
 
 @router.post(
     '/subscription/devices',
-    response_model=MiniAppSubscriptionUpdateResponse,
+    response_model=MiniApp订阅UpdateResponse,
 )
 async def update_subscription_devices_endpoint(
-    payload: MiniAppSubscriptionDevicesUpdateRequest,
+    payload: MiniApp订阅DevicesUpdateRequest,
     db: AsyncSession = Depends(get_db_session),
-) -> MiniAppSubscriptionUpdateResponse:
+) -> MiniApp订阅UpdateResponse:
     user = await _authorize_miniapp_user(payload.init_data, db)
     subscription = _ensure_paid_subscription(
         user,
@@ -6031,7 +6031,7 @@ async def update_subscription_devices_endpoint(
     if raw_value is None:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'validation_error', 'message': 'Device limit is required'},
+            detail={'code': 'validation_error', 'message': '设备数量不能为空'},
         )
 
     try:
@@ -6039,13 +6039,13 @@ async def update_subscription_devices_endpoint(
     except (TypeError, ValueError):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'validation_error', 'message': 'Invalid device limit'},
+            detail={'code': 'validation_error', 'message': '设备数量无效'},
         ) from None
 
     if new_devices <= 0:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'validation_error', 'message': 'Device limit must be positive'},
+            detail={'code': 'validation_error', 'message': '设备数量必须大于零'},
         )
 
     # Load tariff for device price and max limit
@@ -6064,7 +6064,7 @@ async def update_subscription_devices_endpoint(
     if not tariff_device_price or tariff_device_price <= 0:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'devices_unavailable', 'message': 'Докупка устройств недоступна'},
+            detail={'code': 'devices_unavailable', 'message': '当前不支持增加设备数量'},
         )
 
     # Enforce tariff max device limit
@@ -6079,8 +6079,8 @@ async def update_subscription_devices_endpoint(
 
     # Re-read subscription under row lock to prevent concurrent device purchases exceeding limit
     locked_result = await db.execute(
-        select(Subscription)
-        .where(Subscription.id == subscription.id)
+        select(订阅)
+        .where(订阅.id == subscription.id)
         .with_for_update()
         .execution_options(populate_existing=True)
     )
@@ -6095,7 +6095,7 @@ async def update_subscription_devices_endpoint(
     old_devices = current_devices
 
     if new_devices == current_devices:
-        return MiniAppSubscriptionUpdateResponse(success=True, message='No changes')
+        return MiniApp订阅UpdateResponse(success=True, message='没有变更')
 
     devices_difference = new_devices - current_devices
     price_to_charge = 0
@@ -6162,8 +6162,8 @@ async def update_subscription_devices_endpoint(
         # Re-lock subscription after subtract_user_balance committed (which released all locks).
         # Re-validate to prevent concurrent device purchases from exceeding the limit or double-charging.
         relock_result = await db.execute(
-            select(Subscription)
-            .where(Subscription.id == subscription.id)
+            select(订阅)
+            .where(订阅.id == subscription.id)
             .with_for_update()
             .execution_options(populate_existing=True)
         )
@@ -6185,7 +6185,7 @@ async def update_subscription_devices_endpoint(
                     status.HTTP_409_CONFLICT,
                     detail={
                         'code': 'already_applied',
-                        'message': 'Изменение уже применено параллельным запросом. Баланс возвращён.',
+                        'message': '变更已被并发请求应用，余额已退回。',
                     },
                 )
             raise HTTPException(
@@ -6205,7 +6205,7 @@ async def update_subscription_devices_endpoint(
     except Exception:  # pragma: no cover - defensive refresh safeguard
         pass
 
-    service = SubscriptionService()
+    service = 订阅Service()
     await service.update_remnawave_user(db, subscription)
 
     await with_admin_notification_service(
@@ -6220,7 +6220,7 @@ async def update_subscription_devices_endpoint(
         )
     )
 
-    return MiniAppSubscriptionUpdateResponse(success=True)
+    return MiniApp订阅UpdateResponse(success=True)
 
 
 # =============================================================================
@@ -6415,7 +6415,7 @@ async def get_tariffs_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'tariffs_mode_disabled',
-                'message': 'Tariffs mode is not enabled',
+                'message': '套餐模式未启用',
             },
         )
 
@@ -6499,7 +6499,7 @@ async def purchase_tariff_endpoint(
             status.HTTP_403_FORBIDDEN,
             detail={
                 'code': 'subscription_restricted',
-                'message': 'Subscription purchases are restricted for this account',
+                'message': '订阅 purchases are restricted for this account',
             },
         )
 
@@ -6508,7 +6508,7 @@ async def purchase_tariff_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'tariffs_mode_disabled',
-                'message': 'Tariffs mode is not enabled',
+                'message': '套餐模式未启用',
             },
         )
 
@@ -6518,7 +6518,7 @@ async def purchase_tariff_endpoint(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 'code': 'tariff_not_found',
-                'message': 'Tariff not found or inactive',
+                'message': '未找到套餐或套餐未启用',
             },
         )
 
@@ -6536,7 +6536,7 @@ async def purchase_tariff_endpoint(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
                 'code': 'tariff_not_available',
-                'message': 'This tariff is not available for your promo group',
+                'message': '你的促销组无法使用该套餐',
             },
         )
 
@@ -6545,7 +6545,7 @@ async def purchase_tariff_endpoint(
     if is_daily_tariff:
         payload.period_days = 1
 
-    # Calculate price via PricingEngine (single source of truth)
+    # Calculate price 通过 PricingEngine (single source of truth)
     subs = getattr(user, 'subscriptions', None) or []
     # Find subscription with same tariff for device limit inheritance
     matching_sub = next((s for s in subs if s.tariff_id == tariff.id and s.is_active), None)
@@ -6595,7 +6595,7 @@ async def purchase_tariff_endpoint(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail={
                 'code': 'balance_charge_failed',
-                'message': 'Failed to charge balance',
+                'message': '扣除余额失败',
             },
         )
 
@@ -6660,7 +6660,7 @@ async def purchase_tariff_endpoint(
 
     # Синхронизируем с RemnaWave
     # При покупке тарифа ВСЕГДА сбрасываем трафик в панели
-    service = SubscriptionService()
+    service = 订阅Service()
     await service.update_remnawave_user(
         db,
         subscription,
@@ -6739,7 +6739,7 @@ async def preview_tariff_switch_endpoint(
     if not settings.is_tariffs_mode():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'tariffs_mode_disabled', 'message': 'Tariffs mode is not enabled'},
+            detail={'code': 'tariffs_mode_disabled', 'message': '套餐模式未启用'},
         )
 
     subs = getattr(user, 'subscriptions', None) or []
@@ -6752,13 +6752,13 @@ async def preview_tariff_switch_endpoint(
     if not subscription or not subscription.tariff_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'no_subscription', 'message': 'No active subscription with tariff'},
+            detail={'code': 'no_subscription', 'message': '没有绑定套餐的有效订阅'},
         )
 
     if subscription.status not in ('active', 'trial'):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'subscription_inactive', 'message': 'Subscription is not active'},
+            detail={'code': 'subscription_inactive', 'message': '订阅 is not active'},
         )
 
     current_tariff = await get_tariff_by_id(db, subscription.tariff_id)
@@ -6767,13 +6767,13 @@ async def preview_tariff_switch_endpoint(
     if not new_tariff or not new_tariff.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={'code': 'tariff_not_found', 'message': 'Tariff not found or inactive'},
+            detail={'code': 'tariff_not_found', 'message': '未找到套餐或套餐未启用'},
         )
 
     if subscription.tariff_id == payload.tariff_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'same_tariff', 'message': 'Already on this tariff'},
+            detail={'code': 'same_tariff', 'message': '你已在当前套餐中'},
         )
 
     # Проверяем доступность тарифа для пользователя
@@ -6784,7 +6784,7 @@ async def preview_tariff_switch_endpoint(
     if not new_tariff.is_available_for_promo_group(promo_group_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail={'code': 'tariff_not_available', 'message': 'Tariff not available for your promo group'},
+            detail={'code': 'tariff_not_available', 'message': '你的促销组无法使用该套餐'},
         )
 
     # Рассчитываем оставшиеся дни
@@ -6832,7 +6832,7 @@ async def switch_tariff_endpoint(
     if not settings.is_tariffs_mode():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'tariffs_mode_disabled', 'message': 'Tariffs mode is not enabled'},
+            detail={'code': 'tariffs_mode_disabled', 'message': '套餐模式未启用'},
         )
 
     subs = getattr(user, 'subscriptions', None) or []
@@ -6843,13 +6843,13 @@ async def switch_tariff_endpoint(
     if not subscription or not subscription.tariff_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'no_subscription', 'message': 'No active subscription with tariff'},
+            detail={'code': 'no_subscription', 'message': '没有绑定套餐的有效订阅'},
         )
 
     # Lock subscription row to prevent concurrent switch race condition
     locked_result = await db.execute(
-        select(Subscription)
-        .where(Subscription.id == subscription.id)
+        select(订阅)
+        .where(订阅.id == subscription.id)
         .with_for_update()
         .execution_options(populate_existing=True)
     )
@@ -6858,7 +6858,7 @@ async def switch_tariff_endpoint(
     if subscription.status not in ('active', 'trial'):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'subscription_inactive', 'message': 'Subscription is not active'},
+            detail={'code': 'subscription_inactive', 'message': '订阅 is not active'},
         )
 
     current_tariff = await get_tariff_by_id(db, subscription.tariff_id)
@@ -6867,13 +6867,13 @@ async def switch_tariff_endpoint(
     if not new_tariff or not new_tariff.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={'code': 'tariff_not_found', 'message': 'Tariff not found or inactive'},
+            detail={'code': 'tariff_not_found', 'message': '未找到套餐或套餐未启用'},
         )
 
     if subscription.tariff_id == payload.tariff_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'same_tariff', 'message': 'Already on this tariff'},
+            detail={'code': 'same_tariff', 'message': '你已在当前套餐中'},
         )
 
     # Проверяем доступность тарифа
@@ -6884,7 +6884,7 @@ async def switch_tariff_endpoint(
     if not new_tariff.is_available_for_promo_group(promo_group_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail={'code': 'tariff_not_available', 'message': 'Tariff not available'},
+            detail={'code': 'tariff_not_available', 'message': '套餐不可用'},
         )
 
     # Lock user BEFORE price computation to prevent TOCTOU on promo offer
@@ -6936,7 +6936,7 @@ async def switch_tariff_endpoint(
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail={'code': 'balance_error', 'message': 'Failed to charge balance'},
+                detail={'code': 'balance_error', 'message': '扣除余额失败'},
             )
 
         # Записываем транзакцию
@@ -7043,7 +7043,7 @@ async def switch_tariff_endpoint(
     # Синхронизируем с RemnaWave (опционально сбрасываем трафик по настройке)
     should_reset_traffic = settings.RESET_TRAFFIC_ON_TARIFF_SWITCH
     try:
-        service = SubscriptionService()
+        service = 订阅Service()
         await service.update_remnawave_user(
             db,
             subscription,
@@ -7059,7 +7059,7 @@ async def switch_tariff_endpoint(
         if lang == 'ru':
             message = f"Тариф изменён на '{new_tariff.name}'. Списано {settings.format_price(upgrade_cost)}"
         else:
-            message = f"Switched to '{new_tariff.name}'. Charged {settings.format_price(upgrade_cost)}"
+            message = f"Switched to '{new_tariff.name}'. 已扣除 {settings.format_price(upgrade_cost)}"
     elif lang == 'ru':
         message = f"Тариф изменён на '{new_tariff.name}'"
     else:
@@ -7099,7 +7099,7 @@ async def purchase_traffic_topup_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'tariffs_mode_disabled',
-                'message': 'Traffic top-up is only available in tariffs mode',
+                'message': '仅套餐模式支持增加流量',
             },
         )
 
@@ -7110,7 +7110,7 @@ async def purchase_traffic_topup_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'no_tariff',
-                'message': 'Subscription has no tariff',
+                'message': '订阅 has no tariff',
             },
         )
 
@@ -7120,7 +7120,7 @@ async def purchase_traffic_topup_endpoint(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 'code': 'tariff_not_found',
-                'message': 'Tariff not found',
+                'message': '未找到套餐',
             },
         )
 
@@ -7130,7 +7130,7 @@ async def purchase_traffic_topup_endpoint(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={
                 'code': 'traffic_topup_disabled',
-                'message': 'Traffic top-up is disabled for this tariff',
+                'message': '该套餐未启用增加流量',
             },
         )
 
@@ -7140,7 +7140,7 @@ async def purchase_traffic_topup_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
                 'code': 'unlimited_traffic',
-                'message': 'Cannot add traffic to unlimited subscription',
+                'message': '不限流量订阅无法增加流量',
             },
         )
 
@@ -7200,7 +7200,7 @@ async def purchase_traffic_topup_endpoint(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
             detail={
                 'code': 'insufficient_balance',
-                'message': 'Insufficient balance',
+                'message': '余额不足',
                 'required': final_price,
                 'balance': user.balance_kopeks,
             },
@@ -7217,7 +7217,7 @@ async def purchase_traffic_topup_endpoint(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 'code': 'balance_error',
-                'message': 'Failed to subtract balance',
+                'message': '扣减余额失败',
             },
         )
 
@@ -7231,7 +7231,7 @@ async def purchase_traffic_topup_endpoint(
 
     # Синхронизируем с RemnaWave
     try:
-        service = SubscriptionService()
+        service = 订阅Service()
         await service.update_remnawave_user(db, subscription)
         # Явно включаем пользователя на панели (PATCH может не снять LIMITED-статус)
         _en_uuid = (
@@ -7267,12 +7267,12 @@ async def purchase_traffic_topup_endpoint(
 
 @router.post('/subscription/daily/toggle-pause')
 async def toggle_daily_subscription_pause_endpoint(
-    payload: MiniAppDailySubscriptionToggleRequest,
+    payload: MiniAppDaily订阅ToggleRequest,
     db: AsyncSession = Depends(get_db_session),
 ):
     """Переключает паузу/активацию суточной подписки."""
-    from app.services.subscription_service import SubscriptionService
-    from app.webapi.schemas.miniapp import MiniAppDailySubscriptionToggleResponse
+    from app.services.subscription_service import 订阅Service
+    from app.webapi.schemas.miniapp import MiniAppDaily订阅ToggleResponse
 
     user = await _authorize_miniapp_user(payload.init_data, db)
     subs = getattr(user, 'subscriptions', None) or []
@@ -7284,7 +7284,7 @@ async def toggle_daily_subscription_pause_endpoint(
     if not subscription:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={'code': 'no_subscription', 'message': 'No subscription found'},
+            detail={'code': 'no_subscription', 'message': '未找到订阅'},
         )
 
     # Проверяем наличие тарифа
@@ -7292,14 +7292,14 @@ async def toggle_daily_subscription_pause_endpoint(
     if not tariff_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'no_tariff', 'message': 'Subscription has no tariff'},
+            detail={'code': 'no_tariff', 'message': '订阅 has no tariff'},
         )
 
     tariff = await get_tariff_by_id(db, tariff_id)
     if not tariff or not getattr(tariff, 'is_daily', False):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={'code': 'not_daily_tariff', 'message': 'Subscription is not on a daily tariff'},
+            detail={'code': 'not_daily_tariff', 'message': '订阅 is not on a daily tariff'},
         )
 
     raw_daily_price = getattr(tariff, 'daily_price_kopeks', 0)
@@ -7315,17 +7315,17 @@ async def toggle_daily_subscription_pause_endpoint(
     if not subscription:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={'code': 'subscription_lost', 'message': 'Subscription not found after lock'},
+            detail={'code': 'subscription_lost', 'message': '订阅 not found after lock'},
         )
 
     # Определяем состояние из LOCKED экземпляра
-    from app.database.models import SubscriptionStatus
+    from app.database.models import 订阅Status
 
     is_currently_paused = getattr(subscription, 'is_daily_paused', False)
     was_disabled = subscription.status in (
-        SubscriptionStatus.DISABLED.value,
-        SubscriptionStatus.EXPIRED.value,
-        SubscriptionStatus.LIMITED.value,
+        订阅Status.DISABLED.value,
+        订阅Status.EXPIRED.value,
+        订阅Status.LIMITED.value,
     )
 
     # System-DISABLED subs (is_daily_paused=False) должны идти по пути resume
@@ -7335,7 +7335,7 @@ async def toggle_daily_subscription_pause_endpoint(
         new_paused_state = not is_currently_paused
     subscription.is_daily_paused = new_paused_state
 
-    # Apply group discount to daily price (consistent with DailySubscriptionService and resume-after-topup)
+    # Apply group discount to daily price (consistent with Daily订阅Service and resume-after-topup)
     from app.services.pricing_engine import PricingEngine
 
     promo_group = PricingEngine.resolve_promo_group(user)
@@ -7353,7 +7353,7 @@ async def toggle_daily_subscription_pause_endpoint(
                 status_code=status.HTTP_402_PAYMENT_REQUIRED,
                 detail={
                     'code': 'insufficient_balance',
-                    'message': 'Insufficient balance to resume daily subscription',
+                    'message': '余额不足 to resume daily subscription',
                     'required': daily_price,
                     'balance': user.balance_kopeks,
                 },
@@ -7377,7 +7377,7 @@ async def toggle_daily_subscription_pause_endpoint(
                         status_code=status.HTTP_402_PAYMENT_REQUIRED,
                         detail={
                             'code': 'insufficient_balance',
-                            'message': 'Balance deduction failed',
+                            'message': '余额扣除失败',
                             'required': daily_price,
                             'balance': user.balance_kopeks,
                         },
@@ -7397,7 +7397,7 @@ async def toggle_daily_subscription_pause_endpoint(
 
             # Баланс списан — теперь активируем
             now = datetime.now(UTC)
-            subscription.status = SubscriptionStatus.ACTIVE.value
+            subscription.status = 订阅Status.ACTIVE.value
             subscription.last_daily_charge_at = now
             subscription.end_date = now + timedelta(days=1)
 
@@ -7451,7 +7451,7 @@ async def toggle_daily_subscription_pause_endpoint(
 
         # Sync with RemnaWave
         try:
-            service = SubscriptionService()
+            service = 订阅Service()
             if getattr(user, 'remnawave_uuid', None):
                 await service.update_remnawave_user(
                     db,
@@ -7510,11 +7510,11 @@ async def toggle_daily_subscription_pause_endpoint(
 
     lang = getattr(user, 'language', settings.DEFAULT_LANGUAGE)
     if new_paused_state:
-        message = 'Суточная подписка приостановлена' if lang == 'ru' else 'Daily subscription paused'
+        message = '按日订阅已暂停' if lang == 'ru' else '按日订阅已暂停'
     else:
-        message = 'Суточная подписка возобновлена' if lang == 'ru' else 'Daily subscription resumed'
+        message = '按日订阅已恢复' if lang == 'ru' else '按日订阅已恢复'
 
-    return MiniAppDailySubscriptionToggleResponse(
+    return MiniAppDaily订阅ToggleResponse(
         success=True,
         message=message,
         is_paused=new_paused_state,

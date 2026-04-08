@@ -79,7 +79,7 @@ async def resolve_subscription_from_context(
         return active_subs[0], active_subs[0].id
 
     # 4. Cannot determine
-    await callback.answer('Выберите подписку', show_alert=True)
+    await callback.answer('选择订阅', show_alert=True)
     return None, None
 
 
@@ -170,11 +170,11 @@ def format_traffic_display(traffic_gb: int, is_fixed_mode: bool = None) -> str:
 
     if traffic_gb == 0:
         if is_fixed_mode:
-            return 'Безлимитный'
-        return 'Безлимитный'
+            return '不限量'
+        return '不限量'
     if is_fixed_mode:
-        return f'{traffic_gb} ГБ'
-    return f'{traffic_gb} ГБ'
+        return f'{traffic_gb} GB'
+    return f'{traffic_gb} GB'
 
 
 def validate_traffic_price(gb: int) -> bool:
@@ -521,8 +521,8 @@ def get_reset_devices_confirm_keyboard(
     get_texts(language)
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text='✅ Да, сбросить все устройства', callback_data='confirm_reset_devices')],
-            [InlineKeyboardButton(text='❌ Отмена', callback_data=back_callback)],
+            [InlineKeyboardButton(text='✅ 是的，重置所有设备', callback_data='confirm_reset_devices')],
+            [InlineKeyboardButton(text='❌ 取消', callback_data=back_callback)],
         ]
     )
 
@@ -578,7 +578,7 @@ def get_traffic_switch_keyboard(
         # Сравниваем с базовым трафиком (без докупленного)
         if gb == base_traffic_gb:
             emoji = '✅'
-            action_text = ' (текущий)'
+            action_text = '（当前的）'
             price_text = ''
         elif total_price_diff > 0:
             emoji = '⬆️'
@@ -587,15 +587,15 @@ def get_traffic_switch_keyboard(
             if discount_percent > 0:
                 discount_total = int((price_per_month - current_price_per_month) * price_multiplier) - total_price_diff
                 if discount_total > 0:
-                    price_text += f' (скидка {discount_percent}%: -{discount_total // 100}₽)'
+                    price_text += f'（折扣{discount_percent}%：-{discount_total // 100}₽）'
         elif total_price_diff < 0:
             emoji = '⬇️'
             action_text = ''
-            price_text = ' (без возврата)'
+            price_text = '（不予退款）'
         else:
             emoji = '🔄'
             action_text = ''
-            price_text = ' (бесплатно)'
+            price_text = '（免费）'
 
         if gb == 0:
             traffic_text = 'Безлимит'
@@ -606,11 +606,11 @@ def get_traffic_switch_keyboard(
 
         buttons.append([InlineKeyboardButton(text=button_text, callback_data=f'switch_traffic_{gb}')])
 
-    language_code = (language or 'ru').split('-')[0].lower()
+    language_code = (language or settings.DEFAULT_LANGUAGE).split('-')[0].lower()
     buttons.append(
         [
             InlineKeyboardButton(
-                text='⬅️ Назад' if language_code in {'ru', 'fa'} else '⬅️ Back',
+                text='⬅️ 返回' if language_code == 'zh' else ('⬅️ Назад' if language_code in {'ru', 'fa'} else '⬅️ Back'),
                 callback_data=back_callback,
             )
         ]
@@ -626,10 +626,10 @@ def get_confirm_switch_traffic_keyboard(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text='✅ Подтвердить переключение',
+                    text='✅ 确认切换',
                     callback_data=f'confirm_switch_traffic_{new_traffic_gb}_{price_difference}',
                 )
             ],
-            [InlineKeyboardButton(text='❌ Отмена', callback_data=back_callback)],
+            [InlineKeyboardButton(text='❌ 取消', callback_data=back_callback)],
         ]
     )

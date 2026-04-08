@@ -1183,7 +1183,7 @@ class User(Base):
     first_name = Column(String(255), nullable=True)
     last_name = Column(String(255), nullable=True)
     status = Column(String(20), default=UserStatus.ACTIVE.value)
-    language = Column(String(5), default='ru')
+    language = Column(String(5), default='zh')
     balance_kopeks = Column(Integer, default=0)
     used_promocodes = Column(Integer, default=0)
     has_had_paid_subscription = Column(Boolean, default=False, nullable=False)
@@ -2007,7 +2007,7 @@ class ServiceRule(Base):
 
     is_active = Column(Boolean, default=True)
 
-    language = Column(String(5), default='ru')
+    language = Column(String(5), default='zh')
 
     created_at = Column(AwareDateTime(), default=func.now())
     updated_at = Column(AwareDateTime(), default=func.now(), onupdate=func.now())

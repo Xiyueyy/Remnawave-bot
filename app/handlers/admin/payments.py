@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import html
 import math
@@ -63,110 +63,110 @@ def _status_info(
     status = (record.status or '').lower()
 
     if record.is_paid:
-        return '✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')
+        return '✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')
 
     if record.method == PaymentMethod.PAL24:
         mapping = {
-            'new': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'process': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '⌛ Processing')),
-            'success': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'fail': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '❌ Failed')),
-            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
-            'cancel': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
+            'new': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'process': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '处理中')),
+            'success': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'fail': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '失败')),
+            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
+            'cancel': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
         }
-        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')))
+        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')))
 
     if record.method == PaymentMethod.MULENPAY:
         mapping = {
-            'created': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'processing': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '⌛ Processing')),
-            'hold': ('🔒', texts.t('ADMIN_PAYMENT_STATUS_ON_HOLD', '🔒 Hold')),
-            'success': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
-            'cancel': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
-            'error': ('⚠️', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '❌ Failed')),
+            'created': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'processing': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '处理中')),
+            'hold': ('🔒', texts.t('ADMIN_PAYMENT_STATUS_ON_HOLD', '已保留')),
+            'success': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
+            'cancel': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
+            'error': ('⚠️', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '失败')),
         }
-        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')))
+        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')))
 
     if record.method == PaymentMethod.WATA:
         mapping = {
-            'opened': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'processing': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '⌛ Processing')),
-            'paid': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'closed': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'declined': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '❌ Failed')),
-            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
-            'expired': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_EXPIRED', '⌛ Expired')),
+            'opened': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'processing': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '处理中')),
+            'paid': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'closed': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'declined': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '失败')),
+            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
+            'expired': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_EXPIRED', '已过期')),
         }
-        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')))
+        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')))
 
     if record.method == PaymentMethod.PLATEGA:
         mapping = {
-            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'inprogress': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '⌛ Processing')),
-            'confirmed': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'failed': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '❌ Failed')),
-            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
-            'cancelled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
-            'expired': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_EXPIRED', '⌛ Expired')),
+            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'inprogress': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '处理中')),
+            'confirmed': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'failed': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '失败')),
+            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
+            'cancelled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
+            'expired': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_EXPIRED', '已过期')),
         }
-        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')))
+        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')))
 
     if record.method == PaymentMethod.HELEKET:
         if status in {'pending', 'created', 'waiting', 'check', 'processing'}:
-            return '⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')
+            return '⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')
         if status in {'paid', 'paid_over'}:
-            return '✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')
+            return '✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')
         if status in {'cancel', 'canceled', 'fail', 'failed', 'expired'}:
-            return '❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')
-        return '❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')
+            return '❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')
+        return '❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')
 
     if record.method == PaymentMethod.YOOKASSA:
         mapping = {
-            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'waiting_for_capture': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '⌛ Processing')),
-            'succeeded': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
+            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'waiting_for_capture': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '处理中')),
+            'succeeded': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
         }
-        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')))
+        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')))
 
     if record.method == PaymentMethod.CRYPTOBOT:
         mapping = {
-            'active': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'paid': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'expired': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_EXPIRED', '⌛ Expired')),
+            'active': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'paid': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'expired': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_EXPIRED', '已过期')),
         }
-        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')))
+        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')))
 
     if record.method == PaymentMethod.TELEGRAM_STARS:
         if record.is_paid:
-            return '✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')
-        return '⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')
+            return '✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')
+        return '⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')
 
     if record.method == PaymentMethod.FREEKASSA:
         mapping = {
-            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'success': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'paid': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
-            'error': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '❌ Failed')),
+            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'success': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'paid': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
+            'error': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '失败')),
         }
-        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')))
+        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')))
 
     if record.method == PaymentMethod.KASSA_AI:
         mapping = {
-            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'created': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '⏳ Pending')),
-            'processing': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '⌛ Processing')),
-            'success': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'paid': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '✅ Paid')),
-            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '❌ Cancelled')),
-            'error': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '❌ Failed')),
+            'pending': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'created': ('⏳', texts.t('ADMIN_PAYMENT_STATUS_PENDING', '等待付款')),
+            'processing': ('⌛', texts.t('ADMIN_PAYMENT_STATUS_PROCESSING', '处理中')),
+            'success': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'paid': ('✅', texts.t('ADMIN_PAYMENT_STATUS_PAID', '已支付')),
+            'canceled': ('❌', texts.t('ADMIN_PAYMENT_STATUS_CANCELED', '已取消')),
+            'error': ('❌', texts.t('ADMIN_PAYMENT_STATUS_FAILED', '失败')),
         }
-        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')))
+        return mapping.get(status, ('❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')))
 
-    return '❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '❓ Unknown')
+    return '❓', texts.t('ADMIN_PAYMENT_STATUS_UNKNOWN', '未知状态')
 
 
 def _is_checkable(record: PendingPayment) -> bool:
@@ -215,7 +215,7 @@ def _build_list_keyboard(
 
     for record in records:
         number = _record_display_number(record)
-        details_template = texts.t('ADMIN_PAYMENTS_ITEM_DETAILS', '📄 #{number}')
+        details_template = texts.t('ADMIN_PAYMENTS_ITEM_DETAILS', '📄№{number}')
         try:
             button_text = details_template.format(number=number)
         except Exception:  # pragma: no cover - fallback for broken localization
@@ -234,7 +234,7 @@ def _build_list_keyboard(
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text=texts.t('ADMIN_PAYMENTS_CHECK_ALL', '🔄 Проверить все'),
+                    text=texts.t('ADMIN_PAYMENTS_CHECK_ALL', '🔄 检查一切'),
                     callback_data='admin_payments_check_all',
                 )
             ]
@@ -245,7 +245,7 @@ def _build_list_keyboard(
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text=texts.t('ADMIN_PAYMENTS_EXPORT', '📥 Выгрузить в файл'),
+                    text=texts.t('ADMIN_PAYMENTS_EXPORT', '📥 上传至文件'),
                     callback_data='admin_payments_export',
                 )
             ]
@@ -308,7 +308,7 @@ def _build_detail_keyboard(
         rows.append(
             [
                 InlineKeyboardButton(
-                    text=texts.t('ADMIN_PAYMENT_OPEN_LINK', '🔗 Open link'),
+                    text=texts.t('ADMIN_PAYMENT_OPEN_LINK', '🔗打开链接'),
                     url=payment_url,
                 )
             ]
@@ -318,7 +318,7 @@ def _build_detail_keyboard(
         rows.append(
             [
                 InlineKeyboardButton(
-                    text=texts.t('ADMIN_PAYMENT_CHECK_BUTTON', '🔁 Check status'),
+                    text=texts.t('ADMIN_PAYMENT_CHECK_BUTTON', '🔁检查状态'),
                     callback_data=f'admin_payment_check_{record.method.value}_{record.local_id}',
                 )
             ]
@@ -383,54 +383,54 @@ def _build_payment_details_text(record: PendingPayment, *, texts, language: str)
     raw_identifier = record.identifier or record.local_id
     identifier = html.escape(str(raw_identifier)) if raw_identifier is not None else '—'
     lines = [
-        texts.t('ADMIN_PAYMENT_DETAILS_TITLE', '💳 <b>Payment details</b>'),
+        texts.t('ADMIN_PAYMENT_DETAILS_TITLE', '💳<b>付款详情</b>'),
         '',
         f'<b>{html.escape(method_name)}</b>',
         f'{emoji} {status_text}',
         '',
-        f'💰 {texts.t("ADMIN_PAYMENT_AMOUNT", "Amount")}: {amount}',
-        f'🕒 {texts.t("ADMIN_PAYMENT_CREATED", "Created")}: {created} ({age})',
+        f'💰 {texts.t("ADMIN_PAYMENT_AMOUNT", '金额')}: {amount}',
+        f'🕒 {texts.t("ADMIN_PAYMENT_CREATED", '创建时间')}: {created} ({age})',
         f'🆔 ID: <code>{identifier}</code>',
         _format_user_line(record.user),
     ]
 
     if record.expires_at:
         expires_at = format_datetime(record.expires_at)
-        lines.append(f'⏳ {texts.t("ADMIN_PAYMENT_EXPIRES", "Expires")}: {expires_at}')
+        lines.append(f'⏳ {texts.t("ADMIN_PAYMENT_EXPIRES", '过期时间')}: {expires_at}')
 
     payment = record.payment
 
     if record.method == PaymentMethod.PAL24:
         if getattr(payment, 'payment_status', None):
             lines.append(
-                f'💳 {texts.t("ADMIN_PAYMENT_GATEWAY_STATUS", "Gateway status")}: '
+                f'💳 {texts.t("ADMIN_PAYMENT_GATEWAY_STATUS", '支付网关状态')}: '
                 f'{html.escape(str(payment.payment_status))}'
             )
         if getattr(payment, 'payment_method', None):
             lines.append(
-                f'🏦 {texts.t("ADMIN_PAYMENT_GATEWAY_METHOD", "Method")}: {html.escape(str(payment.payment_method))}'
+                f'🏦 {texts.t("ADMIN_PAYMENT_GATEWAY_METHOD", '支付方式')}: {html.escape(str(payment.payment_method))}'
             )
         if getattr(payment, 'balance_amount', None):
             lines.append(
-                f'💱 {texts.t("ADMIN_PAYMENT_GATEWAY_AMOUNT", "Gateway amount")}: '
+                f'💱 {texts.t("ADMIN_PAYMENT_GATEWAY_AMOUNT", '支付网关金额')}: '
                 f'{html.escape(str(payment.balance_amount))}'
             )
         if getattr(payment, 'payer_account', None):
             lines.append(
-                f'👛 {texts.t("ADMIN_PAYMENT_GATEWAY_ACCOUNT", "Payer account")}: '
+                f'👛 {texts.t("ADMIN_PAYMENT_GATEWAY_ACCOUNT", '付款人账户')}: '
                 f'{html.escape(str(payment.payer_account))}'
             )
 
     if record.method == PaymentMethod.MULENPAY:
         if getattr(payment, 'mulen_payment_id', None):
             lines.append(
-                f'🧾 {texts.t("ADMIN_PAYMENT_GATEWAY_ID", "Gateway ID")}: {html.escape(str(payment.mulen_payment_id))}'
+                f'🧾 {texts.t("ADMIN_PAYMENT_GATEWAY_ID", '支付网关ID')}: {html.escape(str(payment.mulen_payment_id))}'
             )
 
     if record.method == PaymentMethod.WATA:
         if getattr(payment, 'order_id', None):
             lines.append(
-                f'🧾 {texts.t("ADMIN_PAYMENT_GATEWAY_ID", "Gateway ID")}: {html.escape(str(payment.order_id))}'
+                f'🧾 {texts.t("ADMIN_PAYMENT_GATEWAY_ID", '支付网关ID')}: {html.escape(str(payment.order_id))}'
             )
         if getattr(payment, 'terminal_public_id', None):
             lines.append(f'🏦 Terminal: {html.escape(str(payment.terminal_public_id))}')
@@ -438,34 +438,34 @@ def _build_payment_details_text(record: PendingPayment, *, texts, language: str)
     if record.method == PaymentMethod.HELEKET:
         if getattr(payment, 'order_id', None):
             lines.append(
-                f'🧾 {texts.t("ADMIN_PAYMENT_GATEWAY_ID", "Gateway ID")}: {html.escape(str(payment.order_id))}'
+                f'🧾 {texts.t("ADMIN_PAYMENT_GATEWAY_ID", '支付网关ID')}: {html.escape(str(payment.order_id))}'
             )
         if getattr(payment, 'payer_amount', None) and getattr(payment, 'payer_currency', None):
             lines.append(
-                f'🪙 {texts.t("ADMIN_PAYMENT_PAYER_AMOUNT", "Paid amount")}: '
+                f'🪙 {texts.t("ADMIN_PAYMENT_PAYER_AMOUNT", '已支付')}: '
                 f'{html.escape(str(payment.payer_amount))} {html.escape(str(payment.payer_currency))}'
             )
 
     if record.method == PaymentMethod.YOOKASSA:
         if getattr(payment, 'payment_method_type', None):
             lines.append(
-                f'💳 {texts.t("ADMIN_PAYMENT_GATEWAY_METHOD", "Method")}: '
+                f'💳 {texts.t("ADMIN_PAYMENT_GATEWAY_METHOD", '支付方式')}: '
                 f'{html.escape(str(payment.payment_method_type))}'
             )
         if getattr(payment, 'confirmation_url', None):
-            lines.append(texts.t('ADMIN_PAYMENT_HAS_LINK', '🔗 Payment link is available above.'))
+            lines.append(texts.t('ADMIN_PAYMENT_HAS_LINK', '🔗付款链接在上方按钮中。'))
 
     if record.method == PaymentMethod.CRYPTOBOT:
         if getattr(payment, 'amount', None) and getattr(payment, 'asset', None):
             lines.append(
-                f'🪙 {texts.t("ADMIN_PAYMENT_CRYPTO_AMOUNT", "Crypto amount")}: '
+                f'🪙 {texts.t("ADMIN_PAYMENT_CRYPTO_AMOUNT", '加密货币金额')}: '
                 f'{html.escape(str(payment.amount))} {html.escape(str(payment.asset))}'
             )
         if getattr(payment, 'bot_invoice_url', None) or getattr(payment, 'mini_app_invoice_url', None):
-            lines.append(texts.t('ADMIN_PAYMENT_HAS_LINK', '🔗 Payment link is available above.'))
+            lines.append(texts.t('ADMIN_PAYMENT_HAS_LINK', '🔗付款链接在上方按钮中。'))
         if getattr(payment, 'status', None):
             lines.append(
-                f'📊 {texts.t("ADMIN_PAYMENT_GATEWAY_STATUS", "Gateway status")}: {html.escape(str(payment.status))}'
+                f'📊 {texts.t("ADMIN_PAYMENT_GATEWAY_STATUS", '支付网关状态')}: {html.escape(str(payment.status))}'
             )
 
     if record.method == PaymentMethod.TELEGRAM_STARS:
@@ -474,12 +474,12 @@ def _build_payment_details_text(record: PendingPayment, *, texts, language: str)
             lines.append(f'📝 {html.escape(description)}')
         if getattr(payment, 'external_id', None):
             lines.append(
-                f'🧾 {texts.t("ADMIN_PAYMENT_GATEWAY_ID", "Gateway ID")}: {html.escape(str(payment.external_id))}'
+                f'🧾 {texts.t("ADMIN_PAYMENT_GATEWAY_ID", '支付网关ID')}: {html.escape(str(payment.external_id))}'
             )
 
     if _is_checkable(record):
         lines.append('')
-        lines.append(texts.t('ADMIN_PAYMENT_CHECK_HINT', 'ℹ️ You can trigger a manual status check.'))
+        lines.append(texts.t('ADMIN_PAYMENT_CHECK_HINT', 'ℹ️可以启动手动状态检查。'))
 
     return '\n'.join(lines)
 
@@ -520,14 +520,14 @@ async def show_payments_overview(
     start_index = (page - 1) * PAGE_SIZE
     page_records = records[start_index : start_index + PAGE_SIZE]
 
-    header = texts.t('ADMIN_PAYMENTS_TITLE', '💳 <b>Top-up verification</b>')
+    header = texts.t('ADMIN_PAYMENTS_TITLE', '💳<b>充值检查</b>')
     description = texts.t(
         'ADMIN_PAYMENTS_DESCRIPTION',
-        'Pending invoices created during the last 24 hours.',
+        '过去24小时内创建并等待付款的充值账单列表。',
     )
     notice = texts.t(
         'ADMIN_PAYMENTS_NOTICE',
-        'Only invoices younger than 24 hours and waiting for payment can be checked.',
+        '只能检查24小时内且状态为等待中的账单。',
     )
 
     lines = [header, '', description]
@@ -544,12 +544,12 @@ async def show_payments_overview(
         if has_checkable:
             lines.append('')
             lines.append(
-                texts.t('ADMIN_PAYMENTS_CHECKABLE_COUNT', '🔄 Доступно для проверки: {count}').format(
+                texts.t('ADMIN_PAYMENTS_CHECKABLE_COUNT', '🔄 可检查：{count}').format(
                     count=len(checkable_records)
                 )
             )
     else:
-        empty_text = texts.t('ADMIN_PAYMENTS_EMPTY', 'No pending top-ups in the last 24 hours.')
+        empty_text = texts.t('ADMIN_PAYMENTS_EMPTY', '过去24小时内未找到等待中的充值账单。')
         lines.append('')
         lines.append(empty_text)
 
@@ -595,7 +595,7 @@ async def show_payment_details(
     method, payment_id = parsed
     record = await get_payment_record(db, method, payment_id)
     if not record:
-        await callback.answer('❌ Платеж не найден', show_alert=True)
+        await callback.answer('❌ 未找到支付记录', show_alert=True)
         return
 
     await _render_payment_details(callback, db_user, record)
@@ -625,7 +625,7 @@ async def manual_check_payment(
 
     if not record:
         logger.warning('Payment not found: method id', method=method, payment_id=payment_id)
-        await callback.answer(texts.t('ADMIN_PAYMENT_NOT_FOUND', 'Payment not found.'), show_alert=True)
+        await callback.answer(texts.t('ADMIN_PAYMENT_NOT_FOUND', '未找到付款。'), show_alert=True)
         return
 
     logger.info('Record found: status is_paid', record_status=record.status, is_paid=record.is_paid)
@@ -633,7 +633,7 @@ async def manual_check_payment(
     if not _is_checkable(record):
         logger.info('Payment not checkable: method status', method=method, record_status=record.status)
         await callback.answer(
-            texts.t('ADMIN_PAYMENT_CHECK_NOT_AVAILABLE', 'Manual check is not available for this invoice.'),
+            texts.t('ADMIN_PAYMENT_CHECK_NOT_AVAILABLE', '此账单不支持手动检查。'),
             show_alert=True,
         )
         return
@@ -645,7 +645,7 @@ async def manual_check_payment(
 
     if not updated:
         await callback.answer(
-            texts.t('ADMIN_PAYMENT_CHECK_FAILED', 'Failed to refresh the payment status.'),
+            texts.t('ADMIN_PAYMENT_CHECK_FAILED', '未能更新付款状态。'),
             show_alert=True,
         )
         return
@@ -656,12 +656,12 @@ async def manual_check_payment(
         emoji, status_text = _status_info(updated, texts=texts)
         message = texts.t(
             'ADMIN_PAYMENT_CHECK_SUCCESS',
-            'Status updated: {status}',
+            '状态已更新：{status}',
         ).format(status=f'{emoji} {status_text}')
     else:
         message = texts.t(
             'ADMIN_PAYMENT_CHECK_NO_CHANGES',
-            'Status is unchanged after the check.',
+            '检查后状态未改变。',
         )
 
     await callback.answer(message, show_alert=True)
@@ -688,13 +688,13 @@ async def check_all_payments(
 
     if not checkable_records:
         await callback.answer(
-            texts.t('ADMIN_PAYMENTS_NO_CHECKABLE', 'Нет платежей для проверки'),
+            texts.t('ADMIN_PAYMENTS_NO_CHECKABLE', '无需检查付款'),
             show_alert=True,
         )
         return
 
     await callback.answer(
-        texts.t('ADMIN_PAYMENTS_CHECKING_ALL', '🔄 Проверяю {count} платежей...').format(count=len(checkable_records)),
+        texts.t('ADMIN_PAYMENTS_CHECKING_ALL', '🔄 正在检查 {count} 笔付款...').format(count=len(checkable_records)),
     )
 
     payment_service = PaymentService(callback.bot)
@@ -718,13 +718,13 @@ async def check_all_payments(
 
     # Показываем результат
     result_lines = [
-        texts.t('ADMIN_PAYMENTS_CHECK_ALL_RESULT', '🔄 <b>Результат проверки</b>'),
+        texts.t('ADMIN_PAYMENTS_CHECK_ALL_RESULT', '🔄 <b>查看结果</b>'),
         '',
-        texts.t('ADMIN_PAYMENTS_CHECK_ALL_CHECKED', '✅ Проверено: {count}').format(count=checked),
-        texts.t('ADMIN_PAYMENTS_CHECK_ALL_CONFIRMED', '💰 Подтверждено: {count}').format(count=confirmed),
+        texts.t('ADMIN_PAYMENTS_CHECK_ALL_CHECKED', '✅ 已检查：{count}').format(count=checked),
+        texts.t('ADMIN_PAYMENTS_CHECK_ALL_CONFIRMED', '💰 已确认：{count}').format(count=confirmed),
     ]
     if failed:
-        result_lines.append(texts.t('ADMIN_PAYMENTS_CHECK_ALL_FAILED', '❌ Ошибок: {count}').format(count=failed))
+        result_lines.append(texts.t('ADMIN_PAYMENTS_CHECK_ALL_FAILED', '❌ 错误：{count}').format(count=failed))
 
     # Перезагружаем список платежей
     records = await list_recent_pending_payments(db)
@@ -734,7 +734,7 @@ async def check_all_payments(
     checkable_records = [r for r in records if _is_checkable(r) and not r.is_paid]
 
     result_lines.append('')
-    result_lines.append(texts.t('ADMIN_PAYMENTS_TITLE', '💳 <b>Top-up verification</b>'))
+    result_lines.append(texts.t('ADMIN_PAYMENTS_TITLE', '💳<b>充值检查</b>'))
 
     if page_records:
         result_lines.append('')
@@ -780,7 +780,7 @@ async def export_payments(
 
     if not records:
         await callback.answer(
-            texts.t('ADMIN_PAYMENTS_EXPORT_EMPTY', 'Нет платежей для экспорта'),
+            texts.t('ADMIN_PAYMENTS_EXPORT_EMPTY', '出口无需付款'),
             show_alert=True,
         )
         return
@@ -810,7 +810,7 @@ async def export_payments(
             },
         }
 
-        # Добавляем специфичные поля в зависимости от метода
+        # Добавляем специфичные поля в зависимости 起 метода
         if hasattr(payment, 'order_id'):
             payment_data['order_id'] = payment.order_id
         if hasattr(payment, 'payment_url'):
@@ -831,7 +831,7 @@ async def export_payments(
         document=BufferedInputFile(file_bytes, filename=filename),
         caption=texts.t(
             'ADMIN_PAYMENTS_EXPORT_CAPTION',
-            '📥 Экспорт платежей\n\n📊 Всего записей: {count}\n💰 Оплачено: {paid}\n⏳ Ожидают: {pending}',
+            '📥 导出付款\n\n📊 总条目：{count}\n💰 已付款：{paid}\n⏳ 待处理：{pending}',
         ).format(
             count=len(export_data),
             paid=sum(1 for r in export_data if r['is_paid']),
@@ -839,7 +839,7 @@ async def export_payments(
         ),
     )
 
-    await callback.answer(texts.t('ADMIN_PAYMENTS_EXPORT_SUCCESS', '✅ Файл отправлен'))
+    await callback.answer(texts.t('ADMIN_PAYMENTS_EXPORT_SUCCESS', '✅ 文件已发送'))
 
 
 def register_handlers(dp: Dispatcher) -> None:
@@ -852,3 +852,4 @@ def register_handlers(dp: Dispatcher) -> None:
     )
     dp.callback_query.register(show_payments_overview, F.data.startswith('admin_payments_page_'))
     dp.callback_query.register(show_payments_overview, F.data == 'admin_payments')
+

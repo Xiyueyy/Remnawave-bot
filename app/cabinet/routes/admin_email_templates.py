@@ -452,7 +452,7 @@ SAMPLE_CONTEXTS: dict[str, dict[str, Any]] = {
     },
 }
 
-AVAILABLE_LANGUAGES = ['ru', 'en', 'zh', 'ua', 'fa']
+AVAILABLE_LANGUAGES = ['zh']
 
 
 # ============ Schemas ============
@@ -468,7 +468,7 @@ class EmailTemplateUpdate(BaseModel):
 class EmailTemplatePreviewRequest(BaseModel):
     """Request to preview an email template."""
 
-    language: str = Field(default='ru')
+    language: str = Field(default='zh')
     subject: str = Field(default='')
     body_html: str = Field(default='')
 
@@ -476,7 +476,7 @@ class EmailTemplatePreviewRequest(BaseModel):
 class EmailTemplateSendTestRequest(BaseModel):
     """Request to send a test email."""
 
-    language: str = Field(default='ru')
+    language: str = Field(default='zh')
     email: str = Field(default='')
 
 

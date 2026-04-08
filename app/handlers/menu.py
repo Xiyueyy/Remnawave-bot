@@ -101,21 +101,21 @@ def _build_group_discount_lines(group: PromoGroup, texts, language: str) -> list
 
     if getattr(group, 'server_discount_percent', 0) > 0:
         lines.append(
-            texts.t('PROMO_GROUP_DISCOUNT_SERVERS', '🌍 Серверы: {percent}%').format(
+            texts.t('PROMO_GROUP_DISCOUNT_SERVERS', '🌍服务器：{percent}%').format(
                 percent=group.server_discount_percent
             )
         )
 
     if getattr(group, 'traffic_discount_percent', 0) > 0:
         lines.append(
-            texts.t('PROMO_GROUP_DISCOUNT_TRAFFIC', '📊 Трафик: {percent}%').format(
+            texts.t('PROMO_GROUP_DISCOUNT_TRAFFIC', '📊流量：{percent}%').format(
                 percent=group.traffic_discount_percent
             )
         )
 
     if getattr(group, 'device_discount_percent', 0) > 0:
         lines.append(
-            texts.t('PROMO_GROUP_DISCOUNT_DEVICES', '📱 Доп. устройства: {percent}%').format(
+            texts.t('PROMO_GROUP_DISCOUNT_DEVICES', '📱额外设备：{percent}%').format(
                 percent=group.device_discount_percent
             )
         )
@@ -126,7 +126,7 @@ def _build_group_discount_lines(group: PromoGroup, texts, language: str) -> list
         lines.append(
             texts.t(
                 'PROMO_GROUP_PERIOD_DISCOUNTS_HEADER',
-                '⏳ Скидки за длительный период:',
+                '⏳长期折扣：',
             )
         )
 
@@ -134,7 +134,7 @@ def _build_group_discount_lines(group: PromoGroup, texts, language: str) -> list
             lines.append(
                 texts.t(
                     'PROMO_GROUP_PERIOD_DISCOUNT_ITEM',
-                    '{period} — {percent}%',
+                    '{period}—{percent}%',
                 ).format(
                     period=format_period_description(period_days, language),
                     percent=percent,
@@ -157,7 +157,7 @@ async def show_main_menu(
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -232,7 +232,7 @@ async def handle_profile_unavailable(callback: types.CallbackQuery) -> None:
     await callback.answer(
         texts.t(
             'MENU_PROFILE_UNAVAILABLE',
-            '❗️ Личный кабинет пока недоступен. Попробуйте позже.',
+            '❗️个人中心暂时不可用。请稍后再试。',
         ),
         show_alert=True,
     )
@@ -245,7 +245,7 @@ async def show_service_rules(callback: types.CallbackQuery, db_user: User, db: A
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -260,7 +260,7 @@ async def show_service_rules(callback: types.CallbackQuery, db_user: User, db: A
         rules_text = await get_rules(db_user.language)
 
     await callback.message.edit_text(
-        f'{texts.t("RULES_HEADER", "📋 <b>Правила сервиса</b>")}\n\n{rules_text}',
+        f'{texts.t("RULES_HEADER", '📋<b>服务规则</b>')}\n\n{rules_text}',
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=[[types.InlineKeyboardButton(text=texts.BACK, callback_data='back_to_menu')]]
         ),
@@ -279,7 +279,7 @@ async def show_info_menu(
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -287,8 +287,8 @@ async def show_info_menu(
 
     texts = get_texts(db_user.language)
 
-    header = texts.t('MENU_INFO_HEADER', 'ℹ️ <b>Инфо</b>')
-    prompt = texts.t('MENU_INFO_PROMPT', 'Выберите раздел:')
+    header = texts.t('MENU_INFO_HEADER', 'ℹ️<b>信息</b>')
+    prompt = texts.t('MENU_INFO_PROMPT', '请选择部分：')
     caption = f'{header}\n\n{prompt}' if prompt else header
 
     privacy_enabled = await PrivacyPolicyService.is_policy_enabled(db, db_user.language)
@@ -322,7 +322,7 @@ async def show_promo_groups_info(
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -339,9 +339,9 @@ async def show_promo_groups_info(
     if not promo_groups:
         empty_text = texts.t(
             'PROMO_GROUPS_INFO_EMPTY',
-            'Промогруппы с автовыдачей ещё не настроены.',
+            '尚未设置带自动分配的促销组。',
         )
-        header = texts.t('PROMO_GROUPS_INFO_HEADER', '🎯 <b>Промогруппы</b>')
+        header = texts.t('PROMO_GROUPS_INFO_HEADER', '🎯<b>消费折扣</b>')
         message = f'{header}\n\n{empty_text}' if empty_text else header
 
         await callback.message.edit_text(
@@ -380,12 +380,12 @@ async def show_promo_groups_info(
         None,
     )
 
-    header = texts.t('PROMO_GROUPS_INFO_HEADER', '🎯 <b>Промогруппы</b>')
+    header = texts.t('PROMO_GROUPS_INFO_HEADER', '🎯<b>消费折扣</b>')
     lines: list[str] = [header, '']
 
     spent_line = texts.t(
         'PROMO_GROUPS_INFO_TOTAL_SPENT',
-        '💰 Потрачено в боте: {amount}',
+        '💰在机器人中总消费：{amount}',
     ).format(amount=total_spent_text)
     lines.append(spent_line)
 
@@ -393,14 +393,14 @@ async def show_promo_groups_info(
         lines.append(
             texts.t(
                 'PROMO_GROUPS_INFO_CURRENT_LEVEL',
-                '🏆 Текущий уровень: {name}',
+                '🏆当前等级：{name}',
             ).format(name=html.escape(current_group.name)),
         )
     else:
         lines.append(
             texts.t(
                 'PROMO_GROUPS_INFO_NO_LEVEL',
-                '🏆 Текущий уровень: пока не получен',
+                '🏆当前等级：暂无',
             )
         )
 
@@ -409,7 +409,7 @@ async def show_promo_groups_info(
         lines.append(
             texts.t(
                 'PROMO_GROUPS_INFO_NEXT_LEVEL',
-                '📈 До уровня «{name}»: осталось {amount}',
+                '📈距离“{name}”等级：还差{amount}',
             ).format(
                 name=html.escape(next_group.name),
                 amount=_format_rubles(max(remaining_kopeks, 0)),
@@ -419,11 +419,11 @@ async def show_promo_groups_info(
         lines.append(
             texts.t(
                 'PROMO_GROUPS_INFO_MAX_LEVEL',
-                '🏆 Вы уже получили максимальный уровень скидок!',
+                '🏆您已达到最高折扣等级！',
             )
         )
 
-    lines.extend(['', texts.t('PROMO_GROUPS_INFO_LEVELS_HEADER', '📋 Уровни с автовыдачей:')])
+    lines.extend(['', texts.t('PROMO_GROUPS_INFO_LEVELS_HEADER', '📋带自动分配的等级：')])
 
     for group in sorted_groups:
         threshold = group.auto_assign_total_spent_kopeks or 0
@@ -431,7 +431,7 @@ async def show_promo_groups_info(
         lines.append(
             texts.t(
                 'PROMO_GROUPS_INFO_LEVEL_LINE',
-                '{status} <b>{name}</b> — от {amount}',
+                '{status}<b>{name}</b>—从{amount}起',
             ).format(
                 status=status_icon,
                 name=html.escape(group.name),
@@ -470,7 +470,7 @@ async def show_faq_pages(
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -481,20 +481,20 @@ async def show_faq_pages(
     pages = await FaqService.get_pages(db, db_user.language)
     if not pages:
         await callback.answer(
-            texts.t('FAQ_NOT_AVAILABLE', 'FAQ временно недоступен.'),
+            texts.t('FAQ_NOT_AVAILABLE', '常见问题暂时不可用。'),
             show_alert=True,
         )
         return
 
-    header = texts.t('FAQ_HEADER', '❓ <b>FAQ</b>')
-    prompt = texts.t('FAQ_PAGES_PROMPT', 'Выберите вопрос:')
+    header = texts.t('FAQ_HEADER', '❓<b>常见问题</b>')
+    prompt = texts.t('FAQ_PAGES_PROMPT', '请选择问题：')
     caption = f'{header}\n\n{prompt}' if prompt else header
 
     buttons: list[list[types.InlineKeyboardButton]] = []
     for index, page in enumerate(pages, start=1):
         raw_title = (page.title or '').strip()
         if not raw_title:
-            raw_title = texts.t('FAQ_PAGE_UNTITLED', 'Без названия')
+            raw_title = texts.t('FAQ_PAGE_UNTITLED', '无标题')
         if len(raw_title) > 60:
             raw_title = f'{raw_title[:57]}...'
         buttons.append(
@@ -527,7 +527,7 @@ async def show_faq_page(
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -561,7 +561,7 @@ async def show_faq_page(
 
     if not page or not page.is_active:
         await callback.answer(
-            texts.t('FAQ_PAGE_NOT_AVAILABLE', 'Эта страница FAQ недоступна.'),
+            texts.t('FAQ_PAGE_NOT_AVAILABLE', '此常见问题页面不可用。'),
             show_alert=True,
         )
         return
@@ -570,7 +570,7 @@ async def show_faq_page(
 
     if not content_pages:
         await callback.answer(
-            texts.t('FAQ_PAGE_EMPTY', 'Текст для этой страницы ещё не добавлен.'),
+            texts.t('FAQ_PAGE_EMPTY', '此页面的文本尚未添加。'),
             show_alert=True,
         )
         return
@@ -578,18 +578,18 @@ async def show_faq_page(
     total_pages = len(content_pages)
     current_page = max(1, min(requested_page, total_pages))
 
-    header = texts.t('FAQ_HEADER', '❓ <b>FAQ</b>')
+    header = texts.t('FAQ_HEADER', '❓<b>常见问题</b>')
     title_template = texts.t('FAQ_PAGE_TITLE', '<b>{title}</b>')
     page_title = (page.title or '').strip()
     if not page_title:
-        page_title = texts.t('FAQ_PAGE_UNTITLED', 'Без названия')
+        page_title = texts.t('FAQ_PAGE_UNTITLED', '无标题')
     title_block = title_template.format(title=html.escape(page_title))
 
     body = content_pages[current_page - 1]
 
     footer_template = texts.t(
         'FAQ_PAGE_FOOTER',
-        'Страница {current} из {total}',
+        '第{current}页，共{total}页',
     )
     footer = ''
     if total_pages > 1 and footer_template:
@@ -638,7 +638,7 @@ async def show_faq_page(
     keyboard_rows.append(
         [
             types.InlineKeyboardButton(
-                text=texts.t('FAQ_BACK_TO_LIST', '⬅️ К списку FAQ'),
+                text=texts.t('FAQ_BACK_TO_LIST', '⬅️返回常见问题列表'),
                 callback_data='menu_faq',
             )
         ]
@@ -664,7 +664,7 @@ async def show_privacy_policy(
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -687,7 +687,7 @@ async def show_privacy_policy(
         await callback.answer(
             texts.t(
                 'PRIVACY_POLICY_NOT_AVAILABLE',
-                'Политика конфиденциальности временно недоступна.',
+                '隐私政策暂时不可用。',
             ),
             show_alert=True,
         )
@@ -699,7 +699,7 @@ async def show_privacy_policy(
         await callback.answer(
             texts.t(
                 'PRIVACY_POLICY_EMPTY_ALERT',
-                'Политика конфиденциальности ещё не заполнена.',
+                '隐私政策尚未填写。',
             ),
             show_alert=True,
         )
@@ -710,13 +710,13 @@ async def show_privacy_policy(
 
     header = texts.t(
         'PRIVACY_POLICY_HEADER',
-        '🛡️ <b>Политика конфиденциальности</b>',
+        '🛡️<b>隐私政策</b>',
     )
     body = pages[current_page - 1]
 
     footer_template = texts.t(
         'PRIVACY_POLICY_PAGE_INFO',
-        'Страница {current} из {total}',
+        '第{current}页，共{total}页',
     )
     footer = ''
     if total_pages > 1 and footer_template:
@@ -781,7 +781,7 @@ async def show_public_offer(
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -804,7 +804,7 @@ async def show_public_offer(
         await callback.answer(
             texts.t(
                 'PUBLIC_OFFER_NOT_AVAILABLE',
-                'Публичная оферта временно недоступна.',
+                '公开服务条款暂时不可用。',
             ),
             show_alert=True,
         )
@@ -816,7 +816,7 @@ async def show_public_offer(
         await callback.answer(
             texts.t(
                 'PUBLIC_OFFER_EMPTY_ALERT',
-                'Публичная оферта ещё не заполнена.',
+                '公开服务条款尚未填写。',
             ),
             show_alert=True,
         )
@@ -827,13 +827,13 @@ async def show_public_offer(
 
     header = texts.t(
         'PUBLIC_OFFER_HEADER',
-        '📄 <b>Публичная оферта</b>',
+        '📄<b>公开服务条款</b>',
     )
     body = pages[current_page - 1]
 
     footer_template = texts.t(
         'PUBLIC_OFFER_PAGE_INFO',
-        'Страница {current} из {total}',
+        '第{current}页，共{total}页',
     )
     footer = ''
     if total_pages > 1 and footer_template:
@@ -898,7 +898,7 @@ async def show_language_menu(
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -910,7 +910,7 @@ async def show_language_menu(
         await callback.answer(
             texts.t(
                 'LANGUAGE_SELECTION_DISABLED',
-                '⚙️ Выбор языка временно недоступен.',
+                '⚙️语言选择暂时不可用。将使用默认语言。',
             ),
             show_alert=True,
         )
@@ -918,7 +918,7 @@ async def show_language_menu(
 
     await edit_or_answer_photo(
         callback=callback,
-        caption=texts.t('LANGUAGE_PROMPT', '🌐 Выберите язык интерфейса:'),
+        caption=texts.t('LANGUAGE_PROMPT', '🌐请选择界面语言：'),
         keyboard=get_language_selection_keyboard(
             current_language=db_user.language,
             include_back=True,
@@ -940,7 +940,7 @@ async def process_language_change(
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -952,7 +952,7 @@ async def process_language_change(
         await callback.answer(
             texts.t(
                 'LANGUAGE_SELECTION_DISABLED',
-                '⚙️ Выбор языка временно недоступен.',
+                '⚙️语言选择暂时不可用。将使用默认语言。',
             ),
             show_alert=True,
         )
@@ -980,7 +980,7 @@ async def process_language_change(
             db,
             skip_callback_answer=True,
         )
-        await callback.answer(texts.t('LANGUAGE_SELECTED', '🌐 Язык интерфейса обновлен.'))
+        await callback.answer(texts.t('LANGUAGE_SELECTED', '🌐界面语言已设置为：<b>中文（简体）</b>'))
         return
 
     updated_user = await update_user(db, db_user, language=resolved_language)
@@ -992,7 +992,7 @@ async def process_language_change(
         db,
         skip_callback_answer=True,
     )
-    await callback.answer(texts.t('LANGUAGE_SELECTED', '🌐 Язык интерфейса обновлен.'))
+    await callback.answer(texts.t('LANGUAGE_SELECTED', '🌐界面语言已设置为：<b>中文（简体）</b>'))
 
 
 async def handle_back_to_menu(callback: types.CallbackQuery, state: FSMContext, db_user: User, db: AsyncSession):
@@ -1002,7 +1002,7 @@ async def handle_back_to_menu(callback: types.CallbackQuery, state: FSMContext, 
         await callback.answer(
             texts.t(
                 'USER_NOT_FOUND_ERROR',
-                'Ошибка: пользователь не найден.',
+                '错误：找不到用户。',
             ),
             show_alert=True,
         )
@@ -1068,7 +1068,7 @@ async def handle_back_to_menu(callback: types.CallbackQuery, state: FSMContext, 
 def _get_subscription_status(user: User, texts, is_daily_tariff: bool = False) -> str:
     subscription = getattr(user, 'subscription', None)
     if not subscription:
-        return texts.t('SUB_STATUS_NONE', '❌ Отсутствует')
+        return texts.t('SUB_STATUS_NONE', '❌无')
 
     current_time = datetime.now(UTC)
     actual_status = (subscription.actual_status or '').lower()
@@ -1080,18 +1080,18 @@ def _get_subscription_status(user: User, texts, is_daily_tariff: bool = False) -
         days_left = (subscription.end_date - current_time).days
 
     if actual_status == 'pending':
-        return texts.t('SUBSCRIPTION_NONE', '❌ Нет активной подписки')
+        return texts.t('SUBSCRIPTION_NONE', '❌没有活跃的订阅')
 
     if actual_status == 'disabled':
-        return texts.t('SUB_STATUS_DISABLED', '⚫ Отключена')
+        return texts.t('SUB_STATUS_DISABLED', '⚫已禁用')
 
     if actual_status == 'limited':
-        return texts.t('SUB_STATUS_LIMITED', '⚠️ Трафик исчерпан')
+        return texts.t('SUB_STATUS_LIMITED', '⚠️流量耗尽')
 
     if actual_status == 'expired':
         return texts.t(
             'SUB_STATUS_EXPIRED',
-            '🔴 Истекла\n📅 {end_date}',
+            '🔴已过期\n📅{end_date}',
         ).format(end_date=end_date_text or '—')
 
     is_trial_subscription = getattr(subscription, 'is_trial', False)
@@ -1102,7 +1102,7 @@ def _get_subscription_status(user: User, texts, is_daily_tariff: bool = False) -
         if days_left > 1 and end_date_text:
             return texts.t(
                 'SUB_STATUS_TRIAL_ACTIVE',
-                '🎁 Тестовая подписка\n📅 до {end_date} ({days} дн.)',
+                '🎁试用订阅\n📅至{end_date}({days}天)',
             ).format(
                 end_date=end_date_text,
                 days=days_left,
@@ -1110,22 +1110,22 @@ def _get_subscription_status(user: User, texts, is_daily_tariff: bool = False) -
         if days_left == 1:
             return texts.t(
                 'SUB_STATUS_TRIAL_TOMORROW',
-                '🎁 Тестовая подписка\n⚠️ истекает завтра!',
+                '🎁试用订阅\n⚠️明天过期！',
             )
         return texts.t(
             'SUB_STATUS_TRIAL_TODAY',
-            '🎁 Тестовая подписка\n⚠️ истекает сегодня!',
+            '🎁试用订阅\n⚠️今天过期！',
         )
 
     if actual_status == 'active':
         # Для суточных тарифов не показываем предупреждение об истечении
         if is_daily_tariff:
-            return texts.t('SUB_STATUS_DAILY_ACTIVE', '💎 Активна')
+            return texts.t('SUB_STATUS_DAILY_ACTIVE', '💎活跃')
 
         if days_left > 7 and end_date_text:
             return texts.t(
                 'SUB_STATUS_ACTIVE_LONG',
-                '💎 Активна\n📅 до {end_date} ({days} дн.)',
+                '💎活跃\n📅至{end_date}({days}天)',
             ).format(
                 end_date=end_date_text,
                 days=days_left,
@@ -1133,19 +1133,19 @@ def _get_subscription_status(user: User, texts, is_daily_tariff: bool = False) -
         if days_left > 1:
             return texts.t(
                 'SUB_STATUS_ACTIVE_FEW_DAYS',
-                '💎 Активна\n⚠️ истекает через {days} дн.',
+                '💎活跃\n⚠️{days}天后过期',
             ).format(days=days_left)
         if days_left == 1:
             return texts.t(
                 'SUB_STATUS_ACTIVE_TOMORROW',
-                '💎 Активна\n⚠️ истекает завтра!',
+                '💎活跃\n⚠️明天过期！',
             )
         return texts.t(
             'SUB_STATUS_ACTIVE_TODAY',
-            '💎 Активна\n⚠️ истекает сегодня!',
+            '💎活跃\n⚠️今天过期！',
         )
 
-    return texts.t('SUB_STATUS_UNKNOWN', '❓ Неизвестно')
+    return texts.t('SUB_STATUS_UNKNOWN', '❓ 未知')
 
 
 def _insert_random_message(base_text: str, random_message: str, action_prompt: str) -> str:
@@ -1172,7 +1172,7 @@ async def _get_multi_tariff_status(user, texts, db: AsyncSession) -> tuple[str, 
     subscriptions = await get_all_subscriptions_by_user_id(db, user.id)
 
     if not subscriptions:
-        return texts.t('SUB_STATUS_NONE', '❌ Отсутствует'), ''
+        return texts.t('SUB_STATUS_NONE', '❌无'), ''
 
     current_time = datetime.now(UTC)
     lines: list[str] = []
@@ -1219,7 +1219,7 @@ async def get_main_menu_text(user, texts, db: AsyncSession):
         )
 
         if tariff_info_block:
-            action_prompt_text = texts.t('MAIN_MENU_ACTION_PROMPT', 'Выберите действие:')
+            action_prompt_text = texts.t('MAIN_MENU_ACTION_PROMPT', '请选择操作：')
             if action_prompt_text in base_text:
                 base_text = base_text.replace(action_prompt_text, f'{tariff_info_block}\n\n{action_prompt_text}')
     else:
@@ -1246,11 +1246,11 @@ async def get_main_menu_text(user, texts, db: AsyncSession):
         )
 
         if tariff_info_block:
-            action_prompt_text = texts.t('MAIN_MENU_ACTION_PROMPT', 'Выберите действие:')
+            action_prompt_text = texts.t('MAIN_MENU_ACTION_PROMPT', '请选择操作：')
             if action_prompt_text in base_text:
                 base_text = base_text.replace(action_prompt_text, f'{tariff_info_block}\n\n{action_prompt_text}')
 
-    action_prompt = texts.t('MAIN_MENU_ACTION_PROMPT', 'Выберите действие:')
+    action_prompt = texts.t('MAIN_MENU_ACTION_PROMPT', '请选择操作：')
 
     info_sections: list[str] = []
 
@@ -1324,7 +1324,7 @@ async def handle_activate_button(callback: types.CallbackQuery, db_user: User, d
     # Если подписка активна — ничего не делаем
     if subscription and subscription.status == 'ACTIVE' and subscription.end_date > datetime.now(UTC):
         await callback.answer(
-            texts.t('SUBSCRIPTION_ALREADY_ACTIVE', '✅ Подписка уже активна!'),
+            texts.t('SUBSCRIPTION_ALREADY_ACTIVE', '✅ 订阅已经激活！'),
             show_alert=True,
         )
         return
@@ -1407,13 +1407,13 @@ async def handle_activate_button(callback: types.CallbackQuery, db_user: User, d
                 min_price = min_new_pricing.final_total
             missing = min_price - balance
             await callback.answer(
-                texts.t('INSUFFICIENT_FUNDS_DETAILED', f'❌ Недостаточно средств. Не хватает {missing // 100} ₽'),
+                texts.t('INSUFFICIENT_FUNDS_DETAILED', f'❌ 资金不足。缺少 {missing // 100} ₽'),
                 show_alert=True,
             )
             return
     except Exception as e:
         logger.error('Ошибка расчёта стоимости при активации', error=e)
-        await callback.answer('❌ Ошибка расчёта стоимости', show_alert=True)
+        await callback.answer('❌ 成本计算错误', show_alert=True)
         return
 
     try:
@@ -1435,7 +1435,7 @@ async def handle_activate_button(callback: types.CallbackQuery, db_user: User, d
             await callback.answer(
                 texts.t(
                     'ACTIVATION_SUCCESS',
-                    f'✅ Подписка продлена на {best_period} дней за {pricing.final_total // 100} ₽!',
+                    f'✅ {pricing.final_total // 100} 的订阅延长了 {best_period} 天 ₽！',
                 ),
                 show_alert=True,
             )
@@ -1451,7 +1451,7 @@ async def handle_activate_button(callback: types.CallbackQuery, db_user: User, d
                 consume_promo_offer=consume_promo,
             )
             if not success:
-                await callback.answer('❌ Недостаточно средств', show_alert=True)
+                await callback.answer('❌ 资金不足', show_alert=True)
                 return
 
             # Создание новой подписки
@@ -1480,7 +1480,7 @@ async def handle_activate_button(callback: types.CallbackQuery, db_user: User, d
 
             await callback.answer(
                 texts.t(
-                    'ACTIVATION_SUCCESS', f'✅ Подписка активирована на {best_period} дней за {best_price // 100} ₽!'
+                    'ACTIVATION_SUCCESS', f'✅ 订阅激活 {best_period} 天，即可获得 {best_price // 100} ₽！'
                 ),
                 show_alert=True,
             )
@@ -1490,7 +1490,7 @@ async def handle_activate_button(callback: types.CallbackQuery, db_user: User, d
         logger.error('Ошибка автоматической активации для', user_id_display=user_id_display, error=e)
         await db.rollback()
         await callback.answer(
-            texts.t('ACTIVATION_ERROR', '❌ Ошибка активации. Попробуйте позже.'),
+            texts.t('ACTIVATION_ERROR', '❌ 激活错误。请稍后重试。'),
             show_alert=True,
         )
 

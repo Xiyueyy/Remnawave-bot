@@ -13,14 +13,14 @@ logger = structlog.get_logger(__name__)
 
 def get_updates_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
     buttons = [
-        [InlineKeyboardButton(text='🔄 Проверить обновления', callback_data='admin_updates_check')],
-        [InlineKeyboardButton(text='📋 Информация о версии', callback_data='admin_updates_info')],
+        [InlineKeyboardButton(text='🔄 检查更新', callback_data='admin_updates_check')],
+        [InlineKeyboardButton(text='📋版本信息', callback_data='admin_updates_info')],
         [
             InlineKeyboardButton(
-                text='🔗 Открыть репозиторий', url=f'https://github.com/{version_service.repo}/releases'
+                text='🔗 打开存储库', url=f'https://github.com/{version_service.repo}/releases'
             )
         ],
-        [InlineKeyboardButton(text='◀️ Назад', callback_data='admin_panel')],
+        [InlineKeyboardButton(text='◀️ 返回', callback_data='admin_panel')],
     ]
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -28,8 +28,8 @@ def get_updates_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
 
 def get_version_info_keyboard(language: str = 'ru') -> InlineKeyboardMarkup:
     buttons = [
-        [InlineKeyboardButton(text='🔄 Обновить', callback_data='admin_updates_info')],
-        [InlineKeyboardButton(text='◀️ К обновлениям', callback_data='admin_updates')],
+        [InlineKeyboardButton(text='🔄 刷新', callback_data='admin_updates_info')],
+        [InlineKeyboardButton(text='◀️ 更新', callback_data='admin_updates')],
     ]
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -53,14 +53,7 @@ async def show_updates_menu(callback: types.CallbackQuery, db_user: User, db: As
         if last_check:
             last_check_text = f'\n🕐 Последняя проверка: {last_check.strftime("%d.%m.%Y %H:%M")}'
 
-        message = f"""🔄 <b>СИСТЕМА ОБНОВЛЕНИЙ</b>
-
-📦 <b>Текущая версия:</b> <code>{current_version}</code>
-{status_icon} <b>Статус:</b> {status_text}
-
-🔗 <b>Репозиторий:</b> {version_service.repo}{last_check_text}
-
-ℹ️ Система автоматически проверяет обновления каждый час и отправляет уведомления о новых версиях."""
+        message = f'🔄 <b>更新系统</b>\n\n📦 <b>当前版本：</b> <code>{current_version}</code>\n{status_icon} <b>状态：</b> {status_text}\n\n🔗 <b>存储库：</b> {version_service.repo}{last_check_text}\n\nℹ️系统每小时自动检查更新并发送有关新版本的通知。'
 
         await callback.message.edit_text(
             message, reply_markup=get_updates_keyboard(db_user.language), parse_mode='HTML'
@@ -73,24 +66,19 @@ async def show_updates_menu(callback: types.CallbackQuery, db_user: User, db: As
             await callback.answer()
             return
         logger.error('Ошибка показа меню обновлений', error=e)
-        await callback.answer('❌ Ошибка загрузки меню обновлений', show_alert=True)
+        await callback.answer('❌ 加载更新菜单时出错', show_alert=True)
 
 
 @admin_required
 @error_handler
 async def check_updates(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
-    await callback.answer('🔄 Проверяю обновления...')
+    await callback.answer('🔄 正在检查更新...')
 
     try:
         has_updates, newer_releases = await version_service.check_for_updates(force=True)
 
         if not has_updates:
-            message = f"""✅ <b>ОБНОВЛЕНИЯ НЕ НАЙДЕНЫ</b>
-
-📦 <b>Текущая версия:</b> <code>{version_service.current_version}</code>
-🎯 <b>Статус:</b> У вас установлена последняя версия
-
-🔗 <b>Репозиторий:</b> {version_service.repo}"""
+            message = f'✅ <b>未找到更新</b>\n\n📦 <b>当前版本：</b> <code>{version_service.current_version}</code>\n🎯 <b>状态：</b> 您已安装最新版本\n\n🔗 <b>存储库：</b> {version_service.repo}'
 
         else:
             updates_list = []
@@ -101,21 +89,13 @@ async def check_updates(callback: types.CallbackQuery, db_user: User, db: AsyncS
             updates_text = '\n'.join(updates_list)
             more_text = f'\n\n📋 И еще {len(newer_releases) - 5} обновлений...' if len(newer_releases) > 5 else ''
 
-            message = f"""🆕 <b>НАЙДЕНЫ ОБНОВЛЕНИЯ</b>
-
-📦 <b>Текущая версия:</b> <code>{version_service.current_version}</code>
-🎯 <b>Доступно обновлений:</b> {len(newer_releases)}
-
-📋 <b>Последние версии:</b>
-{updates_text}{more_text}
-
-🔗 <b>Репозиторий:</b> {version_service.repo}"""
+            message = f'🆕 <b>发现更新</b>\n\n📦 <b>当前版本：</b> <code>{version_service.current_version}</code>\n🎯 <b>可用更新：</b> {len(newer_releases)}\n\n📋 <b>最新版本：</b>\n{updates_text}QQPH3QQQ\n\n🔗 <b>存储库：</b> {version_service.repo}'
 
         keyboard = get_updates_keyboard(db_user.language)
 
         if has_updates:
             keyboard.inline_keyboard.insert(
-                -2, [InlineKeyboardButton(text='📋 Подробнее о версиях', callback_data='admin_updates_info')]
+                -2, [InlineKeyboardButton(text='📋 有关版本的更多信息', callback_data='admin_updates_info')]
             )
 
         await callback.message.edit_text(message, reply_markup=keyboard, parse_mode='HTML')
@@ -126,10 +106,7 @@ async def check_updates(callback: types.CallbackQuery, db_user: User, db: AsyncS
             return
         logger.error('Ошибка проверки обновлений', error=e)
         await callback.message.edit_text(
-            f'❌ <b>ОШИБКА ПРОВЕРКИ ОБНОВЛЕНИЙ</b>\n\n'
-            f'Не удалось связаться с сервером GitHub.\n'
-            f'Попробуйте позже.\n\n'
-            f'📦 <b>Текущая версия:</b> <code>{version_service.current_version}</code>',
+            f'❌ <b>更新检查错误</b>\n\n无法联系服务器 GitHub。\n请稍后重试。\n\n📦 <b>当前版本：</b> <code>{version_service.current_version}</code>',
             reply_markup=get_updates_keyboard(db_user.language),
             parse_mode='HTML',
         )
@@ -138,7 +115,7 @@ async def check_updates(callback: types.CallbackQuery, db_user: User, db: AsyncS
 @admin_required
 @error_handler
 async def show_version_info(callback: types.CallbackQuery, db_user: User, db: AsyncSession):
-    await callback.answer('📋 Загружаю информацию о версиях...')
+    await callback.answer('📋 正在加载有关版本的信息...')
 
     try:
         version_info = await version_service.get_version_info()
@@ -149,21 +126,21 @@ async def show_version_info(callback: types.CallbackQuery, db_user: User, db: As
         has_updates = version_info['has_updates']
         last_check = version_info['last_check']
 
-        current_info = '📦 <b>ТЕКУЩАЯ ВЕРСИЯ</b>\n\n'
+        current_info = '📦 <b>当前版本</b>'
 
         if current_release:
-            current_info += f'🏷️ <b>Версия:</b> <code>{current_release.tag_name}</code>\n'
-            current_info += f'📅 <b>Дата релиза:</b> {current_release.formatted_date}\n'
+            current_info += f'🏷️ <b>版本：</b> <代码>{current_release.tag_name}</code>'
+            current_info += f'📅 <b>发布日期：</b> {current_release.formatted_date}'
             if current_release.short_description:
-                current_info += f'📝 <b>Описание:</b>\n{current_release.short_description}\n'
+                current_info += f'📝 <b>描述：</b>\n{current_release.short_description}'
         else:
-            current_info += f'🏷️ <b>Версия:</b> <code>{current_version}</code>\n'
-            current_info += 'ℹ️ <b>Статус:</b> Информация о релизе недоступна\n'
+            current_info += f'🏷️ <b>版本：</b> <代码>{current_version}</code>'
+            current_info += 'ℹ️ <b>状态：</b> 发布信息不可用'
 
         message_parts = [current_info]
 
         if has_updates and newer_releases:
-            updates_info = '\n🆕 <b>ДОСТУПНЫЕ ОБНОВЛЕНИЯ</b>\n\n'
+            updates_info = '🆕<b>已更新</b>'
 
             for i, release in enumerate(newer_releases):
                 icon = '🔥' if i == 0 else '📦'
@@ -180,13 +157,13 @@ async def show_version_info(callback: types.CallbackQuery, db_user: User, db: As
 
             message_parts.append(updates_info.rstrip())
 
-        system_info = '\n🔧 <b>СИСТЕМА ОБНОВЛЕНИЙ</b>\n\n'
-        system_info += f'🔗 <b>Репозиторий:</b> {version_service.repo}\n'
-        system_info += f'⚡ <b>Автопроверка:</b> {"Включена" if version_service.enabled else "Отключена"}\n'
-        system_info += '🕐 <b>Интервал:</b> Каждый час\n'
+        system_info = '🔧 <b>更新系统</b>'
+        system_info += f'🔗 <b>存储库：</b> {version_service.repo}'
+        system_info += f"⚡ <b>自动检查：</b> {('Включена' if version_service.enabled else 'Отключена')}"
+        system_info += '🕐 <b>间隔：</b> 每小时'
 
         if last_check:
-            system_info += f'🕐 <b>Последняя проверка:</b> {last_check.strftime("%d.%m.%Y %H:%M")}\n'
+            system_info += f"🕐 <b>最后一次检查：</b> {last_check.strftime('%d.%m.%Y %H:%M')}"
 
         message_parts.append(system_info.rstrip())
 
@@ -208,9 +185,7 @@ async def show_version_info(callback: types.CallbackQuery, db_user: User, db: As
             return
         logger.error('Ошибка получения информации о версиях', error=e)
         await callback.message.edit_text(
-            f'❌ <b>ОШИБКА ЗАГРУЗКИ</b>\n\n'
-            f'Не удалось получить информацию о версиях.\n\n'
-            f'📦 <b>Текущая версия:</b> <code>{version_service.current_version}</code>',
+            f'❌ <b>加载错误</b>\n\n获取版本信息失败。\n\n📦 <b>当前版本：</b> <code>{version_service.current_version}</code>',
             reply_markup=get_version_info_keyboard(db_user.language),
             parse_mode='HTML',
         )

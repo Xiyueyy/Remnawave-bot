@@ -18,10 +18,10 @@ async def handle_delete_ban_notification(
     """Удаляет уведомление о бане при нажатии на кнопку"""
     try:
         await callback.message.delete()
-        await callback.answer('Уведомление удалено')
+        await callback.answer('通知已删除')
     except Exception as e:
         logger.warning('Не удалось удалить уведомление', error=e)
-        await callback.answer('Не удалось удалить', show_alert=False)
+        await callback.answer('删除失败', show_alert=False)
 
 
 async def handle_webhook_notification_close(
@@ -48,7 +48,7 @@ async def handle_unknown_callback(callback: types.CallbackQuery, db_user: User):
     await callback.answer(
         texts.t(
             'UNKNOWN_CALLBACK_ALERT',
-            '❓ Неизвестная команда. Попробуйте ещё раз.',
+            '❓未知命令。请重试。',
         ),
         show_alert=True,
     )
@@ -89,7 +89,7 @@ async def handle_unknown_message(
     await message.answer(
         texts.t(
             'UNKNOWN_COMMAND_MESSAGE',
-            '❓ Не понимаю эту команду. Используйте кнопки меню.',
+            '❓不明白此命令。请使用菜单按钮。',
         ),
         reply_markup=get_back_keyboard(db_user.language if db_user else 'ru'),
     )

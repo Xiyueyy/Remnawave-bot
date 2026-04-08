@@ -1,4 +1,4 @@
-"""ChatMemberUpdated event handler for real-time channel subscription tracking.
+﻿"""ChatMemberUpdated event handler for real-time channel subscription tracking.
 
 KEY COMPONENT for scalability: the bot receives push notifications from Telegram
 when users join/leave channels, instead of polling via getChatMember.
@@ -78,7 +78,7 @@ async def on_user_joined_channel(event: ChatMemberUpdated, bot: Bot) -> None:
 
             for subscription in disabled_subs:
                 await reactivate_subscription(db, subscription)
-                # Ставим штамп чтобы webhook user.disabled (echo от нашего disable)
+                # Ставим штамп чтобы webhook user.disabled (echo 起 нашего disable)
                 # не переотключил подписку при быстрой реподписке
                 subscription.last_webhook_update_at = datetime.now(UTC)
             logger.info(
@@ -111,7 +111,7 @@ async def on_user_joined_channel(event: ChatMemberUpdated, bot: Bot) -> None:
                 texts = get_texts(db_user.language or DEFAULT_LANGUAGE)
                 notification_text = texts.t(
                     'SUBSCRIPTION_REACTIVATED_CHANNEL_SUBSCRIBE',
-                    'Your subscription has been restored! Thank you for subscribing to the channels.',
+                    '✅ 您的订阅已恢复！\n\n感谢您订阅频道。网络代理已重新激活。',
                 )
                 await bot.send_message(user.id, notification_text)
             except Exception as notify_error:
@@ -196,7 +196,7 @@ async def on_user_left_channel(event: ChatMemberUpdated, bot: Bot) -> None:
                 unsub_channels = await channel_subscription_service.get_channels_with_status(user.id)
                 notification_text = texts.t(
                     'SUBSCRIPTION_DEACTIVATED_CHANNEL_UNSUBSCRIBE',
-                    'Your subscription has been paused because you left a required channel.',
+                    '🚫 由于您退出了必需频道，您的订阅已暂停。\n\n请订阅所有频道以恢复网络代理访问。',
                 )
                 channel_kb = get_channel_sub_keyboard(unsub_channels, language=db_user.language or DEFAULT_LANGUAGE)
                 await bot.send_message(user.id, notification_text, reply_markup=channel_kb)
@@ -212,3 +212,4 @@ async def on_user_left_channel(event: ChatMemberUpdated, bot: Bot) -> None:
 def register_handlers(dp_router: Router) -> None:
     """Register channel member event handlers on the dispatcher/router."""
     dp_router.include_router(router)
+

@@ -53,7 +53,7 @@ async def show_admin_panel(callback: types.CallbackQuery, db_user: User, db: Asy
             ),
         )
     except Exception as e:
-        logger.error('Не удалось получить статистику Remnawave для админ-панели', error=e)
+        logger.error('无法获取管理面板的 Remnawave 统计信息', error=e)
 
     await callback.message.edit_text(admin_text, reply_markup=get_admin_main_keyboard(db_user.language))
     await callback.answer()
@@ -65,8 +65,8 @@ async def show_users_submenu(callback: types.CallbackQuery, db_user: User, db: A
     texts = get_texts(db_user.language)
 
     await callback.message.edit_text(
-        texts.t('ADMIN_USERS_SUBMENU_TITLE', '👥 **Управление пользователями и подписками**\n\n')
-        + texts.t('ADMIN_SUBMENU_SELECT_SECTION', 'Выберите нужный раздел:'),
+        texts.t('ADMIN_USERS_SUBMENU_TITLE', '👥**用户和订阅管理**\n\n')
+        + texts.t('ADMIN_SUBMENU_SELECT_SECTION', '请选择所需部分：'),
         reply_markup=get_admin_users_submenu_keyboard(db_user.language),
         parse_mode='Markdown',
     )
@@ -79,8 +79,8 @@ async def show_promo_submenu(callback: types.CallbackQuery, db_user: User, db: A
     texts = get_texts(db_user.language)
 
     await callback.message.edit_text(
-        texts.t('ADMIN_PROMO_SUBMENU_TITLE', '💰 **Промокоды и статистика**\n\n')
-        + texts.t('ADMIN_SUBMENU_SELECT_SECTION', 'Выберите нужный раздел:'),
+        texts.t('ADMIN_PROMO_SUBMENU_TITLE', '💰**优惠码与统计**\n\n')
+        + texts.t('ADMIN_SUBMENU_SELECT_SECTION', '请选择所需部分：'),
         reply_markup=get_admin_promo_submenu_keyboard(db_user.language),
         parse_mode='Markdown',
     )
@@ -93,8 +93,8 @@ async def show_communications_submenu(callback: types.CallbackQuery, db_user: Us
     texts = get_texts(db_user.language)
 
     await callback.message.edit_text(
-        texts.t('ADMIN_COMMUNICATIONS_SUBMENU_TITLE', '📨 **Коммуникации**\n\n')
-        + texts.t('ADMIN_COMMUNICATIONS_SUBMENU_DESCRIPTION', 'Управление рассылками и текстами интерфейса:'),
+        texts.t('ADMIN_COMMUNICATIONS_SUBMENU_TITLE', '📨**通讯**\n\n')
+        + texts.t('ADMIN_COMMUNICATIONS_SUBMENU_DESCRIPTION', '管理广播和界面文本：'),
         reply_markup=get_admin_communications_submenu_keyboard(db_user.language),
         parse_mode='Markdown',
     )
@@ -117,18 +117,18 @@ async def show_support_submenu(callback: types.CallbackQuery, db_user: User, db:
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text=texts.t('ADMIN_SUPPORT_TICKETS', '🎫 Тикеты поддержки'), callback_data='admin_tickets'
+                        text=texts.t('ADMIN_SUPPORT_TICKETS', '🎫支持工单'), callback_data='admin_tickets'
                     )
                 ],
                 [InlineKeyboardButton(text=texts.BACK, callback_data='back_to_menu')],
             ]
         )
     await callback.message.edit_text(
-        texts.t('ADMIN_SUPPORT_SUBMENU_TITLE', '🛟 **Поддержка**\n\n')
+        texts.t('ADMIN_SUPPORT_SUBMENU_TITLE', '🛟**支持**\n\n')
         + (
-            texts.t('ADMIN_SUPPORT_SUBMENU_DESCRIPTION_MODERATOR', 'Доступ к тикетам.')
+            texts.t('ADMIN_SUPPORT_SUBMENU_DESCRIPTION_MODERATOR', '访问工单。')
             if is_moderator_only
-            else texts.t('ADMIN_SUPPORT_SUBMENU_DESCRIPTION', 'Управление тикетами и настройками поддержки:')
+            else texts.t('ADMIN_SUPPORT_SUBMENU_DESCRIPTION', '管理工单和支持设置：')
         ),
         reply_markup=kb,
         parse_mode='Markdown',
@@ -145,20 +145,20 @@ async def show_moderator_panel(callback: types.CallbackQuery, db_user: User, db:
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=texts.t('ADMIN_SUPPORT_TICKETS', '🎫 Тикеты поддержки'), callback_data='admin_tickets'
+                    text=texts.t('ADMIN_SUPPORT_TICKETS', '🎫支持工单'), callback_data='admin_tickets'
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text=texts.t('BACK_TO_MAIN_MENU_BUTTON', '⬅️ В главное меню'), callback_data='back_to_menu'
+                    text=texts.t('BACK_TO_MAIN_MENU_BUTTON', '⬅️返回主菜单'), callback_data='back_to_menu'
                 )
             ],
         ]
     )
     await callback.message.edit_text(
-        texts.t('ADMIN_SUPPORT_MODERATION_TITLE', '🧑‍⚖️ <b>Модерация поддержки</b>')
+        texts.t('ADMIN_SUPPORT_MODERATION_TITLE', '🧑\u200d⚖️<b>支持管理</b>')
         + '\n\n'
-        + texts.t('ADMIN_SUPPORT_MODERATION_DESCRIPTION', 'Доступ к тикетам поддержки.'),
+        + texts.t('ADMIN_SUPPORT_MODERATION_DESCRIPTION', '访问支持工单。'),
         parse_mode='HTML',
         reply_markup=kb,
     )
@@ -184,25 +184,25 @@ async def show_support_audit(callback: types.CallbackQuery, db_user: User, db: A
     offset = (page - 1) * per_page
     logs = await TicketCRUD.list_support_audit(db, limit=per_page, offset=offset)
 
-    lines = [texts.t('ADMIN_SUPPORT_AUDIT_TITLE', '🧾 <b>Аудит модераторов</b>'), '']
+    lines = [texts.t('ADMIN_SUPPORT_AUDIT_TITLE', '🧾<b>版主审计</b>'), '']
     if not logs:
-        lines.append(texts.t('ADMIN_SUPPORT_AUDIT_EMPTY', 'Пока пусто'))
+        lines.append(texts.t('ADMIN_SUPPORT_AUDIT_EMPTY', '暂无内容'))
     else:
         for log in logs:
             role = (
-                texts.t('ADMIN_SUPPORT_AUDIT_ROLE_MODERATOR', 'Модератор')
+                texts.t('ADMIN_SUPPORT_AUDIT_ROLE_MODERATOR', '版主')
                 if getattr(log, 'is_moderator', False)
-                else texts.t('ADMIN_SUPPORT_AUDIT_ROLE_ADMIN', 'Админ')
+                else texts.t('ADMIN_SUPPORT_AUDIT_ROLE_ADMIN', '管理员')
             )
             ts = log.created_at.strftime('%d.%m.%Y %H:%M') if getattr(log, 'created_at', None) else ''
             action_map = {
-                'close_ticket': texts.t('ADMIN_SUPPORT_AUDIT_ACTION_CLOSE_TICKET', 'Закрытие тикета'),
-                'block_user_timed': texts.t('ADMIN_SUPPORT_AUDIT_ACTION_BLOCK_TIMED', 'Блокировка (время)'),
-                'block_user_perm': texts.t('ADMIN_SUPPORT_AUDIT_ACTION_BLOCK_PERM', 'Блокировка (навсегда)'),
+                'close_ticket': texts.t('ADMIN_SUPPORT_AUDIT_ACTION_CLOSE_TICKET', '关闭工单'),
+                'block_user_timed': texts.t('ADMIN_SUPPORT_AUDIT_ACTION_BLOCK_TIMED', '临时封锁'),
+                'block_user_perm': texts.t('ADMIN_SUPPORT_AUDIT_ACTION_BLOCK_PERM', '永久封锁'),
                 'close_all_tickets': texts.t(
-                    'ADMIN_SUPPORT_AUDIT_ACTION_CLOSE_ALL_TICKETS', 'Массовое закрытие тикетов'
+                    'ADMIN_SUPPORT_AUDIT_ACTION_CLOSE_ALL_TICKETS', '批量关闭工单'
                 ),
-                'unblock_user': texts.t('ADMIN_SUPPORT_AUDIT_ACTION_UNBLOCK', 'Снятие блока'),
+                'unblock_user': texts.t('ADMIN_SUPPORT_AUDIT_ACTION_UNBLOCK', '解除封锁'),
             }
             action_text = action_map.get(log.action, log.action)
             ticket_part = f' тикет #{log.ticket_id}' if log.ticket_id else ''
@@ -240,8 +240,8 @@ async def show_settings_submenu(callback: types.CallbackQuery, db_user: User, db
     texts = get_texts(db_user.language)
 
     await callback.message.edit_text(
-        texts.t('ADMIN_SETTINGS_SUBMENU_TITLE', '⚙️ **Настройки системы**\n\n')
-        + texts.t('ADMIN_SETTINGS_SUBMENU_DESCRIPTION', 'Управление Remnawave, мониторингом и другими настройками:'),
+        texts.t('ADMIN_SETTINGS_SUBMENU_TITLE', '⚙️**系统设置**\n\n')
+        + texts.t('ADMIN_SETTINGS_SUBMENU_DESCRIPTION', '管理Remnawave、监控和其他设置：'),
         reply_markup=get_admin_settings_submenu_keyboard(db_user.language),
         parse_mode='Markdown',
     )
@@ -254,9 +254,9 @@ async def show_system_submenu(callback: types.CallbackQuery, db_user: User, db: 
     texts = get_texts(db_user.language)
 
     await callback.message.edit_text(
-        texts.t('ADMIN_SYSTEM_SUBMENU_TITLE', '🛠️ **Системные функции**\n\n')
+        texts.t('ADMIN_SYSTEM_SUBMENU_TITLE', '🛠️**系统功能**\n\n')
         + texts.t(
-            'ADMIN_SYSTEM_SUBMENU_DESCRIPTION', 'Отчеты, обновления, логи, резервные копии и системные операции:'
+            'ADMIN_SYSTEM_SUBMENU_DESCRIPTION', '报告、更新、日志、备份和系统操作：'
         ),
         reply_markup=get_admin_system_submenu_keyboard(db_user.language),
         parse_mode='Markdown',
@@ -272,8 +272,7 @@ async def clear_rules_command(message: types.Message, db_user: User, db: AsyncSe
 
         if stats['total_active'] == 0:
             await message.reply(
-                'ℹ️ <b>Правила уже очищены</b>\n\n'
-                'В системе нет активных правил. Используются стандартные правила по умолчанию.'
+                'ℹ️ <b>规则已清除</b>\n\n系统中没有有效的规则。使用标准默认规则。'
             )
             return
 
@@ -283,26 +282,19 @@ async def clear_rules_command(message: types.Message, db_user: User, db: AsyncSe
             clear_rules_cache()
 
             await message.reply(
-                f'✅ <b>Правила успешно очищены!</b>\n\n'
-                f'📊 <b>Статистика:</b>\n'
-                f'• Очищено правил: {stats["total_active"]}\n'
-                f'• Язык: {db_user.language}\n'
-                f'• Выполнил: {html.escape(db_user.full_name or "")}\n\n'
-                f'Теперь используются стандартные правила по умолчанию.'
+                f"✅ <b>规则成功通关！</b>\n\n📊 <b>统计：</b>\n• 清除规则：{stats['total_active']}\n• 语言：{db_user.language}\n• 完成者：{html.escape(db_user.full_name or '')}\n\n现在使用标准默认规则。"
             )
 
             logger.info(
-                'Правила очищены командой администратором', telegram_id=db_user.telegram_id, full_name=db_user.full_name
+                '管理团队清除的规则', telegram_id=db_user.telegram_id, full_name=db_user.full_name
             )
         else:
-            await message.reply('⚠️ <b>Нет правил для очистки</b>\n\nАктивные правила не найдены.')
+            await message.reply('⚠️<b>无清洁规则</b>\n\n未找到有效规则。')
 
     except Exception as e:
-        logger.error('Ошибка при очистке правил командой', error=e)
+        logger.error('使用命令清除规则时出错', error=e)
         await message.reply(
-            '❌ <b>Ошибка при очистке правил</b>\n\n'
-            f'Произошла ошибка: {e!s}\n'
-            'Попробуйте через админ-панель или повторите позже.'
+            f'❌ <b>清除规则时出错</b>\n\n发生错误：{e!s}\n尝试通过管理面板或稍后重试。'
         )
 
 
@@ -313,51 +305,36 @@ async def rules_stats_command(message: types.Message, db_user: User, db: AsyncSe
         stats = await get_rules_statistics(db)
 
         if 'error' in stats:
-            await message.reply(f'❌ Ошибка получения статистики: {stats["error"]}')
+            await message.reply(f"❌ 获取统计信息时出错：{stats['error']}")
             return
 
-        text = '📊 <b>Статистика правил сервиса</b>\n\n'
-        text += '📋 <b>Общая информация:</b>\n'
-        text += f'• Активных правил: {stats["total_active"]}\n'
-        text += f'• Всего в истории: {stats["total_all_time"]}\n'
-        text += f'• Поддерживаемых языков: {stats["total_languages"]}\n\n'
+        text = '📊 <b>服务规则统计</b>'
+        text += '📋 <b>一般信息：</b>'
+        text += f"• 活动规则：{stats['total_active']}"
+        text += f"• 总历史记录：{stats['total_all_time']}"
+        text += f"• 支持的语言：{stats['total_languages']}"
 
         if stats['languages']:
-            text += '🌐 <b>По языкам:</b>\n'
+            text += '🌐 <b>按语言：</b>'
             for lang, lang_stats in stats['languages'].items():
-                text += f'• <code>{lang}</code>: {lang_stats["active_count"]} правил, '
-                text += f'{lang_stats["content_length"]} символов\n'
+                text += f"• <code>{lang}</code>：{lang_stats['active_count']} 规则，"
+                text += f"{lang_stats['content_length']} 人物"
                 if lang_stats['last_updated']:
-                    text += f'  Обновлено: {lang_stats["last_updated"].strftime("%d.%m.%Y %H:%M")}\n'
+                    text += f"更新：{lang_stats['last_updated'].strftime('%d.%m.%Y %H:%M')}"
         else:
-            text += 'ℹ️ Активных правил нет - используются правила по умолчанию'
+            text += 'ℹ️ 没有活动规则 - 使用默认规则'
 
         await message.reply(text)
 
     except Exception as e:
-        logger.error('Ошибка при получении статистики правил', error=e)
-        await message.reply(f'❌ <b>Ошибка получения статистики</b>\n\nПроизошла ошибка: {e!s}')
+        logger.error('获取规则统计信息时出错', error=e)
+        await message.reply(f'❌ <b>接收错误统计</b>\n\n发生错误：{e!s}')
 
 
 @admin_required
 @error_handler
 async def admin_commands_help(message: types.Message, db_user: User, db: AsyncSession):
-    help_text = """
-🔧 <b>Доступные админские команды:</b>
-
-<b>📋 Управление правилами:</b>
-• <code>/clear_rules</code> - очистить все правила
-• <code>/rules_stats</code> - статистика правил
-
-<b>ℹ️ Справка:</b>
-• <code>/admin_help</code> - это сообщение
-
-<b>📱 Панель управления:</b>
-Используйте кнопку "Админ панель" в главном меню для полного доступа ко всем функциям.
-
-<b>⚠️ Важно:</b>
-Все команды логируются и требуют админских прав.
-"""
+    help_text = '🔧 <b>可用的管理命令：</b>\n\n<b>📋规则管理：</b>\n• <code>/clear_rules</code> - 清除所有规则\n• <code>/rules_stats</code> - 规则统计\n\n<b>ℹ️帮助：</b>\n• <code>/admin_help</code> - 这是消息\n\n<b>📱控制面板：</b>\n使用主菜单中的“管理面板”按钮可以完全访问所有功能。\n\n<b>⚠️重要：</b>\n所有命令都会被记录并需要管理员权限。'
 
     await message.reply(help_text)
 

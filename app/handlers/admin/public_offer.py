@@ -42,22 +42,22 @@ async def _build_overview(
 
     description = texts.t(
         'ADMIN_PUBLIC_OFFER_DESCRIPTION',
-        'Публичная оферта отображается в разделе «Инфо».',
+        '公开服务条款显示在“信息”部分。',
     )
 
     status_text = texts.t(
         'ADMIN_PUBLIC_OFFER_STATUS_DISABLED',
-        '⚠️ Показ оферты выключен или текст отсутствует.',
+        '⚠️服务条款显示已禁用或文本缺失。',
     )
     if offer and offer.is_enabled and has_content:
         status_text = texts.t(
             'ADMIN_PUBLIC_OFFER_STATUS_ENABLED',
-            '✅ Оферта активна и показывается пользователям.',
+            '✅服务条款已激活并向用户显示。',
         )
     elif offer and offer.is_enabled:
         status_text = texts.t(
             'ADMIN_PUBLIC_OFFER_STATUS_ENABLED_EMPTY',
-            '⚠️ Оферта включена, но текст пуст — пользователи её не увидят.',
+            '⚠️服务条款已启用，但文本为空—用户将看不到。',
         )
 
     updated_at = _format_timestamp(getattr(offer, 'updated_at', None))
@@ -65,17 +65,17 @@ async def _build_overview(
     if updated_at:
         updated_block = texts.t(
             'ADMIN_PUBLIC_OFFER_UPDATED_AT',
-            'Последнее обновление: {timestamp}',
+            '最后更新：{timestamp}',
         ).format(timestamp=updated_at)
 
     preview_block = texts.t(
         'ADMIN_PUBLIC_OFFER_PREVIEW_EMPTY',
-        'Текст ещё не задан.',
+        '尚未设置文本。',
     )
     if has_content:
         preview_title = texts.t(
             'ADMIN_PUBLIC_OFFER_PREVIEW_TITLE',
-            '<b>Превью текста:</b>',
+            '<b>文本预览：</b>',
         )
         preview_raw = offer.content.strip()
         preview_trimmed = preview_raw[:400]
@@ -85,16 +85,16 @@ async def _build_overview(
 
     language_block = texts.t(
         'ADMIN_PUBLIC_OFFER_LANGUAGE',
-        'Язык: <code>{lang}</code>',
+        '语言：<code>{lang}</code>',
     ).format(lang=normalized_language)
 
     header = texts.t(
         'ADMIN_PUBLIC_OFFER_HEADER',
-        '📄 <b>Публичная оферта</b>',
+        '📄<b>公开服务条款</b>',
     )
     actions_prompt = texts.t(
         'ADMIN_PUBLIC_OFFER_ACTION_PROMPT',
-        'Выберите действие:',
+        '请选择操作：',
     )
 
     message_parts = [
@@ -119,7 +119,7 @@ async def _build_overview(
             types.InlineKeyboardButton(
                 text=texts.t(
                     'ADMIN_PUBLIC_OFFER_EDIT_BUTTON',
-                    '✏️ Изменить текст',
+                    '✏️编辑文本',
                 ),
                 callback_data='admin_public_offer_edit',
             )
@@ -132,7 +132,7 @@ async def _build_overview(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PUBLIC_OFFER_VIEW_BUTTON',
-                        '👀 Просмотреть текущий текст',
+                        '👀查看当前文本',
                     ),
                     callback_data='admin_public_offer_view',
                 )
@@ -141,12 +141,12 @@ async def _build_overview(
 
     toggle_text = texts.t(
         'ADMIN_PUBLIC_OFFER_ENABLE_BUTTON',
-        '✅ Включить показ',
+        '✅启用显示',
     )
     if offer and offer.is_enabled:
         toggle_text = texts.t(
             'ADMIN_PUBLIC_OFFER_DISABLE_BUTTON',
-            '🚫 Отключить показ',
+            '🚫禁用显示',
         )
 
     buttons.append(
@@ -163,7 +163,7 @@ async def _build_overview(
             types.InlineKeyboardButton(
                 text=texts.t(
                     'ADMIN_PUBLIC_OFFER_HTML_HELP',
-                    'ℹ️ HTML помощь',
+                    'ℹ️标记帮助',
                 ),
                 callback_data='admin_public_offer_help',
             )
@@ -208,14 +208,14 @@ async def toggle_public_offer(
     texts = get_texts(db_user.language)
     updated_offer = await PublicOfferService.toggle_enabled(db, db_user.language)
     logger.info(
-        'Админ %s переключил показ публичной оферты: %s',
+        '管理员 %s 切换了公开报价的显示：%s',
         db_user.telegram_id,
         'enabled' if updated_offer.is_enabled else 'disabled',
     )
     status_message = (
-        texts.t('ADMIN_PUBLIC_OFFER_ENABLED', '✅ Оферта включена')
+        texts.t('ADMIN_PUBLIC_OFFER_ENABLED', '✅服务条款已启用')
         if updated_offer.is_enabled
-        else texts.t('ADMIN_PUBLIC_OFFER_DISABLED', '🚫 Оферта отключена')
+        else texts.t('ADMIN_PUBLIC_OFFER_DISABLED', '🚫服务条款已禁用')
     )
 
     overview_text, markup, _ = await _build_overview(db_user, db)
@@ -250,23 +250,23 @@ async def start_edit_public_offer(
         current_preview = (
             texts.t(
                 'ADMIN_PUBLIC_OFFER_CURRENT_PREVIEW',
-                'Текущий текст (превью):',
+                '当前文本（预览）：',
             )
             + f'\n<code>{html.escape(preview)}</code>\n\n'
         )
 
     prompt = texts.t(
         'ADMIN_PUBLIC_OFFER_EDIT_PROMPT',
-        'Отправьте новый текст публичной оферты. Допускается HTML-разметка.',
+        '请发送新的公开服务条款文本。允许使用标记标记。',
     )
 
     hint = texts.t(
         'ADMIN_PUBLIC_OFFER_EDIT_HINT',
-        'Используйте /html_help для справки по тегам.',
+        '使用/html_help获取标签帮助。',
     )
 
     message_text = (
-        f'📝 <b>{texts.t("ADMIN_PUBLIC_OFFER_EDIT_TITLE", "Редактирование оферты")}</b>\n\n'
+        f'📝 <b>{texts.t("ADMIN_PUBLIC_OFFER_EDIT_TITLE", '编辑服务条款')}</b>\n\n'
         f'{current_preview}{prompt}\n\n{hint}'
     )
 
@@ -276,14 +276,14 @@ async def start_edit_public_offer(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PUBLIC_OFFER_HTML_HELP',
-                        'ℹ️ HTML помощь',
+                        'ℹ️标记帮助',
                     ),
                     callback_data='admin_public_offer_help',
                 )
             ],
             [
                 types.InlineKeyboardButton(
-                    text=texts.t('ADMIN_PUBLIC_OFFER_CANCEL', '❌ Отмена'),
+                    text=texts.t('ADMIN_PUBLIC_OFFER_CANCEL', '❌取消'),
                     callback_data='admin_public_offer_cancel',
                 )
             ],
@@ -312,7 +312,7 @@ async def cancel_edit_public_offer(
     await callback.answer(
         get_texts(db_user.language).t(
             'ADMIN_PUBLIC_OFFER_EDIT_CANCELLED',
-            'Редактирование оферты отменено.',
+            '优惠的编辑已被取消。',
         )
     )
 
@@ -332,7 +332,7 @@ async def process_public_offer_edit(
         await message.answer(
             texts.t(
                 'ADMIN_PUBLIC_OFFER_TOO_LONG',
-                '❌ Текст оферты слишком длинный. Максимум 4000 символов.',
+                '❌服务条款文本太长。最多4000个字符。',
             )
         )
         return
@@ -342,20 +342,20 @@ async def process_public_offer_edit(
         await message.answer(
             texts.t(
                 'ADMIN_PUBLIC_OFFER_HTML_ERROR',
-                '❌ Ошибка в HTML: {error}',
+                '❌标记错误：{error}',
             ).format(error=error_message)
         )
         return
 
     await PublicOfferService.save_offer(db, db_user.language, new_text)
     logger.info(
-        'Админ обновил текст публичной оферты (символов)', telegram_id=db_user.telegram_id, new_text_count=len(new_text)
+        '管理员已更新公开要约的文本（符号）', telegram_id=db_user.telegram_id, new_text_count=len(new_text)
     )
     await state.clear()
 
     success_text = texts.t(
         'ADMIN_PUBLIC_OFFER_SAVED',
-        '✅ Публичная оферта обновлена.',
+        '✅公开服务条款已更新。',
     )
 
     reply_markup = types.InlineKeyboardMarkup(
@@ -364,7 +364,7 @@ async def process_public_offer_edit(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PUBLIC_OFFER_BACK_BUTTON',
-                        '⬅️ К настройкам оферты',
+                        '⬅️返回服务条款设置',
                     ),
                     callback_data='admin_public_offer',
                 )
@@ -393,7 +393,7 @@ async def view_public_offer(
         await callback.answer(
             texts.t(
                 'ADMIN_PUBLIC_OFFER_PREVIEW_EMPTY_ALERT',
-                'Текст оферты пока не задан.',
+                '尚未设置服务条款文本。',
             ),
             show_alert=True,
         )
@@ -410,7 +410,7 @@ async def view_public_offer(
         await callback.answer(
             texts.t(
                 'ADMIN_PUBLIC_OFFER_PREVIEW_EMPTY_ALERT',
-                'Текст оферты пока не задан.',
+                '尚未设置服务条款文本。',
             ),
             show_alert=True,
         )
@@ -421,14 +421,14 @@ async def view_public_offer(
 
     header = texts.t(
         'ADMIN_PUBLIC_OFFER_VIEW_TITLE',
-        '👀 <b>Текущий текст оферты</b>',
+        '👀<b>当前服务条款文本</b>',
     )
 
     note = ''
     if truncated:
         note = texts.t(
             'ADMIN_PUBLIC_OFFER_VIEW_TRUNCATED',
-            '\n\n⚠️ Текст сокращён для отображения. Полную версию увидят пользователи в меню.',
+            '\n\n⚠️文本已缩短以便显示。用户将在菜单中看到完整版本。',
         )
 
     keyboard = types.InlineKeyboardMarkup(
@@ -437,7 +437,7 @@ async def view_public_offer(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PUBLIC_OFFER_BACK_BUTTON',
-                        '⬅️ К настройкам оферты',
+                        '⬅️返回服务条款设置',
                     ),
                     callback_data='admin_public_offer',
                 )
@@ -446,7 +446,7 @@ async def view_public_offer(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PUBLIC_OFFER_EDIT_BUTTON',
-                        '✏️ Изменить текст',
+                        '✏️编辑文本',
                     ),
                     callback_data='admin_public_offer_edit',
                 )
@@ -482,7 +482,7 @@ async def show_public_offer_html_help(
                 types.InlineKeyboardButton(
                     text=texts.t(
                         'ADMIN_PUBLIC_OFFER_RETURN_TO_EDIT',
-                        '⬅️ Назад к редактированию',
+                        '⬅️返回编辑',
                     ),
                     callback_data='admin_public_offer_edit',
                 )
@@ -494,7 +494,7 @@ async def show_public_offer_html_help(
             types.InlineKeyboardButton(
                 text=texts.t(
                     'ADMIN_PUBLIC_OFFER_BACK_BUTTON',
-                    '⬅️ К настройкам оферты',
+                    '⬅️返回服务条款设置',
                 ),
                 callback_data='admin_public_offer',
             )
