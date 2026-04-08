@@ -219,10 +219,10 @@ async def show_countries_management(callback: types.CallbackQuery, db_user: User
         nodes_data = await remnawave_service.get_all_nodes()
         squads_data = await remnawave_service.get_all_squads()
 
-        text = '🌍<b>国家管理</b>'
+        lines = ['🌍 <b>国家管理</b>', '']
 
         if nodes_data:
-            text += '<b>可用服务器：</b>'
+            lines.append('<b>可用服务器：</b>')
             countries = {}
 
             for node in nodes_data:
@@ -233,41 +233,51 @@ async def show_countries_management(callback: types.CallbackQuery, db_user: User
                     countries[country_name] = []
                 countries[country_name].append(node)
 
-            for country, nodes in countries.items():
+            for country in sorted(countries):
+                nodes = countries[country]
                 active_nodes = len([n for n in nodes if n.get('is_connected') and n.get('is_node_online')])
                 total_nodes = len(nodes)
 
                 country_flag = get_country_flag(country)
-                text += f'{country_flag} {country}：{active_nodes}/QQQPH3QQQ 服务器'
-
                 total_users_online = sum(n.get('users_online', 0) or 0 for n in nodes)
-                if total_users_online > 0:
-                    text += f'👥 在线用户：{total_users_online}'
+                line = (
+                    f'• {country_flag} {country}：'
+                    f'{active_nodes}/{total_nodes} 台服务器'
+                    f'，在线用户：{total_users_online}'
+                )
+                lines.append(line)
         else:
-            text += '❌ 加载服务器数据失败'
+            lines.append('❌ 加载服务器数据失败')
 
         if squads_data:
-            text += f'<b>小队总数：</b> {len(squads_data)}'
-
             total_members = sum(squad.get('members_count', 0) for squad in squads_data)
-            text += f'<b>小队参与者：</b> {total_members}'
-
-            text += '<b>小队：</b>'
+            lines.extend(
+                [
+                    '',
+                    f'<b>小队总数：</b> {len(squads_data)}',
+                    f'<b>小队成员总数：</b> {total_members}',
+                    '',
+                    '<b>小队列表：</b>',
+                ]
+            )
             for squad in squads_data[:5]:
-                name = squad.get('name', 'Неизвестно')
+                name = squad.get('name', '未知')
                 members = squad.get('members_count', 0)
                 inbounds = squad.get('inbounds_count', 0)
-                text += f'• {name}：{members} 参与者，{inbounds} 入站'
+                lines.append(f'• {name}：{members} 名成员，{inbounds} 个入站')
 
             if len(squads_data) > 5:
-                text += f'...以及更多 {len(squads_data) - 5} 小队'
+                lines.append(f'…以及另外 {len(squads_data) - 5} 个小队')
 
         user_stats = await get_users_by_countries(db)
         if user_stats:
-            text += '<b>按地区划分的用户：</b>'
-            for country, count in user_stats.items():
+            lines.extend(['', '<b>按地区划分的用户：</b>'])
+            for country in sorted(user_stats):
+                count = user_stats[country]
                 country_flag = get_country_flag(country)
-                text += f'{country_flag} {country}：{count} 用户'
+                lines.append(f'• {country_flag} {country}：{count} 用户')
+
+        text = '\n'.join(lines)
 
     except Exception as e:
         logger.error('Ошибка получения данных о странах', error=e)
