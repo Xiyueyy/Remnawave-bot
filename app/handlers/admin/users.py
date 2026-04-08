@@ -132,6 +132,30 @@ def _get_subscription_emoji(user: User) -> str:
     return '💎'
 
 
+_DISPLAY_NAME_ALIASES = {
+    'Стандартный': '标准套餐',
+    'Базовый юзер': '基础用户',
+}
+
+
+def _localize_display_name(value: str | None) -> str:
+    if not value:
+        return ''
+    return _DISPLAY_NAME_ALIASES.get(value, value)
+
+
+def _escape_display_name(value: str | None) -> str:
+    return html.escape(_localize_display_name(value))
+
+
+def _subscription_status_label(subscription: Subscription) -> str:
+    return '✅ 活跃' if subscription.is_active else '❌ 不活跃'
+
+
+def _subscription_type_label(subscription: Subscription) -> str:
+    return '🎁 试用' if subscription.is_trial else '💎 付费'
+
+
 def _build_user_button_text(
     user: User, filter_type: UserFilterType, extra_data: dict[str, Any] | None = None, language: str = 'ru'
 ) -> str:
@@ -809,10 +833,10 @@ async def _render_user_subscription_overview(
                 tariff_name = ''
                 if sub.tariff_id:
                     tariff = await get_tariff_by_id(db, sub.tariff_id)
-                    tariff_name = f' • {html.escape(tariff.name)}' if tariff else ''
+                    tariff_name = f' • {_escape_display_name(tariff.name)}' if tariff else ''
 
                 days_left = max(0, (sub.end_date - datetime.now(UTC)).days) if sub.end_date else 0
-                btn_text = f'{status_emoji} #{sub.id}{tariff_name} ({days_left}д.)'
+                btn_text = f'{status_emoji} #{sub.id}{tariff_name}（{days_left}天）'
                 picker_keyboard.append(
                     [
                         types.InlineKeyboardButton(
@@ -851,50 +875,47 @@ async def _render_user_subscription_overview(
     keyboard = []
 
     if subscription:
-        status_emoji = '✅' if subscription.is_active else '❌'
-        type_emoji = '🎁' if subscription.is_trial else '💎'
-
         traffic_display = f'{subscription.traffic_used_gb:.1f}/'
         if subscription.traffic_limit_gb == 0:
-            traffic_display += '♾️ ГБ'
+            traffic_display += '♾️ GB'
         else:
-            traffic_display += f'{subscription.traffic_limit_gb} ГБ'
+            traffic_display += f'{subscription.traffic_limit_gb} GB'
 
-        text += f"<b>状态：</b> {status_emoji} {('Активна' if subscription.is_active else 'Неактивна')}"
-        text += f"<b>类型：</b> {type_emoji} {('Триал' if subscription.is_trial else 'Платная')}"
+        text += f'<b>状态：</b> {_subscription_status_label(subscription)}\n'
+        text += f'<b>类型：</b> {_subscription_type_label(subscription)}\n'
 
         # Отображение тарифа
         if subscription.tariff_id:
             tariff = await get_tariff_by_id(db, subscription.tariff_id)
             if tariff:
-                text += f'<b>套餐：</b> 📦 {html.escape(tariff.name)}'
+                text += f'<b>套餐：</b> 📦 {_escape_display_name(tariff.name)}\n'
             else:
-                text += f'<b>套餐：</b> ID {subscription.tariff_id}（已删除）'
+                text += f'<b>套餐：</b> ID {subscription.tariff_id}（已删除）\n'
 
-        text += f'<b>开始：</b> {format_datetime(subscription.start_date)}'
-        text += f'<b>结尾：</b> {format_datetime(subscription.end_date)}'
-        text += f'<b>流量：</b> {traffic_display}'
-        text += f'<b>设备：</b> {subscription.device_limit}'
+        text += f'<b>开始：</b> {format_datetime(subscription.start_date)}\n'
+        text += f'<b>结尾：</b> {format_datetime(subscription.end_date)}\n'
+        text += f'<b>流量：</b> {traffic_display}\n'
+        text += f'<b>设备：</b> {subscription.device_limit}\n'
 
         if subscription.is_active:
             days_left = (subscription.end_date - datetime.now(UTC)).days
-            text += f'<b>剩余天数：</b> {days_left}'
+            text += f'<b>剩余天数：</b> {days_left}\n'
 
         current_squads = subscription.connected_squads or []
         if current_squads:
-            text += '<b>连接的服务器：</b>'
+            text += '<b>连接的服务器：</b>\n'
             for squad_uuid in current_squads:
                 try:
                     server = await get_server_squad_by_uuid(db, squad_uuid)
                     if server:
                         text += f'• {html.escape(server.display_name)}\n'
                     else:
-                        text += f'• {squad_uuid[:8]}...（未知）'
+                        text += f'• {squad_uuid[:8]}...（未知）\n'
                 except Exception as e:
                     logger.error('Ошибка получения сервера', squad_uuid=squad_uuid, error=e)
-                    text += f'• {squad_uuid[:8]}...（下载错误）'
+                    text += f'• {squad_uuid[:8]}...（读取失败）\n'
         else:
-            text += '<b>连接的服务器：</b> 无'
+            text += '<b>连接的服务器：</b> 无\n'
 
         keyboard = [
             [
@@ -1274,12 +1295,12 @@ async def show_user_management(callback: types.CallbackQuery, db_user: User, db:
         sections.append(
             texts.t(
                 'ADMIN_USER_PROMO_GROUPS_PRIMARY',
-                '⭐主要：{name}(优先级：{priority})',
-            ).format(name=html.escape(primary_group.name), priority=getattr(primary_group, 'priority', 0))
+                '⭐主要：{name}（优先级：{priority}）',
+            ).format(name=_escape_display_name(primary_group.name), priority=getattr(primary_group, 'priority', 0))
         )
         sections.append(
             texts.ADMIN_USER_MANAGEMENT_PROMO_GROUP.format(
-                name=html.escape(primary_group.name),
+                name=_escape_display_name(primary_group.name),
                 server_discount=primary_group.server_discount_percent,
                 traffic_discount=primary_group.traffic_discount_percent,
                 device_discount=primary_group.device_discount_percent,
@@ -1301,7 +1322,7 @@ async def show_user_management(callback: types.CallbackQuery, db_user: User, db:
                     )
                 )
                 for group in additional_groups:
-                    sections.append(f'  • {html.escape(group.name)} (Priority: {getattr(group, "priority", 0)})')
+                    sections.append(f'  • {_escape_display_name(group.name)}（优先级：{getattr(group, "priority", 0)}）')
     else:
         sections.append(texts.ADMIN_USER_MANAGEMENT_PROMO_GROUP_NONE)
 
@@ -2022,8 +2043,8 @@ async def _render_user_promo_group(message: types.Message, language: str, user: 
     if primary_group:
         current_line = texts.t(
             'ADMIN_USER_PROMO_GROUPS_PRIMARY',
-            '⭐主要：{name}(优先级：{priority})',
-        ).format(name=html.escape(primary_group.name), priority=getattr(primary_group, 'priority', 0))
+            '⭐主要：{name}（优先级：{priority}）',
+        ).format(name=_escape_display_name(primary_group.name), priority=getattr(primary_group, 'priority', 0))
 
         discount_line = texts.ADMIN_USER_PROMO_GROUP_DISCOUNTS.format(
             servers=primary_group.server_discount_percent,
@@ -2048,7 +2069,7 @@ async def _render_user_promo_group(message: types.Message, language: str, user: 
                     + '\n'
                 )
                 for group in additional_groups:
-                    additional_line += f'  • {html.escape(group.name)} (Priority: {getattr(group, "priority", 0)})\n'
+                    additional_line += f'  • {_escape_display_name(group.name)}（优先级：{getattr(group, "priority", 0)}）\n'
                 discount_line += additional_line
     else:
         current_line = texts.t(
@@ -2140,7 +2161,7 @@ async def set_user_promo_group(callback: types.CallbackQuery, db_user: User, db:
             texts.t(
                 'ADMIN_USER_PROMO_GROUP_REMOVED',
                 '🗑已删除组“{name}”',
-            ).format(name=group.name if group else ''),
+            ).format(name=_localize_display_name(group.name) if group else ''),
             show_alert=True,
         )
     else:
@@ -2155,7 +2176,7 @@ async def set_user_promo_group(callback: types.CallbackQuery, db_user: User, db:
             texts.t(
                 'ADMIN_USER_PROMO_GROUP_ADDED',
                 '✅已添加组“{name}”',
-            ).format(name=group.name),
+            ).format(name=_localize_display_name(group.name)),
             show_alert=True,
         )
 
@@ -2739,8 +2760,8 @@ async def show_user_statistics(callback: types.CallbackQuery, db_user: User, db:
 
     text += '<b>订阅：</b>'
     if subscription:
-        sub_status = '✅ Активна' if subscription.is_active else '❌ Неактивна'
-        sub_type = ' (пробная)' if subscription.is_trial else ' (платная)'
+        sub_status = _subscription_status_label(subscription)
+        sub_type = '（试用）' if subscription.is_trial else '（付费）'
         text += f'• 状态：{sub_status}{sub_type}'
         text += f'• 流量：{subscription.traffic_used_gb:.1f}QQPH2QQQ1QQQ GB'
         text += f'• 设备：{subscription.device_limit}'
@@ -4439,11 +4460,11 @@ async def change_subscription_type(callback: types.CallbackQuery, db_user: User,
         await callback.answer('❌ 未找到用户或订阅', show_alert=True)
         return
 
-    current_type = '🎁 Триал' if subscription.is_trial else '💎 Платная'
+    current_type = _subscription_type_label(subscription)
 
     text = '🔄 <b>更改订阅类型</b>'
     text += f'👤 {html.escape(profile["user"].full_name)}\n'
-    text += f'📱 当前类型：{current_type}'
+    text += f'📱 当前类型：{current_type}\n'
     text += '选择新的订阅类型：'
 
     keyboard = []
@@ -4887,7 +4908,7 @@ async def admin_buy_subscription_execute(callback: types.CallbackQuery, db_user:
             if callback.bot and target_user.telegram_id:
                 tariff_line = ''
                 if settings.is_multi_tariff_enabled() and getattr(subscription, 'tariff', None):
-                    tariff_line = f'\n📦 Тариф: «{subscription.tariff.name}»'
+                    tariff_line = f'\n📦 套餐：{_escape_display_name(subscription.tariff.name)}'
                 await callback.bot.send_message(
                     chat_id=target_user.telegram_id,
                     text=f'💳 <b>管理员已延长您的订阅时间</b>\n\n📅 订阅延长 {period_days} 天\n💰 从余额中扣除：{settings.format_price(price_kopeks)}\n📅 订阅有效期至：{format_datetime(subscription.end_date)}{tariff_line}',
@@ -4953,17 +4974,17 @@ async def admin_buy_tariff(callback: types.CallbackQuery, db_user: User, db: Asy
     text += '📦 <b>选择套餐：</b>'
 
     for tariff in tariffs:
-        traffic = '♾️' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} ГБ'
+        traffic = '♾️' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} GB'
         prices = tariff.period_prices or {}
         min_price = min(prices.values()) if prices else 0
-        text += f'<b>{html.escape(tariff.name)}</b> — {traffic} / {tariff.device_limit} 📱 作者：{settings.format_price(min_price)}'
+        text += f'<b>{_escape_display_name(tariff.name)}</b> — {traffic} / {tariff.device_limit} 📱 价格：{settings.format_price(min_price)}'
 
     keyboard = []
     for tariff in tariffs:
         keyboard.append(
             [
                 types.InlineKeyboardButton(
-                    text=tariff.name, callback_data=f'admin_tariff_buy_select_{user_id}_{tariff.id}'
+                    text=_localize_display_name(tariff.name), callback_data=f'admin_tariff_buy_select_{user_id}_{tariff.id}'
                 )
             ]
         )
@@ -5003,12 +5024,12 @@ async def admin_buy_tariff_period(callback: types.CallbackQuery, db_user: User, 
 
     target_user_link = user_html_link(target_user)
     target_user_id_display = target_user.telegram_id or target_user.email or f'#{target_user.id}'
-    traffic = '♾️ Безлимит' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} ГБ'
+    traffic = '♾️ 不限流量' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} GB'
 
     text = '💳 <b>为用户购买套餐</b>'
     text += f'👤 {target_user_link} (ID: {target_user_id_display})\n'
     text += f'💰 余额：{settings.format_price(target_user.balance_kopeks)}'
-    text += f'📦 <b>套餐：{html.escape(tariff.name)}</b>'
+    text += f'📦 <b>套餐：{_escape_display_name(tariff.name)}</b>'
     text += f'📊 流量：{traffic}'
     text += f'📱 设备：{tariff.device_limit}'
     text += f'🌐 服务器：{(len(tariff.allowed_squads) if tariff.allowed_squads else 0)}'
@@ -5084,12 +5105,12 @@ async def admin_buy_tariff_confirm(callback: types.CallbackQuery, db_user: User,
 
     target_user_link = user_html_link(target_user)
     target_user_id_display = target_user.telegram_id or target_user.email or f'#{target_user.id}'
-    traffic = '♾️ Безлимит' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} ГБ'
+    traffic = '♾️ 不限流量' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} GB'
 
     text = '💳 <b>套餐购买确认</b>'
     text += f'👤 {target_user_link} (ID: {target_user_id_display})\n'
     text += f'💰 余额：{settings.format_price(target_user.balance_kopeks)}'
-    text += f'📦 <b>套餐：{html.escape(tariff.name)}</b>'
+    text += f'📦 <b>套餐：{_escape_display_name(tariff.name)}</b>'
     text += f'📊 流量：{traffic}'
     text += f'📱 设备：{tariff.device_limit}'
     text += f'📅 期间：{period} 天'
@@ -5257,10 +5278,10 @@ async def admin_buy_tariff_execute(callback: types.CallbackQuery, db_user: User,
 
         target_user_link = user_html_link(target_user)
         target_user_id_display = target_user.telegram_id or target_user.email or f'#{target_user.id}'
-        traffic = '♾️ Безлимит' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} ГБ'
+        traffic = '♾️ 不限流量' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} GB'
 
         await callback.message.edit_text(
-            f'✅ <b>套餐购买成功！</b>\n\n👤 {target_user_link} (ID: {target_user_id_display})\n📦 套餐：{html.escape(tariff.name)}\n📊 流量：{traffic}\n📱 设备：{tariff.device_limit}\n📅期间：{period}天\n💰 注销：{settings.format_price(price_kopeks)}\n📅有效期至：{format_datetime(subscription.end_date)}',
+            f'✅ <b>套餐购买成功！</b>\n\n👤 {target_user_link} (ID: {target_user_id_display})\n📦 套餐：{_escape_display_name(tariff.name)}\n📊 流量：{traffic}\n📱 设备：{tariff.device_limit}\n📅期间：{period}天\n💰 注销：{settings.format_price(price_kopeks)}\n📅有效期至：{format_datetime(subscription.end_date)}',
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[
                     [
@@ -5278,7 +5299,7 @@ async def admin_buy_tariff_execute(callback: types.CallbackQuery, db_user: User,
             if callback.bot and target_user.telegram_id:
                 await callback.bot.send_message(
                     chat_id=target_user.telegram_id,
-                    text=f'💳 <b>管理员已向您发出套餐</b>\n\n📦 套餐：{html.escape(tariff.name)}\n📊 流量：{traffic}\n📱 设备：{tariff.device_limit}\n📅期间：{period}天\n💰 从余额中扣除：{settings.format_price(price_kopeks)}\n📅有效期至：{format_datetime(subscription.end_date)}',
+                    text=f'💳 <b>管理员已向您发出套餐</b>\n\n📦 套餐：{_escape_display_name(tariff.name)}\n📊 流量：{traffic}\n📱 设备：{tariff.device_limit}\n📅期间：{period}天\n💰 从余额中扣除：{settings.format_price(price_kopeks)}\n📅有效期至：{format_datetime(subscription.end_date)}',
                     parse_mode='HTML',
                 )
         except Exception as e:
@@ -5443,7 +5464,7 @@ async def show_admin_tariff_change(callback: types.CallbackQuery, db_user: User,
         prefix = '✅ ' if current_tariff and tariff.id == current_tariff.id else ''
 
         # Описание тарифа
-        traffic_str = '♾️' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} ГБ'
+        traffic_str = '♾️' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} GB'
         servers_count = len(tariff.allowed_squads) if tariff.allowed_squads else 0
 
         button_text = f'{prefix}QQPH1QQQ（{tariff.device_limit} 设备、{traffic_str}、{servers_count} 服务器）'
@@ -5508,13 +5529,13 @@ async def select_admin_tariff_change(callback: types.CallbackQuery, db_user: Use
         await callback.answer('ℹ️此套餐已定', show_alert=True)
         return
 
-    traffic_str = '♾️' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} ГБ'
+    traffic_str = '♾️' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} GB'
     servers_count = len(tariff.allowed_squads) if tariff.allowed_squads else 0
 
     text = '📦 <b>套餐变更确认</b>'
     user_link = user_html_link(user)
     text += f'👤 {user_link}\n\n'
-    text += f'<b>新套餐：</b> {html.escape(tariff.name)}'
+    text += f'<b>新套餐：</b> {_escape_display_name(tariff.name)}'
     text += f'• 设备：{tariff.device_limit}'
     text += f'• 流量：{traffic_str}'
     text += f'• 服务器：{servers_count}'
@@ -5645,7 +5666,7 @@ async def confirm_admin_tariff_change(callback: types.CallbackQuery, db_user: Us
         )
 
         await callback.message.edit_text(
-            f"✅ <b>套餐变更成功</b>\n\n新套餐：<b>{html.escape(tariff.name)}</b>\n• 设备：{subscription.device_limit}\n• 流量：{('♾️' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} ГБ')}\n• 服务器：{(len(tariff.allowed_squads) if tariff.allowed_squads else 0)}",
+            f"✅ <b>套餐变更成功</b>\n\n新套餐：<b>{_escape_display_name(tariff.name)}</b>\n• 设备：{subscription.device_limit}\n• 流量：{('♾️' if tariff.traffic_limit_gb == 0 else f'{tariff.traffic_limit_gb} GB')}\n• 服务器：{(len(tariff.allowed_squads) if tariff.allowed_squads else 0)}",
             reply_markup=types.InlineKeyboardMarkup(
                 inline_keyboard=[[types.InlineKeyboardButton(text='📱 订阅', callback_data=back_cb)]]
             ),
