@@ -1330,14 +1330,14 @@ async def show_user_management(callback: types.CallbackQuery, db_user: User, db:
     restriction_topup = getattr(user, 'restriction_topup', False)
     restriction_subscription = getattr(user, 'restriction_subscription', False)
     if restriction_topup or restriction_subscription:
-        restriction_lines = ['⚠️ <b>Ограничения:</b>']
+        restriction_lines = ['⚠️ <b>限制：</b>']
         if restriction_topup:
-            restriction_lines.append('  • 🚫 Пополнение запрещено')
+            restriction_lines.append('  • 🚫 禁止余额充值')
         if restriction_subscription:
-            restriction_lines.append('  • 🚫 Продление/покупка запрещена')
+            restriction_lines.append('  • 🚫 禁止续费/购买订阅')
         restriction_reason = getattr(user, 'restriction_reason', None)
         if restriction_reason:
-            restriction_lines.append(f'  📝 Причина: {html.escape(restriction_reason)}')
+            restriction_lines.append(f'  📝 原因：{html.escape(restriction_reason)}')
         sections.append('\n'.join(restriction_lines))
 
     text = '\n\n'.join(sections)
@@ -2450,18 +2450,18 @@ async def show_user_restrictions(callback: types.CallbackQuery, db_user: User, d
     restriction_reason = getattr(user, 'restriction_reason', None)
 
     text_lines = [
-        '⚠️ <b>Ограничения пользователя</b>',
+        '⚠️ <b>用户限制</b>',
         f'👤 {html.escape(user.full_name)}',
         '',
-        '✅ — разрешено, 🚫 — запрещено',
+        '✅ — 允许，🚫 — 禁止',
         '',
-        f'{"🚫" if restriction_topup else "✅"} Пополнение баланса',
-        f'{"🚫" if restriction_subscription else "✅"} Продление/покупка подписки',
+        f'{"🚫" if restriction_topup else "✅"} 余额充值',
+        f'{"🚫" if restriction_subscription else "✅"} 续费/购买订阅',
     ]
 
     if restriction_reason:
         text_lines.append('')
-        text_lines.append(f'📝 <b>Причина:</b> {html.escape(restriction_reason)}')
+        text_lines.append(f'📝 <b>原因：</b> {html.escape(restriction_reason)}')
 
     keyboard = get_user_restrictions_keyboard(
         user_id=user_id,
@@ -2583,15 +2583,15 @@ async def save_restriction_reason(message: types.Message, db_user: User, db: Asy
     restriction_subscription = getattr(user, 'restriction_subscription', False)
 
     text_lines = [
-        '✅ <b>Причина ограничения сохранена</b>',
+        '✅ <b>限制原因已保存</b>',
         '',
-        '⚠️ <b>Ограничения пользователя</b>',
+        '⚠️ <b>用户限制</b>',
         f'👤 {html.escape(user.full_name)}',
         '',
-        f'{"🚫" if restriction_topup else "✅"} Пополнение баланса',
-        f'{"🚫" if restriction_subscription else "✅"} Продление/покупка подписки',
+        f'{"🚫" if restriction_topup else "✅"} 余额充值',
+        f'{"🚫" if restriction_subscription else "✅"} 续费/购买订阅',
         '',
-        f'📝 <b>Причина:</b> {html.escape(reason)}',
+        f'📝 <b>原因：</b> {html.escape(reason)}',
     ]
 
     keyboard = get_user_restrictions_keyboard(
