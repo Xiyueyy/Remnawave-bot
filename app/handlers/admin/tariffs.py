@@ -39,7 +39,15 @@ def _parse_period_prices(text: str) -> dict[str, int]:
     Формат: "30:9900, 90:24900, 180:44900" или "30=9900; 90=24900"
     """
     prices = {}
-    text = text.replace(';', ',').replace('=', ':')
+    text = (
+        text.replace('；', ',')
+        .replace(';', ',')
+        .replace('、', ',')
+        .replace('，', ',')
+        .replace('\n', ',')
+        .replace('=', ':')
+        .replace('：', ':')
+    )
 
     for part in text.split(','):
         part = part.strip()
@@ -162,13 +170,13 @@ def get_tariff_view_keyboard(
                 text='📱💰 每台设备的价格', callback_data=f'admin_tariff_edit_device_price:{tariff.id}'
             ),
             InlineKeyboardButton(
-                text='📱🔒最大。设备', callback_data=f'admin_tariff_edit_max_devices:{tariff.id}'
+                text='📱🔒 最大设备数', callback_data=f'admin_tariff_edit_max_devices:{tariff.id}'
             ),
         ]
     )
     buttons.append(
         [
-            InlineKeyboardButton(text='⏰ 试用日', callback_data=f'admin_tariff_edit_trial_days:{tariff.id}'),
+            InlineKeyboardButton(text='⏰ 试用天数', callback_data=f'admin_tariff_edit_trial_days:{tariff.id}'),
         ]
     )
     buttons.append(
@@ -205,7 +213,7 @@ def get_tariff_view_keyboard(
     # Переключение триала
     if tariff.is_trial_available:
         buttons.append(
-            [InlineKeyboardButton(text='🎁 ❌ 删除试用版', callback_data=f'admin_tariff_toggle_trial:{tariff.id}')]
+            [InlineKeyboardButton(text='🎁 ❌ 关闭试用', callback_data=f'admin_tariff_toggle_trial:{tariff.id}')]
         )
     else:
         buttons.append(
@@ -232,15 +240,15 @@ def get_tariff_view_keyboard(
 def _format_traffic_reset_mode(mode: str | None) -> str:
     """Форматирует режим сброса трафика для отображения."""
     mode_labels = {
-        'DAY': '📅 Ежедневно',
-        'WEEK': '📆 Еженедельно',
-        'MONTH': '🗓️ Ежемесячно',
-        'MONTH_ROLLING': '🔄 Скользящий месяц',
-        'NO_RESET': '🚫 Никогда',
+        'DAY': '📅 每日重置',
+        'WEEK': '📆 每周重置',
+        'MONTH': '🗓️ 每月重置',
+        'MONTH_ROLLING': '🔄 滚动月',
+        'NO_RESET': '🚫 不重置',
     }
     if mode is None:
         return f'🌐 全局设置 ({settings.DEFAULT_TRAFFIC_RESET_STRATEGY})'
-    return mode_labels.get(mode, f'⚠️ Неизвестно ({mode})')
+    return mode_labels.get(mode, f'⚠️ 未知模式 ({mode})')
 
 
 def _format_traffic_topup_packages(tariff: Tariff) -> str:
@@ -255,7 +263,7 @@ def _format_traffic_topup_packages(tariff: Tariff) -> str:
     lines = ['✅ 包含在内']
     for gb in sorted(packages.keys()):
         price = packages[gb]
-        lines.append(f'  • {gb} ГБ: {format_price_kopeks(price)}')
+        lines.append(f'  • {gb} GB: {format_price_kopeks(price)}')
 
     return '\n'.join(lines)
 
@@ -264,43 +272,43 @@ def format_tariff_info(tariff: Tariff, language: str, subs_count: int = 0) -> st
     """Форматирует информацию о тарифе."""
     get_texts(language)
 
-    status = '✅ Активен' if tariff.is_active else '❌ Неактивен'
+    status = '✅ 已启用' if tariff.is_active else '❌ 已停用'
     traffic = format_traffic(tariff.traffic_limit_gb)
     prices_display = _format_period_prices_display(tariff.period_prices or {})
 
     # Форматируем список серверов
     squads_list = tariff.allowed_squads or []
-    squads_display = f'{len(squads_list)} серверов' if squads_list else 'Все серверы'
+    squads_display = f'{len(squads_list)} 个服务器' if squads_list else '全部服务器'
 
     # Форматируем промогруппы
     promo_groups = tariff.allowed_promo_groups or []
     if promo_groups:
         promo_display = ', '.join(pg.name for pg in promo_groups)
     else:
-        promo_display = 'Доступен всем'
+        promo_display = '全部用户可用'
 
-    trial_status = '✅ Да' if tariff.is_trial_available else '❌ Нет'
+    trial_status = '✅ 开启' if tariff.is_trial_available else '❌ 关闭'
 
     # Форматируем дни триала
     trial_days = getattr(tariff, 'trial_duration_days', None)
     if trial_days:
-        trial_days_display = f'{trial_days} дней'
+        trial_days_display = f'{trial_days} 天'
     else:
-        trial_days_display = f'По умолчанию ({settings.TRIAL_DURATION_DAYS} дней)'
+        trial_days_display = f'默认（{settings.TRIAL_DURATION_DAYS} 天）'
 
     # Форматируем цену за устройство
     device_price = getattr(tariff, 'device_price_kopeks', None)
     if device_price is not None and device_price > 0:
-        device_price_display = format_price_kopeks(device_price) + '/мес'
+        device_price_display = format_price_kopeks(device_price) + '/月'
     else:
-        device_price_display = 'Недоступно'
+        device_price_display = '不可加购'
 
     # Форматируем макс. устройств
     max_devices = getattr(tariff, 'max_device_limit', None)
     if max_devices is not None and max_devices > 0:
         max_devices_display = str(max_devices)
     else:
-        max_devices_display = '∞ (без лимита)'
+        max_devices_display = '∞（不限）'
 
     # Форматируем докупку трафика
     traffic_topup_display = _format_traffic_topup_packages(tariff)
@@ -315,13 +323,32 @@ def format_tariff_info(tariff: Tariff, language: str, subs_count: int = 0) -> st
 
     # Формируем блок цен в зависимости от типа тарифа
     if is_daily:
-        price_block = f'<b>💰 Суточная цена:</b> {format_price_kopeks(daily_price_kopeks)}/день'
-        tariff_type = '🔄 Суточный'
+        price_block = f'<b>💰 每日价格：</b> {format_price_kopeks(daily_price_kopeks)}/天'
+        tariff_type = '🔄 按天计费'
     else:
-        price_block = f'<b>Цены:</b>\n{prices_display}'
-        tariff_type = '📅 Периодный'
+        price_block = f'<b>💰 周期价格：</b>\n{prices_display}'
+        tariff_type = '📅 周期套餐'
 
-    return f"📦 <b>套餐：{html.escape(tariff.name)}</b>\n\n{status} | {tariff_type}\n🎚️等级：{tariff.tier_level}\n📊 订单：{tariff.display_order}\n\n<b>参数：</b>\n• 流量：{traffic}\n• 设备：{tariff.device_limit}\n• 最大。设备：{max_devices_display}\n• 每次添加的价格。设备：{device_price_display}\n• 试用版：{trial_status}\n• 试用天数：{trial_days_display}\n\n<b>额外流量购买：</b>\n{traffic_topup_display}\n\n<b>流量重置：</b> {traffic_reset_display}\n\n{price_block}\n\n<b>服务器：</b> {squads_display}\n<b>促销组：</b> {promo_display}\n\n📊 订阅套餐：{subs_count}\n\n{(f'📝 {html.escape(tariff.description)}' if tariff.description else '')}"
+    return (
+        f"📦 <b>套餐：{html.escape(tariff.name)}</b>\n\n"
+        f"{status} | {tariff_type}\n"
+        f"🎚️ 等级：{tariff.tier_level}\n"
+        f"📊 排序：{tariff.display_order}\n\n"
+        f"<b>基础参数：</b>\n"
+        f"• 流量：{traffic}\n"
+        f"• 设备数：{tariff.device_limit}\n"
+        f"• 可加购上限：{max_devices_display}\n"
+        f"• 加购单价：{device_price_display}\n"
+        f"• 试用：{trial_status}\n"
+        f"• 试用天数：{trial_days_display}\n\n"
+        f"<b>额外流量购买：</b>\n{traffic_topup_display}\n\n"
+        f"<b>流量重置：</b> {traffic_reset_display}\n\n"
+        f"{price_block}\n\n"
+        f"<b>服务器：</b> {squads_display}\n"
+        f"<b>促销组：</b> {promo_display}\n\n"
+        f"📊 订阅数：{subs_count}\n\n"
+        f"{(f'📝 {html.escape(tariff.description)}' if tariff.description else '')}"
+    )
 
 
 @admin_required
@@ -400,7 +427,7 @@ async def show_tariffs_page(
     active_count = sum(1 for t, _ in tariffs_data if t.is_active)
 
     await callback.message.edit_text(
-        f'📦<b>套餐</b>（页面{page + 1}/QQQPH1QQQ）\n\n总计：{len(tariffs_data)}（活跃：{active_count}）\n套餐订阅：{total_subs}\n\n选择要查看和编辑的套餐：',
+        f'📦 <b>套餐</b>（第 {page + 1}/{total_pages} 页）\n\n总计：{len(tariffs_data)}（活跃：{active_count}）\n套餐订阅：{total_subs}\n\n选择要查看和编辑的套餐：',
         reply_markup=get_tariffs_list_keyboard(page_data, db_user.language, page, total_pages),
         parse_mode='HTML',
     )
@@ -450,7 +477,7 @@ async def toggle_tariff(
     tariff = await update_tariff(db, tariff, is_active=not tariff.is_active)
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
-    status = 'активирован' if tariff.is_active else 'деактивирован'
+    status = '已启用' if tariff.is_active else '已停用'
     await callback.answer(f'套餐{status}', show_alert=True)
 
     await callback.message.edit_text(
@@ -559,7 +586,7 @@ async def start_edit_daily_price(
     await state.update_data(tariff_id=tariff_id, language=db_user.language)
 
     await callback.message.edit_text(
-        f'💰 <b>编辑每日价格</b>\n\n套餐：{html.escape(tariff.name)}\n目前价格：{format_price_kopeks(current_price)}/天\n\n输入每天的新价格（以卢布为单位）。\n示例：<代码>50</code> 或 <代码>99.90</code>',
+        f'💰 <b>编辑每日价格</b>\n\n套餐：{html.escape(tariff.name)}\n目前价格：{format_price_kopeks(current_price)}/天\n\n请输入新的每日价格（单位：卢布）。\n示例：<code>50</code> 或 <code>99.90</code>',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data=f'admin_tariff_view:{tariff_id}')]]
         ),
@@ -590,7 +617,7 @@ async def process_daily_price_input(
         price_kopeks = int(price_rubles * 100)
     except ValueError:
         await message.answer(
-            '❌ 价格不正确。输入一个正数。\n示例：<代码>50</code> 或 <代码>99.90</code>',
+            '❌ 价格格式不正确，请输入正数。\n示例：<code>50</code> 或 <code>99.90</code>',
             parse_mode='HTML',
         )
         return
@@ -614,7 +641,7 @@ async def process_daily_price_input(
         await state.clear()
 
         await message.answer(
-            '✅ <b>Суточный тариф создан!</b>\n\n' + format_tariff_info(tariff, db_user.language, 0),
+            '✅ <b>每日套餐已创建！</b>\n\n' + format_tariff_info(tariff, db_user.language, 0),
             reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
             parse_mode='HTML',
         )
@@ -636,7 +663,7 @@ async def process_daily_price_input(
         subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
         await message.answer(
-            f'✅ Суточная цена установлена: {format_price_kopeks(price_kopeks)}/день\n\n'
+            f'✅ 已设置每日价格：{format_price_kopeks(price_kopeks)}/天\n\n'
             + format_tariff_info(tariff, db_user.language, subs_count),
             reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
             parse_mode='HTML',
@@ -694,7 +721,7 @@ async def process_tariff_name(
     await state.set_state(AdminStates.creating_tariff_traffic)
 
     await message.answer(
-        f'📦 <b>创建套餐</b>\n\n名称：<b>{name}</b>\n\n步骤2/6：在GB中输入流量限制\n\n输入 <code>0</code> 流量无限制\n示例：<i>100</i>、<i>500</i>、<i>0</i>',
+        f'📦 <b>创建套餐</b>\n\n名称：<b>{html.escape(name)}</b>\n\n步骤2/6：在GB中输入流量限制\n\n输入 <code>0</code> 流量无限制\n示例：<i>100</i>、<i>500</i>、<i>0</i>',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data='admin_tariffs')]]
         ),
@@ -728,7 +755,7 @@ async def process_tariff_traffic(
     traffic_display = format_traffic(traffic)
 
     await message.answer(
-        f"📦 <b>创建套餐</b>\n\n名称：<b>{data['tariff_name']}</b>\n流量：<b>{traffic_display}</b>\n\n步骤 3/6：输入设备限制\n\n示例：<i>1</i>、<i>3</i>、<i>5</i>",
+        f"📦 <b>创建套餐</b>\n\n名称：<b>{html.escape(data['tariff_name'])}</b>\n流量：<b>{traffic_display}</b>\n\n步骤 3/6：输入设备限制\n\n示例：<i>1</i>、<i>3</i>、<i>5</i>",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data='admin_tariffs')]]
         ),
@@ -762,7 +789,7 @@ async def process_tariff_devices(
     traffic_display = format_traffic(data['tariff_traffic'])
 
     await message.answer(
-        f"📦 <b>创建套餐</b>\n\n名称：<b>{data['tariff_name']}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{devices}</b>\n\n步骤 4/6：输入套餐级别 (1-10)\n\n水平仪用于视觉显示\n1 - 基本，10 - 最大\n示例：<i>1</i>、<i>2</i>、<i>3</i>",
+        f"📦 <b>创建套餐</b>\n\n名称：<b>{html.escape(data['tariff_name'])}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{devices}</b>\n\n步骤 4/6：输入套餐等级（1-10）\n\n该等级仅用于界面视觉排序和展示。\n1 = 基础，10 = 最高。\n不会直接影响价格或权限。\n示例：<i>1</i>、<i>2</i>、<i>3</i>",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data='admin_tariffs')]]
         ),
@@ -796,11 +823,11 @@ async def process_tariff_tier(
 
     # Шаг 5/6: Выбор типа тарифа
     await message.answer(
-        f"📦 <b>创建套餐</b>\n\n名称：<b>{data['tariff_name']}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{data['tariff_devices']}</b>\n级别：<b>{tier}</b>\n\n步骤 5/6：选择套餐类型",
+        f"📦 <b>创建套餐</b>\n\n名称：<b>{html.escape(data['tariff_name'])}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{data['tariff_devices']}</b>\n级别：<b>{tier}</b>\n\n步骤 5/6：选择套餐类型",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text='📅 定期（月）', callback_data='tariff_type_periodic')],
-                [InlineKeyboardButton(text='🔄 每日津贴（按天支付）', callback_data='tariff_type_daily')],
+                [InlineKeyboardButton(text='📅 周期套餐（月付）', callback_data='tariff_type_periodic')],
+                [InlineKeyboardButton(text='🔄 按天计费套餐', callback_data='tariff_type_daily')],
                 [InlineKeyboardButton(text=texts.CANCEL, callback_data='admin_tariffs')],
             ]
         ),
@@ -826,7 +853,7 @@ async def select_tariff_type_periodic(
     traffic_display = format_traffic(data['tariff_traffic'])
 
     await callback.message.edit_text(
-        f"📦 <b>创建套餐</b>\n\n名称：<b>{data['tariff_name']}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{data['tariff_devices']}</b>\n级别：<b>{data['tariff_tier']}</b>\n类型：<b>📅定期</b>\n\n步骤 6/6：输入期间的价格\n\n格式：<code>天:price_in_kopecks</code>\n多个句点用逗号分隔\n\n示例：\n<代码>30:9900、90:24900、180:44900、360:79900</code>",
+        f"📦 <b>创建套餐</b>\n\n名称：<b>{html.escape(data['tariff_name'])}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{data['tariff_devices']}</b>\n级别：<b>{data['tariff_tier']}</b>\n类型：<b>📅 周期套餐</b>\n\n步骤 6/6：输入各周期价格\n\n格式：<code>天数:价格（单位：分）</code>\n可用英文逗号、中文逗号或换行分隔。\n\n示例：\n<code>30:9900, 90:24900, 180:44900, 360:79900</code>",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data='admin_tariffs')]]
         ),
@@ -855,7 +882,7 @@ async def select_tariff_type_daily(
     traffic_display = format_traffic(data['tariff_traffic'])
 
     await callback.message.edit_text(
-        f"📦 <b>创建每日套餐</b>\n\n名称：<b>{data['tariff_name']}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{data['tariff_devices']}</b>\n级别：<b>{data['tariff_tier']}</b>\n类型：<b>🔄每日津贴</b>\n\n步骤 6/6：输入卢布每日价格\n\n示例：<i>50</i>（50 ₽/天）、<i>99.90</i>（99.90 ₽/天）",
+        f"📦 <b>创建每日套餐</b>\n\n名称：<b>{html.escape(data['tariff_name'])}</b>\n流量：<b>{traffic_display}</b>\n设备：<b>{data['tariff_devices']}</b>\n级别：<b>{data['tariff_tier']}</b>\n类型：<b>🔄 按天计费</b>\n\n步骤 6/6：输入每日价格（单位：卢布）\n\n示例：<i>50</i>（50 ₽/天）、<i>99.90</i>（99.90 ₽/天）",
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data='admin_tariffs')]]
         ),
@@ -879,7 +906,7 @@ async def process_tariff_prices(
 
     if not prices:
         await message.answer(
-            '无法识别价格。\n\n格式：<code>天:price_in_kopecks</code>\n示例：<代码>30:9900, 90:24900</code>',
+            '无法识别价格。\n\n格式：<code>天数:价格（单位：分）</code>\n示例：<code>30:9900, 90:24900</code>',
             parse_mode='HTML',
         )
         return
@@ -906,7 +933,7 @@ async def process_tariff_prices(
     subs_count = 0
 
     await message.answer(
-        '✅ <b>Тариф создан!</b>\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ <b>套餐已创建！</b>\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -974,7 +1001,7 @@ async def process_edit_tariff_name(
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
     await message.answer(
-        '✅ Название изменено!\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ 套餐名称已修改！\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -1000,7 +1027,7 @@ async def start_edit_tariff_description(
     await state.set_state(AdminStates.editing_tariff_description)
     await state.update_data(tariff_id=tariff_id, language=db_user.language)
 
-    current_desc = tariff.description or 'Не задано'
+    current_desc = html.escape(tariff.description) if tariff.description else '未设置'
 
     await callback.message.edit_text(
         f'📝 <b>编辑说明</b>\n\n当前描述：\n{current_desc}\n\n输入新描述（或删除 <code>-</code>）：',
@@ -1040,7 +1067,7 @@ async def process_edit_tariff_description(
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
     await message.answer(
-        '✅ Описание изменено!\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ 说明已修改！\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -1110,7 +1137,7 @@ async def process_edit_tariff_traffic(
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
     await message.answer(
-        '✅ Трафик изменен!\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ 流量已修改！\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -1178,7 +1205,7 @@ async def process_edit_tariff_devices(
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
     await message.answer(
-        '✅ Лимит устройств изменен!\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ 设备限制已修改！\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -1246,7 +1273,7 @@ async def process_edit_tariff_tier(
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
     await message.answer(
-        '✅ Уровень изменен!\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ 套餐等级已修改！\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -1276,7 +1303,7 @@ async def start_edit_tariff_prices(
     prices_display = _format_period_prices_display(tariff.period_prices or {})
 
     await callback.message.edit_text(
-        f'💰 <b>编辑价格</b>\n\n目前价格：\n{prices_display}\n\n按以下格式输入新价格：\n<代码>{current_prices}</code>\n\n（天数：price_in_kopecks，以逗号分隔）',
+        f'💰 <b>编辑价格</b>\n\n当前价格：\n{prices_display}\n\n请按以下格式输入新价格：\n<code>{current_prices}</code>\n\n格式：天数:价格（单位：分），可用逗号分隔。',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data=f'admin_tariff_view:{tariff_id}')]]
         ),
@@ -1306,7 +1333,7 @@ async def process_edit_tariff_prices(
     prices = _parse_period_prices(message.text.strip())
     if not prices:
         await message.answer(
-            '无法识别价格。\n格式：<code>天:价格</code>\n示例：<代码>30:9900, 90:24900</code>',
+            '无法识别价格。\n格式：<code>天数:价格</code>\n示例：<code>30:9900, 90:24900</code>',
             parse_mode='HTML',
         )
         return
@@ -1317,7 +1344,7 @@ async def process_edit_tariff_prices(
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
     await message.answer(
-        '✅ Цены изменены!\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ 周期价格已修改！\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -1348,12 +1375,12 @@ async def start_edit_tariff_device_price(
 
     device_price = getattr(tariff, 'device_price_kopeks', None)
     if device_price is not None and device_price > 0:
-        current_price = format_price_kopeks(device_price) + '/мес'
+        current_price = format_price_kopeks(device_price) + '/月'
     else:
-        current_price = 'Недоступно (докупка устройств запрещена)'
+        current_price = '不可加购（已禁用设备加购）'
 
     await callback.message.edit_text(
-        f'📱💰 <b>编辑每台设备的价格</b>\n\n当前价格：<b>{current_price}</b>\n\n输入每月一台设备的价格（以戈比为单位）。\n\n• <code>0</code> 或 <code>-</code> - 无法额外购买设备\n• 例如：<code>5000</code> = 每台设备 50₽/月',
+        f'📱💰 <b>编辑每台设备的价格</b>\n\n当前价格：<b>{current_price}</b>\n\n请输入每月每台设备的价格（单位：分）。\n\n• <code>0</code> 或 <code>-</code> = 不可额外购买设备\n• 例如：<code>5000</code> = 每台设备 50₽/月',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data=f'admin_tariff_view:{tariff_id}')]]
         ),
@@ -1402,7 +1429,7 @@ async def process_edit_tariff_device_price(
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
     await message.answer(
-        '✅ Цена за устройство изменена!\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ 每台设备的价格已修改！\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -1435,10 +1462,10 @@ async def start_edit_tariff_max_devices(
     if max_devices is not None and max_devices > 0:
         current_max = str(max_devices)
     else:
-        current_max = '∞ (без лимита)'
+        current_max = '∞（不限）'
 
     await callback.message.edit_text(
-        f'📱🔒<b>编辑最大。设备</b>\n\n当前值：<b>{current_max}</b>\n基本设备数量：<b>{tariff.device_limit}</b>\n\n输入用户可以购买的最大设备数量。\n\n• <代码>0</code> 或 <代码>-</code> - 无限制\n• 例如：<code>5</code> = 每个套餐最多 5 台设备',
+        f'📱🔒 <b>编辑最大设备数</b>\n\n当前值：<b>{current_max}</b>\n基础设备数：<b>{tariff.device_limit}</b>\n\n请输入用户可购买的最大设备总数。\n\n• <code>0</code> 或 <code>-</code> = 不限\n• 例如：<code>5</code> = 每个套餐最多 5 台设备',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data=f'admin_tariff_view:{tariff_id}')]]
         ),
@@ -1487,7 +1514,7 @@ async def process_edit_tariff_max_devices(
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
     await message.answer(
-        '✅ Макс. устройств изменено!\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ 最大设备数已修改！\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -1518,12 +1545,12 @@ async def start_edit_tariff_trial_days(
 
     trial_days = getattr(tariff, 'trial_duration_days', None)
     if trial_days:
-        current_days = f'{trial_days} дней'
+        current_days = f'{trial_days} 天'
     else:
-        current_days = f'По умолчанию ({settings.TRIAL_DURATION_DAYS} дней)'
+        current_days = f'默认（{settings.TRIAL_DURATION_DAYS} 天）'
 
     await callback.message.edit_text(
-        f'⏰ <b>编辑试用日</b>\n\n当前值：<b>{current_days}</b>\n\n输入试用天数。\n\n• <code>0</code> 或 <code>-</code> - 使用默认设置（{settings.TRIAL_DURATION_DAYS} 天）\n• 例如：<code>7</code> = 7 天试用期',
+        f'⏰ <b>编辑试用天数</b>\n\n当前值：<b>{current_days}</b>\n\n请输入试用天数。\n\n• <code>0</code> 或 <code>-</code> = 使用默认设置（{settings.TRIAL_DURATION_DAYS} 天）\n• 例如：<code>7</code> = 7 天试用期',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[[InlineKeyboardButton(text=texts.CANCEL, callback_data=f'admin_tariff_view:{tariff_id}')]]
         ),
@@ -1572,7 +1599,7 @@ async def process_edit_tariff_trial_days(
     subs_count = await get_tariff_subscriptions_count(db, tariff_id)
 
     await message.answer(
-        '✅ Дни триала изменены!\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
+        '✅ 试用天数已修改！\n\n' + format_tariff_info(tariff, db_user.language, subs_count),
         reply_markup=get_tariff_view_keyboard(tariff, db_user.language),
         parse_mode='HTML',
     )
@@ -1649,22 +1676,22 @@ async def start_edit_tariff_traffic_topup(
 
     # Форматируем текущие настройки
     if is_enabled:
-        status = '✅ Включено'
+        status = '✅ 已启用'
         if packages:
             packages_display = '\n'.join(
-                f'  • {gb} ГБ: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
+                f'  • {gb} GB: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
             )
         else:
-            packages_display = '  Пакеты не настроены'
+            packages_display = '  未配置套餐'
     else:
-        status = '❌ Отключено'
+        status = '❌ 已禁用'
         packages_display = '  -'
 
     # Форматируем лимит
     if max_topup_traffic > 0:
-        max_limit_display = f'{max_topup_traffic} ГБ'
+        max_limit_display = f'{max_topup_traffic} GB'
     else:
-        max_limit_display = 'Без ограничений'
+        max_limit_display = '不限'
 
     buttons = []
 
@@ -1690,7 +1717,7 @@ async def start_edit_tariff_traffic_topup(
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text='📊 最大。流量限制', callback_data=f'admin_tariff_edit_max_topup:{tariff_id}'
+                    text='📊 最大流量上限', callback_data=f'admin_tariff_edit_max_topup:{tariff_id}'
                 )
             ]
         )
@@ -1698,7 +1725,7 @@ async def start_edit_tariff_traffic_topup(
     buttons.append([InlineKeyboardButton(text=texts.BACK, callback_data=f'admin_tariff_view:{tariff_id}')])
 
     await callback.message.edit_text(
-        f'📈 <b>额外购买“{html.escape(tariff.name)}”</b>的流量\n\n状态：{status}\n\n<b>套餐：</b>\n{packages_display}\n\n<b>最大。限制：</b> {max_limit_display}\n\n用户将能够以指定价格购买额外流量。',
+        f'📈 <b>为“{html.escape(tariff.name)}”加购流量</b>\n\n状态：{status}\n\n<b>套餐：</b>\n{packages_display}\n\n<b>最大上限：</b> {max_limit_display}\n\n用户可按这里配置的价格加购额外流量。',
         reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),
         parse_mode='HTML',
     )
@@ -1725,7 +1752,7 @@ async def toggle_tariff_traffic_topup(
 
     tariff = await update_tariff(db, tariff, traffic_topup_enabled=new_value)
 
-    status_text = 'включена' if new_value else 'отключена'
+    status_text = '已启用' if new_value else '已禁用'
     await callback.answer(f'加购流量{status_text}')
 
     # Перерисовываем меню
@@ -1734,22 +1761,22 @@ async def toggle_tariff_traffic_topup(
     max_topup_traffic = getattr(tariff, 'max_topup_traffic_gb', 0) or 0
 
     if new_value:
-        status = '✅ Включено'
+        status = '✅ 已启用'
         if packages:
             packages_display = '\n'.join(
-                f'  • {gb} ГБ: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
+                f'  • {gb} GB: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
             )
         else:
-            packages_display = '  Пакеты не настроены'
+            packages_display = '  未配置套餐'
     else:
-        status = '❌ Отключено'
+        status = '❌ 已禁用'
         packages_display = '  -'
 
     # Форматируем лимит
     if max_topup_traffic > 0:
-        max_limit_display = f'{max_topup_traffic} ГБ'
+        max_limit_display = f'{max_topup_traffic} GB'
     else:
-        max_limit_display = 'Без ограничений'
+        max_limit_display = '不限'
 
     buttons = []
 
@@ -1767,7 +1794,7 @@ async def toggle_tariff_traffic_topup(
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text='📊 最大。流量限制', callback_data=f'admin_tariff_edit_max_topup:{tariff_id}'
+                    text='📊 最大流量上限', callback_data=f'admin_tariff_edit_max_topup:{tariff_id}'
                 )
             ]
         )
@@ -1780,7 +1807,7 @@ async def toggle_tariff_traffic_topup(
 
     try:
         await callback.message.edit_text(
-            f'📈 <b>额外购买“{html.escape(tariff.name)}”</b>的流量\n\n状态：{status}\n\n<b>套餐：</b>\n{packages_display}\n\n<b>最大。限制：</b> {max_limit_display}\n\n用户将能够以指定价格购买额外流量。',
+            f'📈 <b>为“{html.escape(tariff.name)}”加购流量</b>\n\n状态：{status}\n\n<b>套餐：</b>\n{packages_display}\n\n<b>最大上限：</b> {max_limit_display}\n\n用户可按这里配置的价格加购额外流量。',
             reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),
             parse_mode='HTML',
         )
@@ -1813,13 +1840,13 @@ async def start_edit_traffic_topup_packages(
 
     if packages:
         packages_display = '\n'.join(
-            f'  • {gb} ГБ: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
+            f'  • {gb} GB: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
         )
     else:
-        packages_display = '  Не настроены'
+        packages_display = '  未设置'
 
     await callback.message.edit_text(
-        f'📦 <b>配置额外流量购买套餐</b>\n\n套餐：<b>{html.escape(tariff.name)}</b>\n\n<b>当前软件包：</b>\n{packages_display}\n\n按以下格式输入包：\n<代码>{current_packages}</code>\n\n（GB：price_in_kopecks，以逗号分隔）\n例如：<code>5:5000, 10:9000</code> = 5GB 为 50₽，10GB 为 90₽',
+        f'📦 <b>配置额外流量购买套餐</b>\n\n套餐：<b>{html.escape(tariff.name)}</b>\n\n<b>当前套餐：</b>\n{packages_display}\n\n请按以下格式输入套餐：\n<code>{current_packages}</code>\n\n格式：GB:价格（单位：分），可用逗号分隔。\n例如：<code>5:5000, 10:9000</code> = 5GB 为 50₽，10GB 为 90₽',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text=texts.CANCEL, callback_data=f'admin_tariff_edit_traffic_topup:{tariff_id}')]
@@ -1850,7 +1877,7 @@ async def process_edit_traffic_topup_packages(
 
     if not message.text:
         await message.answer(
-            '请发短信。\n\n格式：<code>GB:price_in_kopecks</code>\n示例：<代码>5:5000、10:9000、20:15000</code>',
+            '请发送文本。\n\n格式：<code>GB:价格（单位：分）</code>\n示例：<code>5:5000, 10:9000, 20:15000</code>',
             parse_mode='HTML',
         )
         return
@@ -1859,7 +1886,7 @@ async def process_edit_traffic_topup_packages(
 
     if not packages:
         await message.answer(
-            '无法识别包。\n\n格式：<code>GB:price_in_kopecks</code>\n示例：<代码>5:5000、10:9000、20:15000</code>',
+            '无法识别套餐。\n\n格式：<code>GB:价格（单位：分）</code>\n示例：<code>5:5000, 10:9000, 20:15000</code>',
             parse_mode='HTML',
         )
         return
@@ -1872,9 +1899,9 @@ async def process_edit_traffic_topup_packages(
 
     # Показываем обновленное меню
     texts = get_texts(db_user.language)
-    packages_display = '\n'.join(f'  • {gb} ГБ: {format_price_kopeks(price)}' for gb, price in sorted(packages.items()))
+    packages_display = '\n'.join(f'  • {gb} GB: {format_price_kopeks(price)}' for gb, price in sorted(packages.items()))
     max_topup_traffic = getattr(tariff, 'max_topup_traffic_gb', 0) or 0
-    max_limit_display = f'{max_topup_traffic} ГБ' if max_topup_traffic > 0 else 'Без ограничений'
+    max_limit_display = f'{max_topup_traffic} GB' if max_topup_traffic > 0 else '不限'
 
     buttons = [
         [InlineKeyboardButton(text='❌ 禁用', callback_data=f'admin_tariff_toggle_traffic_topup:{tariff_id}')],
@@ -1883,12 +1910,12 @@ async def process_edit_traffic_topup_packages(
                 text='📦 定制套餐', callback_data=f'admin_tariff_edit_topup_packages:{tariff_id}'
             )
         ],
-        [InlineKeyboardButton(text='📊 最大。流量限制', callback_data=f'admin_tariff_edit_max_topup:{tariff_id}')],
+        [InlineKeyboardButton(text='📊 最大流量上限', callback_data=f'admin_tariff_edit_max_topup:{tariff_id}')],
         [InlineKeyboardButton(text=texts.BACK, callback_data=f'admin_tariff_view:{tariff_id}')],
     ]
 
     await message.answer(
-        f'✅ <b>套餐已更新！</b>\n\n📈 <b>额外购买“{html.escape(tariff.name)}”</b>的流量\n\n状态： ✅ 已启用\n\n<b>套餐：</b>\n{packages_display}\n\n<b>最大。限制：</b> {max_limit_display}\n\n用户将能够以指定价格购买额外流量。',
+        f'✅ <b>套餐已更新！</b>\n\n📈 <b>为“{html.escape(tariff.name)}”加购流量</b>\n\n状态：✅ 已启用\n\n<b>套餐：</b>\n{packages_display}\n\n<b>最大上限：</b> {max_limit_display}\n\n用户可按这里配置的价格加购额外流量。',
         reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),
         parse_mode='HTML',
     )
@@ -1919,12 +1946,12 @@ async def start_edit_max_topup_traffic(
 
     current_limit = getattr(tariff, 'max_topup_traffic_gb', 0) or 0
     if current_limit > 0:
-        current_display = f'{current_limit} ГБ'
+        current_display = f'{current_limit} GB'
     else:
-        current_display = 'Без ограничений'
+        current_display = '不限'
 
     await callback.message.edit_text(
-        f'📊 <b>最大流量限制</b>\n\n套餐：<b>{html.escape(tariff.name)}</b>\n当前限制：<b>{current_display}</b>\n\n输入所有额外购买后订阅中可以使用的最大总流量（以 GB 表示）。\n\n• 例如，如果套餐给出 100 个 GB，且限额为 200 个 GB，则用户将可以再购买 100 个 GB\n• 输入<code>0</code> 以取消限制',
+        f'📊 <b>最大流量上限</b>\n\n套餐：<b>{html.escape(tariff.name)}</b>\n当前上限：<b>{current_display}</b>\n\n请输入包含所有加购后，订阅可使用的最大总流量（单位：GB）。\n\n• 例如：套餐自带 100 GB，若上限设为 200 GB，则最多还可再购买 100 GB\n• 输入 <code>0</code> = 不限',
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text=texts.CANCEL, callback_data=f'admin_tariff_edit_traffic_topup:{tariff_id}')]
@@ -1974,12 +2001,12 @@ async def process_edit_max_topup_traffic(
     packages = tariff.get_traffic_topup_packages() if hasattr(tariff, 'get_traffic_topup_packages') else {}
     if packages:
         packages_display = '\n'.join(
-            f'  • {gb} ГБ: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
+            f'  • {gb} GB: {format_price_kopeks(price)}' for gb, price in sorted(packages.items())
         )
     else:
-        packages_display = '  Пакеты не настроены'
+        packages_display = '  未配置套餐'
 
-    max_limit_display = f'{new_limit} ГБ' if new_limit > 0 else 'Без ограничений'
+    max_limit_display = f'{new_limit} GB' if new_limit > 0 else '不限'
 
     buttons = [
         [InlineKeyboardButton(text='❌ 禁用', callback_data=f'admin_tariff_toggle_traffic_topup:{tariff_id}')],
@@ -1988,12 +2015,12 @@ async def process_edit_max_topup_traffic(
                 text='📦 定制套餐', callback_data=f'admin_tariff_edit_topup_packages:{tariff_id}'
             )
         ],
-        [InlineKeyboardButton(text='📊 最大。流量限制', callback_data=f'admin_tariff_edit_max_topup:{tariff_id}')],
+        [InlineKeyboardButton(text='📊 最大流量上限', callback_data=f'admin_tariff_edit_max_topup:{tariff_id}')],
         [InlineKeyboardButton(text=texts.BACK, callback_data=f'admin_tariff_view:{tariff_id}')],
     ]
 
     await message.answer(
-        f'✅ <b>限制已更新！</b>\n\n📈 <b>额外购买“{html.escape(tariff.name)}”</b>的流量\n\n状态： ✅ 已启用\n\n<b>套餐：</b>\n{packages_display}\n\n<b>最大。限制：</b> {max_limit_display}\n\n用户将能够以指定价格购买额外流量。',
+        f'✅ <b>限制已更新！</b>\n\n📈 <b>为“{html.escape(tariff.name)}”加购流量</b>\n\n状态：✅ 已启用\n\n<b>套餐：</b>\n{packages_display}\n\n<b>最大上限：</b> {max_limit_display}\n\n用户可按这里配置的价格加购额外流量。',
         reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),
         parse_mode='HTML',
     )
@@ -2039,7 +2066,7 @@ async def confirm_delete_tariff(
     warning = ''
     if subs_count > 0:
         warning = (
-            f'\n\n⚠️ <b>Внимание!</b> На этом тарифе {subs_count} неактивных подписок.\nОни потеряют привязку к тарифу.'
+            f'\n\n⚠️ <b>注意！</b> 该套餐下还有 {subs_count} 个非活跃订阅。\n删除后它们将失去套餐关联。'
         )
 
     await callback.message.edit_text(
@@ -2547,11 +2574,11 @@ async def clear_tariff_promo_groups(
 # ==================== Режим сброса трафика ====================
 
 TRAFFIC_RESET_MODES = [
-    ('DAY', '📅 Ежедневно', 'Трафик сбрасывается каждый день'),
-    ('WEEK', '📆 Еженедельно', 'Трафик сбрасывается каждую неделю'),
-    ('MONTH', '🗓️ Ежемесячно', 'Трафик сбрасывается каждый месяц'),
-    ('MONTH_ROLLING', '🔄 Скользящий месяц', 'Трафик сбрасывается через 30 дней от первого подключения'),
-    ('NO_RESET', '🚫 Никогда', 'Трафик не сбрасывается автоматически'),
+    ('DAY', '📅 每日重置', '流量每天重置'),
+    ('WEEK', '📆 每周重置', '流量每周重置'),
+    ('MONTH', '🗓️ 每月重置', '流量每月重置'),
+    ('MONTH_ROLLING', '🔄 滚动月', '从首次连接起每 30 天重置一次流量'),
+    ('NO_RESET', '🚫 不重置', '流量不会自动重置'),
 ]
 
 
@@ -2562,7 +2589,7 @@ def get_traffic_reset_mode_keyboard(tariff_id: int, current_mode: str | None, la
 
     # Кнопка "Глобальная настройка"
     global_label = (
-        f'{"✅ " if current_mode is None else ""}🌐 Глобальная настройка ({settings.DEFAULT_TRAFFIC_RESET_STRATEGY})'
+        f'{"✅ " if current_mode is None else ""}🌐 全局设置 ({settings.DEFAULT_TRAFFIC_RESET_STRATEGY})'
     )
     buttons.append(
         [InlineKeyboardButton(text=global_label, callback_data=f'admin_tariff_set_reset_mode:{tariff_id}:GLOBAL')]
