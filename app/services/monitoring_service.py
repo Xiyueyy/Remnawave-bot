@@ -59,6 +59,7 @@ from app.services.notification_settings_service import NotificationSettingsServi
 from app.services.promo_offer_service import promo_offer_service
 from app.services.subscription_service import SubscriptionService, get_traffic_reset_strategy
 from app.utils.cache import cache
+from app.utils.display_names import format_tariff_label
 from app.utils.message_patch import caption_exceeds_telegram_limit
 from app.utils.miniapp_buttons import build_miniapp_or_callback_button
 from app.utils.promo_offer import get_user_active_promo_discount_percent
@@ -1851,17 +1852,17 @@ class MonitoringService:
     ):
         try:
             texts = get_texts(user.language)
-            tariff_label = ''
+            tariff_name = ''
             if (
                 settings.is_multi_tariff_enabled()
                 and subscription
                 and hasattr(subscription, 'tariff')
                 and subscription.tariff
             ):
-                tariff_label = f' «{subscription.tariff.name}»'
+                tariff_name = subscription.tariff.name
             message = texts.AUTOPAY_SUCCESS.format(days=days, amount=settings.format_price(amount))
-            if tariff_label:
-                message += f'\n📦 Тариф:{tariff_label}'
+            if tariff_name:
+                message += f'\n{format_tariff_label(tariff_name, quoted=True)}'
             await self._send_message_with_logo(
                 chat_id=user.telegram_id,
                 text=message,
@@ -1895,7 +1896,7 @@ class MonitoringService:
                 and hasattr(subscription, 'tariff')
                 and subscription.tariff
             ):
-                message += f'\n📦 Тариф: «{subscription.tariff.name}»'
+                message += f'\n{format_tariff_label(subscription.tariff.name, quoted=True)}'
 
             from aiogram.types import InlineKeyboardMarkup
 

@@ -23,6 +23,7 @@ from app.database.models import (
     Transaction,
     User,
 )
+from app.utils.display_names import escape_display_name
 from app.utils.message_patch import caption_exceeds_telegram_limit
 from app.utils.timezone import format_local_datetime
 
@@ -293,7 +294,7 @@ class AdminNotificationService:
 
         if campaign.is_tariff_bonus:
             name = tariff_name or f'ID {campaign.tariff_id}'
-            details = [f'📦 Тариф: <b>{name}</b>']
+            details = [f'📦 套餐：<b>{escape_display_name(name)}</b>']
             if campaign.tariff_duration_days:
                 details.append(f'📅 Период: {campaign.tariff_duration_days} дней')
             return details
@@ -372,7 +373,7 @@ class AdminNotificationService:
 
             # Тариф триала (если есть)
             if tariff_name:
-                message_lines.append(f'📦 <b>Тариф:</b> {tariff_name}')
+                message_lines.append(f'📦 <b>套餐：</b> {escape_display_name(tariff_name)}')
 
             message_lines.append('')
 
@@ -502,7 +503,7 @@ class AdminNotificationService:
 
             # Тариф (если есть)
             if tariff_name:
-                message_lines.append(f'🏷️ Тариф: <b>{tariff_name}</b>')
+                message_lines.append(f'🏷️ 套餐：<b>{escape_display_name(tariff_name)}</b>')
 
             message_lines.extend(
                 [
@@ -1387,7 +1388,7 @@ class AdminNotificationService:
             # Payment details in blockquote
             payment_lines = [
                 '<blockquote>',
-                f'🏷️ Тариф: <b>{html.escape(tariff_name)}</b>',
+                f'🏷️ 套餐：<b>{escape_display_name(tariff_name)}</b>',
                 f'📅 Период: {purchase.period_days} дн.',
                 f'💵 <b>{settings.format_price(purchase.amount_kopeks)}</b> • {payment_method}',
             ]
@@ -1733,7 +1734,7 @@ class AdminNotificationService:
 
             # Тариф (если есть)
             if tariff_name:
-                message_lines.append(f'🏷️ Тариф: <b>{tariff_name}</b>')
+                message_lines.append(f'🏷️ 套餐：<b>{escape_display_name(tariff_name)}</b>')
 
             message_lines.append('')
 

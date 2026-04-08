@@ -35,6 +35,7 @@ from app.services.subscription_checkout_service import (
 from app.services.support_settings_service import SupportSettingsService
 from app.services.user_cart_service import user_cart_service
 from app.utils.photo_message import edit_or_answer_photo
+from app.utils.display_names import format_tariff_label
 from app.utils.pricing_utils import format_period_description
 from app.utils.promo_offer import (
     build_promo_offer_hint,
@@ -1236,7 +1237,7 @@ async def get_main_menu_text(user, texts, db: AsyncSession):
                 tariff = await get_tariff_by_id(db, subscription.tariff_id)
                 if tariff:
                     is_daily_tariff = getattr(tariff, 'is_daily', False)
-                    tariff_info_block = f'\n📦 Тариф: {html.escape(tariff.name)}'
+                    tariff_info_block = f'\n{format_tariff_label(tariff.name)}'
             except Exception as e:
                 logger.debug('Не удалось загрузить тариф для главного меню', error=e)
 

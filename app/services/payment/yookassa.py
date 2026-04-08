@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database.models import PaymentMethod, TransactionType
+from app.utils.display_names import format_tariff_label
 from app.utils.payment_logger import payment_logger as logger
 from app.utils.user_utils import format_referrer_info
 
@@ -1003,7 +1004,7 @@ class YooKassaPaymentMixin:
 
                                         _t = await get_tariff_by_id(db, subscription.tariff_id)
                                         if _t:
-                                            tariff_line = f'\n📦 Тариф: «{_t.name}»'
+                                            tariff_line = f'\n{format_tariff_label(_t.name, quoted=True)}'
                                     except Exception:
                                         pass
                                 success_message = (

@@ -24,6 +24,7 @@ from app.database.models import (
     User,
     UserPromoGroup,
 )
+from app.utils.display_names import format_tariff_label
 
 
 logger = structlog.get_logger(__name__)
@@ -364,7 +365,7 @@ async def _process_single_subscription(
                         '✅ <b>Автоплатёж выполнен</b>\n\nБаланс пополнен на {amount} для продления подписки.',
                     ).format(amount=settings.format_price(topup_amount_kopeks))
                     if settings.is_multi_tariff_enabled() and hasattr(subscription, 'tariff') and subscription.tariff:
-                        msg += f'\n📦 Тариф: «{subscription.tariff.name}»'
+                        msg += f'\n{format_tariff_label(subscription.tariff.name, quoted=True)}'
                     await bot.send_message(
                         chat_id=user.telegram_id,
                         text=msg,
@@ -394,7 +395,7 @@ async def _process_single_subscription(
                 '❌ <b>Автоплатёж не удался</b>\n\nНе удалось списать {amount} ни с одной сохранённой карты для продления подписки.\n\nПополните баланс вручную, чтобы подписка не прервалась.',
             ).format(amount=settings.format_price(topup_amount_kopeks))
             if settings.is_multi_tariff_enabled() and hasattr(subscription, 'tariff') and subscription.tariff:
-                msg += f'\n📦 Тариф: «{subscription.tariff.name}»'
+                msg += f'\n{format_tariff_label(subscription.tariff.name, quoted=True)}'
             await bot.send_message(
                 chat_id=user.telegram_id,
                 text=msg,

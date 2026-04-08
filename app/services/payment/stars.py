@@ -18,6 +18,7 @@ from app.database.crud.transaction import create_transaction
 from app.database.crud.user import get_user_by_id
 from app.database.models import PaymentMethod, TransactionType
 from app.external.telegram_stars import TelegramStarsService
+from app.utils.display_names import format_tariff_label
 from app.utils.payment_logger import payment_logger as logger
 from app.utils.user_utils import format_referrer_info
 
@@ -311,7 +312,7 @@ class TelegramStarsMixin:
 
                         _t = await get_tariff_by_id(db, subscription.tariff_id)
                         if _t:
-                            tariff_line = f'\n📦 Тариф: «{_t.name}»'
+                            tariff_line = f'\n{format_tariff_label(_t.name, quoted=True)}'
                     except Exception:
                         pass
                 success_message = (

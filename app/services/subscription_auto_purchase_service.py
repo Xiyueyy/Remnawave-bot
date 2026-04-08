@@ -31,6 +31,7 @@ from app.services.subscription_purchase_service import (
 )
 from app.services.subscription_service import SubscriptionService
 from app.services.user_cart_service import user_cart_service
+from app.utils.display_names import format_tariff_label
 from app.utils.pricing_utils import format_period_description
 from app.utils.timezone import format_local_datetime
 
@@ -626,7 +627,7 @@ async def _auto_extend_subscription(
                 '✅ Subscription automatically extended for {period}.',
             ).format(period=period_label)
             if settings.is_multi_tariff_enabled() and prepared.tariff_name:
-                auto_message += f'\n📦 Тариф: «{prepared.tariff_name}»'
+                auto_message += f'\n{format_tariff_label(prepared.tariff_name, quoted=True)}'
             details_message = texts.t(
                 'AUTO_PURCHASE_SUBSCRIPTION_EXTENDED_DETAILS',
                 'New expiration date: {date}.',
@@ -991,7 +992,7 @@ async def _auto_purchase_tariff(
                 '✅ Подписка на {period} автоматически оформлена после пополнения баланса.',
             ).format(period=period_label)
             if settings.is_multi_tariff_enabled() and tariff_name_for_label:
-                message += f'\n📦 Тариф: «{tariff_name_for_label}»'
+                message += f'\n{format_tariff_label(tariff_name_for_label, quoted=True)}'
 
             hint = texts.t(
                 'AUTO_PURCHASE_SUBSCRIPTION_HINT',
@@ -2370,7 +2371,7 @@ async def try_auto_extend_expired_after_topup(
                 '✅ Subscription automatically extended for {period}.',
             ).format(period=period_label)
             if settings.is_multi_tariff_enabled() and tariff_name_for_label:
-                auto_message += f'\n📦 Тариф: «{tariff_name_for_label}»'
+                auto_message += f'\n{format_tariff_label(tariff_name_for_label, quoted=True)}'
             details_message = texts.t(
                 'AUTO_PURCHASE_SUBSCRIPTION_EXTENDED_DETAILS',
                 'New expiration date: {date}.',
@@ -3129,7 +3130,7 @@ async def _process_legacy_generic_cart(
 
                         _t = await _get_tariff_label(db, subscription.tariff_id)
                         if _t:
-                            auto_message += f'\n📦 Тариф: «{_t.name}»'
+                            auto_message += f'\n{format_tariff_label(_t.name, quoted=True)}'
                     except Exception:
                         pass
 

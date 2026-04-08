@@ -29,6 +29,7 @@ from app.services.notification_delivery_service import (
     NotificationType,
     notification_delivery_service,
 )
+from app.utils.display_names import format_tariff_label
 
 
 logger = structlog.get_logger(__name__)
@@ -305,7 +306,7 @@ class DailySubscriptionService:
 
         tariff_label = ''
         if settings.is_multi_tariff_enabled() and hasattr(subscription, 'tariff') and subscription.tariff:
-            tariff_label = f'\n📦 Тариф: «{subscription.tariff.name}»'
+            tariff_label = f'\n{format_tariff_label(subscription.tariff.name, quoted=True)}'
         message = (
             f'💳 <b>Суточное списание</b>\n\n'
             f'Списано: {amount_rubles:.2f} ₽\n'
@@ -550,7 +551,7 @@ class DailySubscriptionService:
         """Уведомляет пользователя о сбросе докупленного трафика."""
         tariff_label = ''
         if settings.is_multi_tariff_enabled() and hasattr(subscription, 'tariff') and subscription.tariff:
-            tariff_label = f'\n📦 Тариф: «{subscription.tariff.name}»'
+            tariff_label = f'\n{format_tariff_label(subscription.tariff.name, quoted=True)}'
         message = (
             f'ℹ️ <b>Сброс докупленного трафика</b>\n\n'
             f'Ваш докупленный трафик ({reset_gb} ГБ) был сброшен, '

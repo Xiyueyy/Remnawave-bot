@@ -33,6 +33,7 @@ from app.keyboards.admin import (
 from app.localization.texts import get_texts
 from app.states import AdminStates
 from app.utils.decorators import admin_required, error_handler
+from app.utils.display_names import escape_display_name
 
 
 logger = structlog.get_logger(__name__)
@@ -60,8 +61,10 @@ def _format_campaign_summary(campaign, texts) -> str:
     elif campaign.is_tariff_bonus:
         tariff_name = 'Не выбран'
         if hasattr(campaign, 'tariff') and campaign.tariff:
-            tariff_name = campaign.tariff.name
-        bonus_info = f'🎁 Тариф: <b>{tariff_name}</b>\n📅 Длительность: <b>{campaign.tariff_duration_days or 0} д.</b>'
+            tariff_name = escape_display_name(campaign.tariff.name)
+        else:
+            tariff_name = html.escape(tariff_name)
+        bonus_info = f'🎁 套餐：<b>{tariff_name}</b>\n📅 时长：<b>{campaign.tariff_duration_days or 0} 天</b>'
     elif campaign.is_none_bonus:
         bonus_info = '🔗 Только ссылка (без награды)'
     else:
